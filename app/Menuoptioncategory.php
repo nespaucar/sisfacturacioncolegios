@@ -28,13 +28,12 @@ class Menuoptioncategory extends Model
 
 	public function scopelistar($query, $name)
     {
-        return $query->where(function($subquery) use($name)
-		            {
-		            	if (!is_null($name)) {
-		            		$subquery->where('name', 'LIKE', '%'.$name.'%');
-		            	}
-		            })
-        			->orderBy('menuoptioncategory_id', 'ASC')
-        			->orderBy('order', 'ASC');
+        return $query->where(function($subquery) use($name) {
+        	if (!is_null($name)) {
+        		$subquery->where('name', 'LIKE', '%'.$name.'%');
+        	}
+        })
+		->orderBy('menuoptioncategory_id', 'ASC')
+		->orderBy('order', 'ASC');
     }
 }

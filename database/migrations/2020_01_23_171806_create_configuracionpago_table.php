@@ -16,13 +16,15 @@ class CreateConfiguracionpagoTable extends Migration
         Schema::create('configuracionpago', function (Blueprint $table) {
             $table->increments('id');
             $table->string('descripcion', 100);
-            $table->double('frecuencia', 8, 2);
-            $table->string('unidad', 20);
+            $table->char('frecuencia', 1);
+            $table->char('unidad', 1);
             $table->integer('local_id')->unsigned()->nullable();
             $table->integer('alumno_id')->unsigned()->nullable();
             $table->integer('nivel_id')->unsigned()->nullable();
             $table->integer('grado_id')->unsigned()->nullable();
             $table->integer('seccion_id')->unsigned()->nullable();
+            $table->integer('seccion_id')->unsigned()->nullable();
+            $table->double('monto', 10, 2);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -72,6 +72,7 @@ class ConfiguracionpagoController extends Controller
         $cabecera[]       = array('valor' => 'Descripción', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Frecuencia', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Monto', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Unidad', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
 
         $titulo_modificar = $this->tituloModificar;
@@ -104,7 +105,7 @@ class ConfiguracionpagoController extends Controller
     {
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
         $entidad             = 'Configuracionpago';
-        $configuracionpago       = null;
+        $configuracionpago   = null;
         $formData            = array('configuracionpago.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
@@ -113,25 +114,56 @@ class ConfiguracionpagoController extends Controller
 
     public function store(Request $request)
     {
-        $now        = new \DateTime();
-        $user       = Auth::user();
-        $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $validacion = Validator::make($request->all(),
             array(
-                'tipo'         => 'required|max:1',
-                'alumno'  => 'max:100',
-                'nivel'  => 'max:100',
-                'grado'  => 'max:100',
-                'seccion'  => 'max:100',
+                'tipo'       => 'required|max:1',
+                'alumno'     => 'nullable|max:100',
+                'monto'      => 'required|numeric',
+                'nivel'      => 'nullable|max:100',
+                'grado'      => 'nullable|max:100',
+                'seccion'    => 'nullable|max:100',
+                'alumno_id'  => 'nullable|numeric',
+                'nivel_id'   => 'nullable|numeric',
+                'grado_id'   => 'nullable|numeric',
+                'seccion_id' => 'nullable|numeric',
             )
         );
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
-        $error = DB::transaction(function() use($request, $now){
+        $error = DB::transaction(function() use($request){
             $configuracionpago         = new Configuracionpago();
-            $configuracionpago->tipo   = $request->input('tipo');
-            $configuracionpago->nombre = $request->input('nombre');
+            $configuracionpago->alumno_id = NULL;
+            $configuracionpago->nivel_id = NULL;
+            $configuracionpago->grado_id = NULL;
+            $configuracionpago->seccion_id = NULL;
+            $local_id = NULL;
+            switch ($request->tipo) {
+                case '1':
+                    $configuracionpago->descripcion = $request->alumno;
+                    $configuracionpago->alumno_id = $request->alumno_id;
+                    $local_id = Persona::find($request->alumno_id)->local_id;
+                    break;
+                case '2':
+                    $configuracionpago->descripcion = $request->nivel;
+                    $configuracionpago->nivel_id = $request->nivel_id;
+                    $local_id = Nivel::find($request->nivel_id)->local_id;
+                    break;
+                case '3':
+                    $configuracionpago->descripcion = $request->grado;
+                    $configuracionpago->grado_id = $request->grado_id;
+                    $local_id = Grado::find($request->grado_id)->nivel->local_id;
+                    break;
+                case '4':
+                    $configuracionpago->descripcion = $request->seccion;
+                    $configuracionpago->seccion_id = $request->seccion_id;
+                    $local_id = Seccion::find($request->seccion_id)->grado->nivel->local_id;
+                    break;
+            }
+            $configuracionpago->frecuencia = "M";//MENSUAL
+            $configuracionpago->unidad   = "S";//SOLES
+            $configuracionpago->monto   = $request->monto;//SOLES
+            $configuracionpago->local_id = $local_id;
             $configuracionpago->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -165,8 +197,16 @@ class ConfiguracionpagoController extends Controller
         }
         $validacion = Validator::make($request->all(),
             array(
-                'tipo' => 'required|max:1',
-                'nombre'      => 'required|max:100',
+                'tipo'       => 'required|max:1',
+                'monto'      => 'required|numeric',
+                'alumno'     => 'nullable|max:100',
+                'nivel'      => 'nullable|max:100',
+                'grado'      => 'nullable|max:100',
+                'seccion'    => 'nullable|max:100',
+                'alumno_id'  => 'nullable|numeric',
+                'nivel_id'   => 'nullable|numeric',
+                'grado_id'   => 'nullable|numeric',
+                'seccion_id' => 'nullable|numeric',
             )
         );
         if ($validacion->fails()) {
@@ -174,8 +214,37 @@ class ConfiguracionpagoController extends Controller
         }
         $error = DB::transaction(function() use($request, $id){
             $configuracionpago                = Configuracionpago::find($id);
-            $configuracionpago->tipo = $request->input('tipo');
-            $configuracionpago->nombre      = $request->input('nombre');
+            $configuracionpago->alumno_id = NULL;
+            $configuracionpago->nivel_id = NULL;
+            $configuracionpago->grado_id = NULL;
+            $configuracionpago->seccion_id = NULL;
+            $local_id = NULL;
+            switch ($request->tipo) {
+                case '1':
+                    $configuracionpago->descripcion = $request->alumno;
+                    $configuracionpago->alumno_id = $request->alumno_id;
+                    $local_id = Persona::find($request->alumno_id)->local_id;
+                    break;
+                case '2':
+                    $configuracionpago->descripcion = $request->nivel;
+                    $configuracionpago->nivel_id = $request->nivel_id;
+                    $local_id = Nivel::find($request->nivel_id)->local_id;
+                    break;
+                case '3':
+                    $configuracionpago->descripcion = $request->grado;
+                    $configuracionpago->grado_id = $request->grado_id;
+                    $local_id = Grado::find($request->grado_id)->nivel->local_id;
+                    break;
+                case '4':
+                    $configuracionpago->descripcion = $request->seccion;
+                    $configuracionpago->seccion_id = $request->seccion_id;
+                    $local_id = Seccion::find($request->seccion_id)->grado->nivel->local_id;
+                    break;
+            }
+            $configuracionpago->frecuencia = "M";//MENSUAL
+            $configuracionpago->unidad   = "S";//SOLES
+            $configuracionpago->monto   = $request->monto;//SOLES
+            $configuracionpago->local_id = $local_id;
             $configuracionpago->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -225,6 +294,7 @@ class ConfiguracionpagoController extends Controller
                 'label' => $value->apellidopaterno.' '.$value->apellidomaterno.' '.$value->nombres,
                 'id'    => $value->id,
                 'value' => $value->apellidopaterno.' '.$value->apellidomaterno.' '.$value->nombres,
+                'dni'   => $value->dni,
             );
         }
         return json_encode($data);
@@ -264,7 +334,7 @@ class ConfiguracionpagoController extends Controller
         $data = array();
         foreach ($list as $key => $value) {
             $data[] = array(
-                            'label' => '"'.$value->descripcion.'" '.(
+                            'label' => '"'.$value->descripcion.'"'.(
                                 $value->grado!==NULL?
                                 (
                                     " - ".$value->grado->descripcion .

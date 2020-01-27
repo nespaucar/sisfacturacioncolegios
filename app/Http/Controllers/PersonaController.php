@@ -24,6 +24,7 @@ class PersonaController extends Controller
                             'label' => $value->apellidopaterno.' '.$value->apellidomaterno.' '.$value->nombres,
                             'id'    => $value->id,
                             'value' => $value->apellidopaterno.' '.$value->apellidomaterno.' '.$value->nombres,
+                            'dni'   => $value->dni,
                         );
         }
         return json_encode($data);

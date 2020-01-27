@@ -1,5 +1,5 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($alumno, $formData) !!}	
+{!! Form::model($apoderado, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}	
 		<div class="panel-body">
 			<div class="form-group">

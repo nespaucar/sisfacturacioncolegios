@@ -164,6 +164,25 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('configuracionpago/seccionautocompleting/{searching}', 'ConfiguracionpagoController@seccionautocompleting')->name('configuracionpago.seccionautocompleting');
 
     Route::get('configuracionpago/personasautocompleting/{searching}', 'PersonaController@personasautocompleting')->name('configuracionpago.personasautocompleting');
+
+    /*ALUMNO*/
+    Route::post('alumno/buscar', 'AlumnoController@buscar')->name('alumno.buscar');
+    Route::get('alumno/eliminar/{id}/{listarluego}', 'AlumnoController@eliminar')->name('alumno.eliminar');
+    Route::get('alumno/alterarestado', 'AlumnoController@alterarestado')->name('alumno.alterarestado');
+    Route::post('alumno/confirmaralterarestado', 'AlumnoController@confirmaralterarestado')->name('alumno.confirmaralterarestado');
+    Route::get('alumno/createapoderado', 'AlumnoController@createapoderado')->name('alumno.createapoderado');
+    Route::post('alumno/storeapoderado', 'AlumnoController@storeapoderado')->name('alumno.storeapoderado');
+    Route::get('alumno/comprobarapoderado', 'AlumnoController@comprobarapoderado')->name('alumno.comprobarapoderado');
+    Route::resource('alumno', 'AlumnoController', array('except' => array('show')));
+
+    /*APODERADO*/
+    Route::post('apoderado/buscar', 'ApoderadoController@buscar')->name('apoderado.buscar');
+    Route::get('apoderado/eliminar/{id}/{listarluego}', 'ApoderadoController@eliminar')->name('apoderado.eliminar');
+    Route::get('apoderado/alterarestado', 'ApoderadoController@alterarestado')->name('apoderado.alterarestado');
+    Route::post('apoderado/confirmaralterarestado', 'ApoderadoController@confirmaralterarestado')->name('apoderado.confirmaralterarestado');
+    Route::get('apoderado/estudiantes', 'ApoderadoController@estudiantes')->name('apoderado.estudiantes');
+    Route::post('apoderado/agregarestudiantes', 'ApoderadoController@agregarestudiantes')->name('apoderado.agregarestudiantes');
+    Route::resource('apoderado', 'ApoderadoController', array('except' => array('show')));
 });
 
 Route::get('storage/{archivo}', function ($archivo) {

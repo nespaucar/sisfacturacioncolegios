@@ -1,6 +1,8 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($alumno, $formData) !!}	
-	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}	
+{!! Form::model($apoderado, $formData) !!}	
+	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
+	{!! Form::hidden('apoderado_id', ($apoderado!==NULL?$apoderado->id:""), array('id' => 'apoderado_id')) !!}
+	{!! Form::hidden('alumno_id', $alumno_id, array('id' => 'alumno_id')) !!}
 		<div class="panel-body">
 			<div class="form-group">
 				<div class="col-lg-12 col-md-12 col-sm-12">

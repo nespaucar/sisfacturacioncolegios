@@ -22,6 +22,8 @@ class CreateTablePersona extends Migration
             $table->char("tipo", 1)->default('A');//A: ADMINISTRADOR, S: ESTUDIANTE
             $table->char('dni',8)->nullable();
             $table->string('direccion',120)->nullable();
+            $table->date('fechanacimiento')->nullable();
+            $table->string('telefono',9)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
