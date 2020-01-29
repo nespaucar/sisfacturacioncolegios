@@ -8,6 +8,12 @@
 		</div>
 	</div>
 	<div class="form-group">
+		{!! Form::label('monto', 'Monto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+		<div class="col-lg-9 col-md-9 col-sm-9">
+			{!! Form::text('monto', null, array('class' => 'form-control input-xs', 'id' => 'monto')) !!}
+		</div>
+	</div>
+	<div class="form-group">
 		{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-9 col-md-9 col-sm-9">
 			{!! Form::select('tipo', array("I" => "INGRESO", "S" => "SALIDA"), null, array('class' => 'form-control input-xs', 'id' => 'tipo')) !!}
@@ -24,5 +30,6 @@
 	$(document).ready(function() {
 		configurarAnchoModal('450');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="monto"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 	});
 </script>

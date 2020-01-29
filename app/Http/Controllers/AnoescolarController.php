@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use Validator;
 use App\Movimiento;
+use App\Cicloacademico;
 use App\Http\Requests;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -128,6 +129,10 @@ class AnoescolarController extends Controller
             $anoescolar->estado = "P"; //PAGADO
             $anoescolar->save();
 
+            $cicloacademico = new Cicloacademico();
+            //$cicloacademico->local_id = $user->persona->local_id;
+            $cicloacademico->descripcion = "Año escolar " . date("Y", strtotime($request->input('fecha')));
+            $cicloacademico->save();
         });
         return is_null($error) ? "OK" : $error;
     }

@@ -45,6 +45,7 @@ class ConceptopagoController extends Controller
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');        
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
 
@@ -94,6 +95,7 @@ class ConceptopagoController extends Controller
             array(
                 'tipo' => 'required|max:1',
                 'nombre'      => 'required|max:100',
+                'monto'      => 'required|numeric',
             )
         );
         if ($validacion->fails()) {
@@ -103,6 +105,7 @@ class ConceptopagoController extends Controller
             $conceptopago              = new Conceptopago();
             $conceptopago->tipo = $request->input('tipo');
             $conceptopago->nombre      = $request->input('nombre');
+            $conceptopago->monto      = $request->input('monto');
             $conceptopago->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -138,6 +141,7 @@ class ConceptopagoController extends Controller
             array(
                 'tipo' => 'required|max:1',
                 'nombre'      => 'required|max:100',
+                'monto'      => 'required|numeric',
             )
         );
         if ($validacion->fails()) {
@@ -147,6 +151,7 @@ class ConceptopagoController extends Controller
             $conceptopago                = Conceptopago::find($id);
             $conceptopago->tipo = $request->input('tipo');
             $conceptopago->nombre      = $request->input('nombre');
+            $conceptopago->monto      = $request->input('monto');
             $conceptopago->save();
         });
         return is_null($error) ? "OK" : $error;

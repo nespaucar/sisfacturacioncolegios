@@ -183,6 +183,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('apoderado/estudiantes', 'ApoderadoController@estudiantes')->name('apoderado.estudiantes');
     Route::post('apoderado/agregarestudiantes', 'ApoderadoController@agregarestudiantes')->name('apoderado.agregarestudiantes');
     Route::resource('apoderado', 'ApoderadoController', array('except' => array('show')));
+
+    /*ALUMNOSECCION*/
+    Route::post('alumnoseccion/buscar', 'AlumnoSeccionController@buscar')->name('alumnoseccion.buscar');
+    Route::resource('alumnoseccion', 'AlumnoSeccionController', array('except' => array('show')));
+    Route::get('alumnoseccion/matriculados', 'alumnoseccionController@matriculados')->name('alumnoseccion.matriculados');
+    Route::get('alumnoseccion/matricularalumno', 'alumnoseccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
+    Route::get('alumnoseccion/confirmarmatricularalumno', 'alumnoseccionController@confirmarmatricularalumno')->name('alumnoseccion.confirmarmatricularalumno');
 });
 
 Route::get('storage/{archivo}', function ($archivo) {
