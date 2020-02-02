@@ -1,3 +1,6 @@
+<?php 
+	use App\AlumnoSeccion;
+?>
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
@@ -16,6 +19,11 @@
 		$contador = $inicio + 1;
 		?>
 		@foreach ($lista as $key => $value)
+		<?php
+			$alumnos = AlumnoSeccion::where("seccion_id", "=", $value->id)
+	                ->where("cicloacademico_id", "=", $cicloacademico_id)
+	                ->get();
+		?>
 		<tr>
 			<td>{{ $contador }}</td>
 			<td>{{ $value->grado->nivel->descripcion or '-' }}</td>
@@ -23,7 +31,7 @@
 			<td class="text-center">{{ $value->descripcion }}</td>
 			<td class="text-center">{{ $anoescolar }}</td>
 			<td class="text-center" style="padding:5px;margin:5px;font-size:13px;" class="text-center">{!! Form::button('<div class="fa fa-eye"></div> Matriculados', array('onclick' => 'modal (\''.URL::route('alumnoseccion.matriculados', array("id=".$value->id, 'listar=SI', 'anoescolar='.$anoescolar)).'\', \'Alumnos matriculados en ' . ($value->grado!==NULL?$value->grado->descripcion:'-') . ' grado '.($value->descripcion) . ' del nivel ' . ($value->grado!==NULL?($value->grado->nivel!==NULL?$value->grado->nivel->descripcion:'-'):'-') . '\', this);', 'class' => 'btn btn-xs btn-primary')) !!}
-				&nbsp;&nbsp; {{count($value->alumnos)}}
+				&nbsp;&nbsp; {{count($alumnos)}}
 			</td>
 		</tr>
 		<?php

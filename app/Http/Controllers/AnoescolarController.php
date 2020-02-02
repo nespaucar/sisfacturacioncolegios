@@ -88,12 +88,14 @@ class AnoescolarController extends Controller
 
     public function create(Request $request)
     {
+        $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
         $entidad             = 'Anoescolar';
         $anoescolar          = null;
         $monto               = 0.00;
         $boton               = "Confirmar apertura";
-        $numero              = Movimiento::numerosigue(5); //NÚMERO DE APERTURA DE CAJA QUE SIGUE
+        $numero              = Movimiento::numerosigue(5, null, $local_id); //NÚMERO DE APERTURA DE CAJA QUE SIGUE
         $formData            = array('anoescolar.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         return view($this->folderview.'.mant')->with(compact('anoescolar', 'formData', 'entidad', 'boton', 'listar', 'monto', 'numero'));

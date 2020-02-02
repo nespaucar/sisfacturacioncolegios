@@ -26,10 +26,19 @@ class Movimiento extends Model
         ->orderBy('id', 'DESC');
     }
 
-    public function scopeNumeroSigue($query, $tipomovimiento_id){
-        $rs=$query->select(DB::raw("MAX((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
-                ->where("tipomovimiento_id", "=", $tipomovimiento_id)
-                ->first();
+    public function scopeNumeroSigue($query, $tipomovimiento_id, $tipodocumento_id, $local_id) {    
+
+        $rs = $query->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"));
+        if (!is_null($tipomovimiento_id)) {
+            $rs = $rs->where('tipomovimiento_id', '=', $tipomovimiento_id);
+        }
+        if (!is_null($tipodocumento_id)) {
+            $rs = $rs->where('tipodocumento_id', '=', $tipodocumento_id);
+        }
+        if (!is_null($local_id)) {
+            $rs = $rs->where('local_id', '=', $local_id);
+        } 
+        $rs = $rs->first();
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);
     }
 

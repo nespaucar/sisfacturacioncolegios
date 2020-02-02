@@ -32,7 +32,7 @@
 		            <div class="form-group text-center">
 		                {!! Form::label('numero', 'N° Movimiento', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
 		                <div class="col-lg-3 col-md-3 col-sm-3">
-		                    {!! Form::text('numero', "000001", array('class' => 'form-control input-sm', 'id' => 'numero', 'readonly' => 'true')) !!}
+		                    {!! Form::text('numero', "", array('class' => 'form-control input-sm', 'id' => 'numero', 'readonly' => 'true')) !!}
 		                </div>
 		            </div>
 		            <div class="form-group">
@@ -119,14 +119,14 @@
 		            </div>
 		            <div class="form-group">
 		        		<div class="col-lg-5 col-md-5 col-sm-5">
-		        			{!! Form::select('tipodocumento', array("B"=>"BOLETA", "F"=>"FACTURA"), null, array('class' => 'form-control input-sm', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
+		        			{!! Form::select('tipodocumento', array("B"=>"BOLETA", "F"=>"FACTURA"), null, array('class' => 'form-control input-sm', 'id' => 'tipodocumento', 'onchange' => 'generarNumeroVenta()')) !!}
 		        		</div>
 		                {!! Form::label('numeroventa', 'N°', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
 		        		<div class="col-lg-3 col-md-3 col-sm-3">
-		        			{!! Form::text('serieventa', "002", array('class' => 'form-control input-sm', 'id' => 'serieventa', "readonly")) !!}
+		        			{!! Form::text('serieventa', "001", array('class' => 'form-control input-sm', 'id' => 'serieventa', "readonly")) !!}
 		        		</div>
 		                <div class="col-lg-3 col-md-3 col-sm-3">
-		        			{!! Form::text('numeroventa', "000002", array('class' => 'form-control input-sm', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+		        			{!! Form::text('numeroventa', "", array('class' => 'form-control input-sm', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
 		        		</div>
 		        	</div>
 		            <div class="form-group datofactura hide">
@@ -167,21 +167,6 @@
 						</tr>
 					</thead>
 					<tbody id="tablaAlumnos">
-						@if(count($alumnosecciones)>0)
-							<?php $contador = 1; ?>
-							@foreach($alumnosecciones as $apal)
-								<tr id="tabAlumnos{{$apal->alumno->id}}">
-									<td style="padding:5px;margin:5px;" class="text-center">*</td>
-									<td style="padding:5px;margin:5px;" class="text-center">{{$apal->alumno->dni}}</td>
-									<td style="padding:5px;margin:5px;" class="text-center">{{$apal->alumno->apellidopaterno." ".$apal->alumno->apellidomaterno." ".$apal->alumno->nombres}}</td>
-									<td style="padding:5px;margin:5px;" class="text-center">
-										<a href="javascript:0" onclick="removeDetalle('{{$apal->alumno->id}}');" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-remove"></i></a>
-										<input type="hidden" class="idDetallitos" value="{{$apal->alumno->id}}">
-									</td>
-								</tr>
-								<?php $contador++; ?>
-							@endforeach
-						@endif
 					</tbody>
 			    </table>
 			</div>
@@ -227,9 +212,7 @@
 			displayKey: 'value',
 			source: entidad.ttAdapter()
 		}).on('typeahead:selected', function (object, datum) {
-			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val(datum.id);
-			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val(datum.dni+" - "+datum.value);
-			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="efectivo"]').focus();
+			comprobarSiAlumnoEstaMatriculado(datum.id, $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="anoescolar"]').val(), datum.dni, datum.value);
 			entidad.initialize();
 		}).on("keyup", function(e) {
 			e.preventDefault();
@@ -245,6 +228,7 @@
 
 		$("#divDocVenta").hide();
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val('-');
+		llenarTablaMatriculados('{{ $entidad }}');
 	});
 
 	function matricularAlumno(btn) {
@@ -270,7 +254,8 @@
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipodocumento"]').val("B");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val("0.00");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cuenta"]').val("0.00");
-		generarNumero();
+		numeroSigue(1, '', 'numero');
+		generarNumeroVenta();
 		setTimeout(function() {
 		    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').focus();
 		    $("#mensajeMontos").html('');
@@ -304,17 +289,23 @@
 		}
     }
 
-	function generarNumero() {
+	function generarNumeroVenta() {
 		var tipodocumento = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipodocumento"]').val();
+		var tipodocumento_id = 0;
 		switch (tipodocumento) {
 			case "B":
 				$(".datofactura").addClass("hide");
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serieventa"]').val("001");
+				tipodocumento_id = 1;
 				break;
 			case "F":
 				$(".datofactura").removeClass("hide");
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').focus();
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serieventa"]').val("002");
+				tipodocumento_id = 2;
 				break;
 		}
+		numeroSigue(8, tipodocumento_id, 'numeroventa');
 	}
 
 	function calcularTotalPago() {
@@ -371,10 +362,8 @@
 
 	function confirmarMatriculaDeAlumno(entidad, idboton) {
 		var idformulario = IDFORMMANTENIMIENTO + entidad;
-		alert(idformulario);
 		var form = $(idformulario);
 		var data = form.serialize();
-		alert(data);
 		var listar       = 'SI';
 		var btn = $(idboton);
 		btn.button('loading');
@@ -393,18 +382,67 @@
 			if(respuesta === 'ERROR'){
 			}else{
 				if (respuesta === 'OK') {
-					cerrarModal();
 					if (listar === 'SI') {
-						if(typeof entidad2 != 'undefined' && entidad2 !== ''){
-							entidad = entidad2;
-						}
-						buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+						buscar('Matricula');
 					}  
-					$("#matricularAlumno").collapse("hide");
-					$.Notification.autoHideNotify('success', 'top right', "¡ÉXITO!", 'Alumno registrado correctamente');      
+					//$("#matricularAlumno").collapse("hide");
+					nuevoAlumno();
+					$.Notification.autoHideNotify('success', 'top right', "¡ÉXITO!", 'Alumno registrado correctamente');  
+					llenarTablaMatriculados(entidad);    
 				} else {
 					mostrarErrores(respuesta, idformulario, entidad);
 				}
+			}
+		});
+	}
+
+	function numeroSigue(tipomovimiento_id, tipodocumento_id, input_id) {
+		$.ajax({
+			url : "alumnoseccion/numeroSigue?tipomovimiento_id="+tipomovimiento_id+"&tipodocumento_id="+tipodocumento_id,
+			type: "GET"
+		}).done(function(msg) {
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + input_id + '"]').val(msg);
+		});
+	}
+
+	function llenarTablaMatriculados(entidad) {
+		var idformulario = IDFORMMANTENIMIENTO + entidad;
+		var form = $(idformulario);
+		var data = form.serialize();
+		var accion = "alumnoseccion/llenarTablaMatriculados";
+		var metodo = $(idformulario).attr('method');
+		$.ajax({
+			url : accion,
+			type: metodo,
+			data: data,
+		}).done(function(msg) {
+			respuesta = msg;
+		}).fail(function(xhr, textStatus, errorThrown) {
+			respuesta = 'ERROR';
+		}).always(function() {
+			$("#tablaAlumnos").html("Cargando, por favor espere...")
+			if(respuesta === 'ERROR'){
+			}else{
+				$("#tablaAlumnos").html(respuesta);
+			}
+		});
+	}
+
+	function comprobarSiAlumnoEstaMatriculado(alumno_id, anoescolar, dni, value) {
+		$.ajax({
+			url : "alumnoseccion/comprobarSiAlumnoEstaMatriculado?alumno_id="+alumno_id+"&anoescolar="+anoescolar,
+			type: "GET"
+		}).done(function(msg) {
+			if(msg == "N") {
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val(alumno_id);
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val(dni+" - "+value);
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="efectivo"]').focus();
+			} else {
+				$.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'Este alumno ya está matriculado.');
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val("");
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val("");
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').focus();
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').typeahead('val', '');
 			}
 		});
 	}

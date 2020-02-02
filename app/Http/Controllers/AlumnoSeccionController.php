@@ -43,23 +43,25 @@ class AlumnoSeccionController extends Controller
 
     public function buscar(Request $request)
     {
-        $user             = Auth::user();
-        $id               = $user->persona_id;
-        $local_id         = $user->persona->local_id;
-        $pagina           = $request->input('page');
-        $filas            = $request->input('filas');
-        $entidad          = 'Matricula';
-        $seccion_id       = Libreria::getParam($request->input('seccion_id'));
-        $anoescolar       = Libreria::getParam($request->input('anoescolar'));
-        $resultado        = Seccion::listar($seccion_id, $local_id);
-        $lista            = $resultado->get();
-        $cabecera         = array();
-        $cabecera[]       = array('valor' => '#', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Nivel', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Grado', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Sección', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Año escolar', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Matriculados', 'numero' => '1');
+        $user              = Auth::user();
+        $id                = $user->persona_id;
+        $local_id          = $user->persona->local_id;
+        $pagina            = $request->input('page');
+        $filas             = $request->input('filas');
+        $entidad           = 'Matricula';
+        $seccion_id        = Libreria::getParam($request->input('seccion_id'));
+        $anoescolar        = Libreria::getParam($request->input('anoescolar'));
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
+        $resultado         = Seccion::listar($seccion_id, $local_id);
+        $lista             = $resultado->get();
+        $cabecera          = array();
+        $cabecera[]        = array('valor' => '#', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Nivel', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Grado', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Sección', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Año escolar', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Matriculados', 'numero' => '1');
 
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -73,9 +75,9 @@ class AlumnoSeccionController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'anoescolar'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'anoescolar', 'cicloacademico_id'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'anoescolar'));
+        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'anoescolar', 'cicloacademico_id'));
     }
 
     public function index()
@@ -121,6 +123,7 @@ class AlumnoSeccionController extends Controller
             $seccion_id        = $request->seccion_id;
             $listar            = $request->listar;
             $anoescolar        = $request->anoescolar;
+            $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
             $persona_id        = $request->persona_id;
             $efectivo          = ($request->efectivo==""?0.00:$request->efectivo);
             $visa              = ($request->visa==""?0.00:$request->visa);
@@ -157,7 +160,7 @@ class AlumnoSeccionController extends Controller
                 //CREO EL MOVIMIENTO DE INGRESO A CAJA
                 $movimiento                    = new Movimiento();
                 $movimiento->fecha             = date("Y-m-d");
-                $movimiento->numero            = $request->input('numero');
+                $movimiento->numero            = Movimiento::numerosigue(1, null, $local_id); //NÚMERO DE MOVIMIENTO EN CAJA
                 $movimiento->persona_id        = $alumno->id;
                 $movimiento->responsable_id    = $user->persona->id;
                 $movimiento->tipomovimiento_id = 1; //CAJA
@@ -167,7 +170,7 @@ class AlumnoSeccionController extends Controller
                 $movimiento->totalmaster       = $master;
                 $movimiento->total             = $total;
                 $movimiento->igv               = 0;
-                $movimiento->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                $movimiento->tipodocumento_id  = NULL;
                 $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
                 $movimiento->totalpagado       = $total;
                 $movimiento->estado            = "P"; //PAGADO
@@ -177,8 +180,9 @@ class AlumnoSeccionController extends Controller
                 //CREO EL DOCUMENTO DE VENTA
                 $movimientoventa                    = new Movimiento();
                 $movimientoventa->fecha             = date("Y-m-d");
-                $movimientoventa->numero            = $request->input('numero');
+                $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
                 $movimientoventa->persona_id        = $alumno->id;
+                $movimientoventa->serie             = $request->serie;
                 $movimientoventa->responsable_id    = $user->persona->id;
                 $movimientoventa->tipomovimiento_id = 8; //VENTA
                 $movimientoventa->conceptopago_id   = 6; //PAGO POR MATRÍCULA
@@ -193,7 +197,7 @@ class AlumnoSeccionController extends Controller
                 $movimientoventa->direccion         = $direccion;
                 $movimientoventa->cuota_id          = $cuota->id;
                 $movimientoventa->movimiento_id     = $movimiento->id;
-                $movimientoventa->local_id               = $local_id;
+                $movimientoventa->local_id          = $local_id;
                 $movimientoventa->save();
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
@@ -216,7 +220,7 @@ class AlumnoSeccionController extends Controller
                     //CREO EL MOVIMIENTO DE INGRESO A CAJA
                     $movimiento                    = new Movimiento();
                     $movimiento->fecha             = date("Y-m-d");
-                    $movimiento->numero            = $request->input('numero');
+                    $movimiento->numero            = Movimiento::numerosigue(1, null, $local_id); //NÚMERO DE MOVIMIENTO EN CAJA
                     $movimiento->persona_id        = $alumno->id;
                     $movimiento->responsable_id    = $user->persona->id;
                     $movimiento->tipomovimiento_id = 1; //CAJA
@@ -235,7 +239,61 @@ class AlumnoSeccionController extends Controller
                     $movimiento->save();
                 }
             }
+
+            $alumnoseccion  = new AlumnoSeccion();
+            $alumnoseccion->alumno_id = $persona_id;
+            $alumnoseccion->cicloacademico_id = $cicloacademico->id;
+            $alumnoseccion->seccion_id = $seccion_id;
+            $alumnoseccion->observacion = "MATRÍCULA DE ALUMNO";
+            $alumnoseccion->save();
         });
         return is_null($error) ? "OK" : $error;
+    }
+
+    function numeroSigue(Request $request) {
+        $user              = Auth::user();
+        $local_id          = $user->persona->local_id;
+        $tipomovimiento_id = $request->tipomovimiento_id==""?NULL:$request->tipomovimiento_id;
+        $tipodocumento_id  = $request->tipodocumento_id==""?NULL:$request->tipodocumento_id;
+
+        return Movimiento::numeroSigue($tipomovimiento_id, $tipodocumento_id, $local_id);
+    }
+
+    function comprobarSiAlumnoEstaMatriculado(Request $request) {
+        $alumno_id         = $request->alumno_id;
+        $anoescolar        = $request->anoescolar;
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $matricula         = AlumnoSeccion::where("alumno_id", "=", $alumno_id)
+                                        ->where("cicloacademico_id", "=", $cicloacademico->id)->first();
+        return ($matricula==NULL?"N":"S");
+    }
+
+    public function llenarTablaMatriculados(Request $request) {
+        $retorno           = "";
+        $seccion_id        = $request->seccion_id;
+        $anoescolar        = $request->anoescolar;
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+
+        $matriculados = AlumnoSeccion::where("seccion_id", "=", $seccion_id)
+                ->where("cicloacademico_id", "=", $cicloacademico->id)
+                ->get();
+
+        if(count($matriculados) > 0) {
+            $contador = 1;
+            foreach ($matriculados as $matri) {
+                $retorno .= '<tr id="tabAlumnos'.$matri->id.'">
+                    <td style="padding:5px;margin:5px;" class="text-center">'.$contador.'</td>
+                    <td style="padding:5px;margin:5px;" class="text-center">'.$matri->alumno->dni.'</td>
+                    <td style="padding:5px;margin:5px;" class="text-center">'.$matri->alumno->apellidopaterno.' '.$matri->alumno->apellidomaterno.' '.$matri->alumno->nombres.'</td>
+                    <td style="padding:5px;margin:5px;" class="text-center">
+                        <a href="javascript:0" onclick="removeDetalle(\''.$matri->id.'\');" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-remove"></i></a>
+                        <input type="hidden" class="idDetallitos" value="'.$matri->id.'">
+                    </td>
+                </tr>';
+                $contador++;
+            }
+        }
+
+        return $retorno;
     }
 }

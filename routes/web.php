@@ -190,8 +190,13 @@ Route::group(['middleware' => 'auth'], function () {
     /*ALUMNOSECCION*/
     Route::post('alumnoseccion/buscar', 'AlumnoSeccionController@buscar')->name('alumnoseccion.buscar');
     Route::resource('alumnoseccion', 'AlumnoSeccionController', array('except' => array('show')));
-    Route::get('alumnoseccion/matriculados', 'alumnoseccionController@matriculados')->name('alumnoseccion.matriculados');
-    Route::post('alumnoseccion/matricularalumno', 'alumnoseccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
+    Route::get('alumnoseccion/matriculados', 'AlumnoseccionController@matriculados')->name('alumnoseccion.matriculados');
+    Route::post('alumnoseccion/matricularalumno', 'AlumnoseccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
+    Route::post('alumnoseccion/llenarTablaMatriculados', 'AlumnoseccionController@llenarTablaMatriculados')->name('alumnoseccion.llenarTablaMatriculados');
+    Route::get('alumnoseccion/comprobarSiAlumnoEstaMatriculado', 'AlumnoseccionController@comprobarSiAlumnoEstaMatriculado')->name('alumnoseccion.comprobarSiAlumnoEstaMatriculado');
+
+    //NÚMERO SIGUIENTE MOVIMIENTO
+    Route::get('alumnoseccion/numeroSigue', 'AlumnoseccionController@numeroSigue')->name('alumnoseccion.numeroSigue');
 });
 
 Route::get('storage/{archivo}', function ($archivo) {

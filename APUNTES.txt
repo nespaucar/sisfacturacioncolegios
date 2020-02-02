@@ -1,5 +1,6 @@
 TRUNCATE `alumno_apoderado`;
 TRUNCATE `alumno_cuota`;
+TRUNCATE `alumno_seccion`;
 TRUNCATE `cicloacademico`;
 TRUNCATE `configuracionpago`;
 TRUNCATE `cuota`;
