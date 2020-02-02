@@ -22,17 +22,11 @@
 						{!! Form::text('descripcion', '', array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
 					</div>
 					<div class="form-group">
-						{!! Form::label('local_id', 'Local:', array('class' => 'input-xs')) !!}
-						{!! Form::select("local_id", $cboLocales, null, array("class" => "form-control input-xs", "id" => "local_id", 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
-					</div>
-					<div class="form-group">
 						{!! Form::label('filas', 'Filas:', array('class' => 'input-xs'))!!}
 						{!! Form::selectRange('filas', 10, 100, 20, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 					</div>
 					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
-					@if(Auth::user()->usertype_id != 3)
 					{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo', array('class' => 'btn btn-info waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
-					@endif
 					{!! Form::close() !!}
 				</div>
             </div>

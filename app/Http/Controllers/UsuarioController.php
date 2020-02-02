@@ -8,40 +8,33 @@ use Hash;
 use Validator;
 use App\Http\Requests;
 use App\Usuario;
+use App\Local;
 use App\Usertype;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
-class UsuarioController extends Controller
-{
+class UsuarioController extends Controller {
     protected $folderview      = 'app.usuario';
     protected $tituloAdmin     = 'Usuario';
     protected $tituloRegistrar = 'Registrar usuario';
     protected $tituloModificar = 'Modificar usuario';
     protected $tituloEliminar  = 'Eliminar usuario';
     protected $rutas           = array('create' => 'usuario.create', 
-            'edit'   => 'usuario.edit', 
-            'delete' => 'usuario.eliminar',
-            'search' => 'usuario.buscar',
-            'index'  => 'usuario.index',
-        );
+        'edit'         => 'usuario.edit', 
+        'escogerlocal' => 'usuario.escogerlocal', 
+        'guardarlocal' => 'usuario.guardarlocal', 
+        'delete'       => 'usuario.eliminar',
+        'search'       => 'usuario.buscar',
+        'index'        => 'usuario.index',
+    );
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /**
-     * Mostrar el resultado de búsquedas
-     * 
-     * @return Response 
-     */
     public function buscar(Request $request)
     {
         $pagina           = $request->input('page');
@@ -74,26 +67,16 @@ class UsuarioController extends Controller
         return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $entidad          = 'Usuario';
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        $cboTipousuario = array('' => 'Seleccione') + Usertype::pluck('nombre', 'id')->all();
+        $cboTipousuario   = array('' => 'Seleccione') + Usertype::pluck('nombre', 'id')->all();
         return view($this->folderview.'.admin')->with(compact('entidad', 'cboTipousuario' , 'title', 'titulo_registrar', 'ruta'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create(Request $request)
     {
         $listar         = Libreria::getParam($request->input('listar'), 'NO');
@@ -106,12 +89,6 @@ class UsuarioController extends Controller
         return view($this->folderview.'.mant')->with(compact('usuario', 'formData', 'entidad', 'boton', 'listar', 'cboTipousuario'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
@@ -134,23 +111,11 @@ class UsuarioController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id, Request $request)
     {
         $existe = Libreria::verificarExistencia($id, 'usuario');
@@ -167,13 +132,6 @@ class UsuarioController extends Controller
         return view($this->folderview.'.mant')->with(compact('usuario', 'formData', 'entidad', 'boton', 'listar', 'cboTipousuario'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $existe = Libreria::verificarExistencia($id, 'usuario');
@@ -199,12 +157,6 @@ class UsuarioController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $existe = Libreria::verificarExistencia($id, 'usuario');
@@ -218,12 +170,6 @@ class UsuarioController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    /**
-     * Función para confirmar la eliminación de un registrlo
-     * @param  integer $id          id del registro a intentar eliminar
-     * @param  string $listarLuego consultar si luego de eliminar se listará
-     * @return html              se retorna html, con la ventana de confirmar eliminar
-     */
     public function eliminar($id, $listarLuego)
     {
         $existe = Libreria::verificarExistencia($id, 'usuario');
@@ -239,5 +185,30 @@ class UsuarioController extends Controller
         $formData = array('route' => array('usuario.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+    }
+
+    public function escogerlocal(Request $request)
+    {
+        $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
+        $entidad          = 'Usuario';
+        $title            = 'Setear Local';
+        $ruta             = $this->rutas;
+        $cboLocales         = Local::pluck('nombre', 'id')->all();
+        return view($this->folderview.'.escogerlocal')->with(compact('cboLocales','entidad', 'local_id', 'title', 'ruta'));
+    }
+
+    public function guardarlocal(Request $request)
+    {
+        $dat = "";
+        $error = DB::transaction(function() use($request, &$dat){
+            $local_id          = $request->input('local_id');
+            $user              = Auth::user();
+            $persona           = $user->persona;
+            $persona->local_id = $local_id;
+            $persona->save();
+            $dat               = mb_strtoupper($persona->local->nombre);
+        });
+        return is_null($error) ? $dat : $error;   
     }
 }

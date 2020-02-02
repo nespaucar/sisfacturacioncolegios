@@ -27,6 +27,7 @@ class SeccionController extends Controller
     public function buscar(Request $request)
     {
         $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $id               = $user->persona_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
@@ -66,8 +67,7 @@ class SeccionController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        $cboLocales       = [''=>'--TODOS--'] + Local::pluck('nombre', 'id')->all();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboLocales', 'cboNiveles'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboNiveles'));
     }
 
     public function create(Request $request)
@@ -77,9 +77,8 @@ class SeccionController extends Controller
         $seccion               = null;
         $formData            = array('seccion.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales          = Local::pluck('nombre', 'id')->all();
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar', 'cboLocales'));
+        return view($this->folderview.'.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function store(Request $request)
@@ -121,9 +120,8 @@ class SeccionController extends Controller
         $entidad  = 'Seccion';
         $formData = array('seccion.update', $id);
         $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales = Local::pluck('nombre', 'id')->all();
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar', 'cboLocales'));
+        return view($this->folderview.'.mant')->with(compact('seccion', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function update(Request $request, $id)

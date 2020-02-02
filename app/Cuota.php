@@ -10,4 +10,9 @@ class Cuota extends Model
     use SoftDeletes;
     protected $table = 'cuota';
     protected $dates = ['deleted_at'];
+
+    public function secciones()
+    {
+        return $this->hasMany('App\AlumnoCuota');
+    }
 }

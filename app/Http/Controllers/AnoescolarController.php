@@ -36,12 +36,13 @@ class AnoescolarController extends Controller
     {
         $user             = Auth::user();
         $id               = $user->persona_id;
+        $local_id         = $user->persona->local_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Anoescolar';
         //INGRESOS Y EGRESOS DE UN MISMO AÑO ESCOLAR
         $anoactual        = date("Y");
-        $resultado        = Movimiento::listaranoescolar($anoactual);
+        $resultado        = Movimiento::listaranoescolar($anoactual, $local_id);
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -112,6 +113,7 @@ class AnoescolarController extends Controller
         }
         $error = DB::transaction(function() use($request){
             $user                      = Auth::user();
+            $local_id                  = $user->persona->local_id;
             $anoescolar                = new Movimiento();
             $anoescolar->fecha         = $request->input('fecha');
             $anoescolar->numero        = $request->input('numero');
@@ -127,10 +129,11 @@ class AnoescolarController extends Controller
             $anoescolar->comentario = $request->input("comentario");
             $anoescolar->totalpagado = 0;
             $anoescolar->estado = "P"; //PAGADO
+            $anoescolar->local_id = $local_id;
             $anoescolar->save();
 
             $cicloacademico = new Cicloacademico();
-            //$cicloacademico->local_id = $user->persona->local_id;
+            $cicloacademico->local_id = $user->persona->local_id;
             $cicloacademico->descripcion = "Año escolar " . date("Y", strtotime($request->input('fecha')));
             $cicloacademico->save();
         });

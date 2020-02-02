@@ -17,14 +17,18 @@ class Seccion extends Model
 		return $this->belongsTo('App\Grado', 'grado_id');
 	}
 
-	public function scopelistar($query, $seccion_id)
+	public function scopelistar($query, $seccion_id, $local_id)
     {
-        return $query->where(function($subquery) use($seccion_id)
+        $query->where(function($subquery) use($seccion_id)
         {
             if (!is_null($seccion_id)) {
                 $subquery->where('seccion.id','=' , $seccion_id);
             }
         })
-        ->orderBy('id', 'DESC');
+        ->orderBy('seccion.id', 'DESC')
+        ->join("grado", "grado.id", "=", "seccion.grado_id")
+        ->join("nivel", "nivel.id", "=", "grado.nivel_id")
+        ->where("nivel.local_id", "=", $local_id);
+        return $query;
     }
 }

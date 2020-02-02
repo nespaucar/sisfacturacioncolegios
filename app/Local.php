@@ -11,9 +11,9 @@ class Local extends Model
     protected $table = 'local';
     protected $dates = ['deleted_at'];
 
-    public function scopelistar($query, $serie, $nombre, $tipo)
+    public function scopelistar($query, $serie, $nombre, $tipo, $local_id)
     {
-        return $query->where(function($subquery) use($serie, $nombre, $tipo)
+        return $query->where(function($subquery) use($serie, $nombre, $tipo, $local_id)
         {
             if (!is_null($serie)) {
                 $subquery->where('serie', 'LIKE', '%'.$serie.'%');
@@ -24,8 +24,11 @@ class Local extends Model
             if (!is_null($tipo)) {
                 $subquery->where('tipo', '=', $tipo);
             }
+            if (!is_null($local_id)) {
+                $subquery->where('id', '=', $local_id)->orWhere("local_id", "=", $local_id);
+            }
         })
-        ->orderBy('nombre', 'ASC');
+        ->orderBy('id', 'ASC');
     }
 
     public function local()

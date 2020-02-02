@@ -38,6 +38,7 @@ class ConfiguracionpagoController extends Controller
     public function buscar(Request $request)
     {
         $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $id               = $user->persona_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
@@ -46,23 +47,23 @@ class ConfiguracionpagoController extends Controller
         switch ($tabla) {
             case "1":
                 // ALUMNO
-                $resultado = Configuracionpago::listar($tabla, NULL, NULL, NULL);
+                $resultado = Configuracionpago::listar($tabla, NULL, NULL, NULL, $local_id);
                 break;            
             case "2":
                 // NIVEL
-                $resultado = Configuracionpago::listar(NULL, $tabla, NULL, NULL);
+                $resultado = Configuracionpago::listar(NULL, $tabla, NULL, NULL, $local_id);
                 break;
             case "3":
                 // GRADO
-                $resultado = Configuracionpago::listar(NULL, NULL, $tabla, NULL);
+                $resultado = Configuracionpago::listar(NULL, NULL, $tabla, NULL, $local_id);
                 break;
             case "4":
                 // SECCION
-                $resultado = Configuracionpago::listar(NULL, NULL, NULL, $tabla);
+                $resultado = Configuracionpago::listar(NULL, NULL, NULL, $tabla, $local_id);
                 break;
             default:
                 // TODOS
-                $resultado = Configuracionpago::listar(NULL, NULL, NULL, NULL);
+                $resultado = Configuracionpago::listar(NULL, NULL, NULL, NULL, $local_id);
                 break;
         }
         $lista            = $resultado->get();
@@ -281,11 +282,14 @@ class ConfiguracionpagoController extends Controller
     }
 
     public function alumnoautocompleting($searching) {
+        $user      = Auth::user();
+        $local_id  = $user->persona->local_id;
         $resultado = Persona::where(DB::raw('CONCAT(apellidopaterno," ",apellidomaterno," ",nombres)'), 'LIKE', '%'.strtoupper($searching).'%')
                 ->orderBy('apellidopaterno', 'ASC')
                 ->join("usuario", "usuario.persona_id", "=", "persona.id")
                 ->join("usertype", "usertype.id", "=", "usuario.usertype_id")
                 ->where("usertype.id", "=", 2) //SOLO ALUMNOS
+                ->where("persona.local_id", "=", $local_id)
                 ->select('persona.*');
         $list      = $resultado->get();
         $data = array();
@@ -301,7 +305,11 @@ class ConfiguracionpagoController extends Controller
     }
 
     public function nivelautocompleting($searching) {
-        $resultado = Nivel::where("descripcion", 'LIKE', '%'.strtoupper($searching).'%')->orderBy('descripcion', 'ASC');
+        $user      = Auth::user();
+        $local_id  = $user->persona->local_id;
+        $resultado = Nivel::where("descripcion", 'LIKE', '%'.strtoupper($searching).'%')
+            ->orderBy('descripcion', 'ASC')
+            ->where("nivel.local_id", "=", $local_id);
         $list      = $resultado->get();
         $data = array();
         foreach ($list as $key => $value) {
@@ -315,47 +323,60 @@ class ConfiguracionpagoController extends Controller
     }
 
     public function gradoautocompleting($searching) {
-        $resultado = Grado::where("descripcion", 'LIKE', '%'.strtoupper($searching).'%')->orderBy('descripcion', 'ASC');
+        $user      = Auth::user();
+        $local_id  = $user->persona->local_id;
+        $resultado = Grado::where("grado.descripcion", 'LIKE', '%'.strtoupper($searching).'%')
+            ->join("nivel", "nivel.id", "=", "grado.nivel_id")
+            ->orderBy('grado.descripcion', 'ASC')
+            ->where("nivel.local_id", "=", $local_id)
+            ->select("grado.descripcion", "grado.nivel_id", "grado.id");
         $list      = $resultado->get();
         $data = array();
         foreach ($list as $key => $value) {
             $data[] = array(
-                            'label' => $value->descripcion.($value->nivel!==NULL?(" - ".$value->nivel->descripcion):""),
-                            'id'    => $value->id,
-                            'value' => $value->descripcion.($value->nivel!==NULL?(" - ".$value->nivel->descripcion):""),
-                        );
+                'label' => $value->descripcion.($value->nivel!==NULL?(" - ".$value->nivel->descripcion):""),
+                'id'    => $value->id,
+                'value' => $value->descripcion.($value->nivel!==NULL?(" - ".$value->nivel->descripcion):""),
+            );
         }
         return json_encode($data);
     }
 
     public function seccionautocompleting($searching) {
-        $resultado = Seccion::where("descripcion", 'LIKE', '%'.strtoupper($searching).'%')->orderBy('descripcion', 'ASC');
+        $user      = Auth::user();
+        $local_id  = $user->persona->local_id;
+        $resultado = Seccion::where("seccion.descripcion", 'LIKE', '%'.strtoupper($searching).'%')
+            ->join("grado", "grado.id", "=", "seccion.grado_id")
+            ->join("nivel", "nivel.id", "=", "grado.nivel_id")
+            ->orderBy('seccion.descripcion', 'ASC')
+            ->select("seccion.descripcion", "seccion.id", "seccion.grado_id", "grado.nivel_id")
+            ->where("nivel.local_id", "=", $local_id);
         $list      = $resultado->get();
         $data = array();
         foreach ($list as $key => $value) {
             $data[] = array(
-                            'label' => '"'.$value->descripcion.'"'.(
-                                $value->grado!==NULL?
-                                (
-                                    " - ".$value->grado->descripcion .
-                                    (
-                                        $value->grado->nivel!==NULL?
-                                        (" - ".$value->grado->nivel->descripcion):
-                                    "")
-                                ):
-                            ""),
-                            'id'    => $value->id,
-                            'value' => '"'.$value->descripcion.'" '.(
-                                $value->grado!==NULL?
-                                (
-                                    " - ".$value->grado->descripcion .
-                                    (
-                                        $value->grado->nivel!==NULL?
-                                        (" - ".$value->grado->nivel->descripcion):
-                                    "")
-                                ):
-                            ""),
-                        );
+                'label' => '"'.$value->descripcion.'"'.(
+                    $value->grado!==NULL?
+                    (
+                        " - ".$value->grado->descripcion .
+                        (
+                            $value->grado->nivel!==NULL?
+                            (" - ".$value->grado->nivel->descripcion):
+                        "")
+                    ):
+                ""),
+                'id'    => $value->id,
+                'value' => '"'.$value->descripcion.'" '.(
+                    $value->grado!==NULL?
+                    (
+                        " - ".$value->grado->descripcion .
+                        (
+                            $value->grado->nivel!==NULL?
+                            (" - ".$value->grado->nivel->descripcion):
+                        "")
+                    ):
+                ""),
+            );
         }
         return json_encode($data);
     }

@@ -10,6 +10,7 @@ use App\Persona;
 use App\AlumnoApoderado;
 use App\Nivel;
 use App\Usuario;
+use App\Local;
 use App\Grado;
 use App\Http\Requests;
 use App\Librerias\Libreria;
@@ -45,9 +46,11 @@ class ApoderadoController extends Controller
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Apoderado';
+        $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $nombre           = Libreria::getParam($request->input('nombres'));
         $dni              = Libreria::getParam($request->input('dni'));
-        $resultado        = Persona::listarpersonas($nombre, $dni, 5); //APODERADOS
+        $resultado        = Persona::listarpersonas($nombre, $dni, 5, $local_id); //APODERADOS
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -115,6 +118,8 @@ class ApoderadoController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request){
+            $user                       = Auth::user();
+            $local_id                   = $user->persona->local_id;
             $apoderado                  = new Persona();
             $apoderado->dni             = $request->input('dni');
             $apoderado->nombres         = $request->input('nombres');
@@ -123,6 +128,7 @@ class ApoderadoController extends Controller
             $apoderado->direccion       = $request->input('direccion');
             $apoderado->fechanacimiento = $request->input('fechanacimiento');
             $apoderado->telefono        = $request->input('telefono');
+            $apoderado->local_id        = $local_id;
             $apoderado->save();
             //CREAMOS USUARIO
             $usuario               = new Usuario();
@@ -194,6 +200,8 @@ class ApoderadoController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
+            $user                       = Auth::user();
+            $local_id                   = $user->persona->local_id;
             $apoderado                  = Persona::find($id);
             $apoderado->dni             = $request->input('dni');
             $apoderado->nombres         = $request->input('nombres');
@@ -202,6 +210,7 @@ class ApoderadoController extends Controller
             $apoderado->direccion       = $request->input('direccion');
             $apoderado->fechanacimiento = $request->input('fechanacimiento');
             $apoderado->telefono        = $request->input('telefono');
+            $apoderado->local_id        = $local_id;
             $apoderado->save();
             //CREAMOS USUARIO
             $usuario               = Usuario::where("persona_id", "=", $id)->first();

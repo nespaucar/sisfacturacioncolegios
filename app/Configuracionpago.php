@@ -11,9 +11,9 @@ class Configuracionpago extends Model
     protected $table = 'configuracionpago';
     protected $dates = ['deleted_at'];
 
-    public function scopelistar($query, $alumno_id, $nivel_id, $grado_id, $seccion_id)
+    public function scopelistar($query, $alumno_id, $nivel_id, $grado_id, $seccion_id, $local_id)
     {
-        return $query->where(function($subquery) use($alumno_id, $nivel_id, $grado_id, $seccion_id)
+        return $query->where(function($subquery) use($alumno_id, $nivel_id, $grado_id, $seccion_id, $local_id)
         {
             if (!is_null($alumno_id)) {
                 $subquery->whereNotNull('alumno_id');
@@ -27,8 +27,10 @@ class Configuracionpago extends Model
             if (!is_null($seccion_id)) {
                 $subquery->whereNotNull('seccion_id');
             }
-        })
-        ->orderBy('id', 'ASC');
+            if (!is_null($local_id)) {
+                $subquery->where('local_id', "=", $local_id);
+            }
+        });
     }
 
     public function alumno()

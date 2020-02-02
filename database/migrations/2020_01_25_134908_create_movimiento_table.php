@@ -28,6 +28,11 @@ class CreateMovimientoTable extends Migration
             $table->decimal('totalpagado', 10, 2)->nullable();
             $table->integer('movimiento_id')->unsigned()->nullable();
             $table->char('estado', 1)->default("P"); //P: PAGADO; a: ANULADO
+            $table->string('ruc', 11)->nullable();
+            $table->string('razon', 80)->nullable();
+            $table->string('direccion', 80)->nullable();
+            $table->integer('cuota_id')->unsigned()->nullable();
+            $table->integer('local_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

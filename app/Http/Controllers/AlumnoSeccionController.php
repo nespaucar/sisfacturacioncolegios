@@ -6,8 +6,13 @@ use Illuminate\Http\Request;
 
 use Validator;
 use App\AlumnoSeccion;
+use App\AlumnoCuota;
+use App\Movimiento;
 use App\Nivel;
 use App\Cicloacademico;
+use App\Conceptopago;
+use App\Persona;
+use App\Cuota;
 use App\Seccion;
 use App\Grado;
 use App\Http\Requests;
@@ -27,7 +32,6 @@ class AlumnoSeccionController extends Controller
             'edit'   => 'alumnoseccion.edit', 
             'matriculados' => 'alumnoseccion.matriculados',
             'matricularalumno' => 'alumnoseccion.matricularalumno',
-            'confirmarmatricularalumno' => 'alumnoseccion.confirmarmatricularalumno',
             'search' => 'alumnoseccion.buscar',
             'index'  => 'alumnoseccion.index',
         );
@@ -41,12 +45,13 @@ class AlumnoSeccionController extends Controller
     {
         $user             = Auth::user();
         $id               = $user->persona_id;
+        $local_id         = $user->persona->local_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Matricula';
         $seccion_id       = Libreria::getParam($request->input('seccion_id'));
         $anoescolar       = Libreria::getParam($request->input('anoescolar'));
-        $resultado        = Seccion::listar($seccion_id);
+        $resultado        = Seccion::listar($seccion_id, $local_id);
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -80,8 +85,14 @@ class AlumnoSeccionController extends Controller
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
         $cboSecciones     = [''=>'--TODAS--'];
+        $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
 
-        $secciones        = Seccion::all();
+        $secciones        = Seccion::join("grado", "grado.id", "=", "seccion.grado_id")
+                            ->join("nivel", "nivel.id", "=", "grado.nivel_id")
+                            ->where("nivel.local_id", "=", $local_id)
+                            ->select("seccion.id", "seccion.descripcion", "seccion.grado_id", "grado.nivel_id")
+                            ->get();
 
         foreach ($secciones as $s) {
             $cboSecciones[$s->id] = ($s->grado!==NULL?$s->grado->descripcion:'-') . ' grado '.($s->descripcion) . ' del nivel ' . ($s->grado!==NULL?($s->grado->nivel!==NULL?$s->grado->nivel->descripcion:'-'):'-');
@@ -97,28 +108,133 @@ class AlumnoSeccionController extends Controller
         $ruta             = $this->rutas;
         $anoescolar       = $request->anoescolar;
         $seccion_id       = $request->id;
+        $cmatricula       = Conceptopago::find(6); //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
         $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
-        $formData = array('route' => array('alumnoseccion.matricularalumno', $seccion_id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.matriculados')->with(compact('entidad', 'title', 'ruta', 'anoescolar', 'seccion_id', 'cicloacademico', 'formData', 'listar'));
+        $formData = array('route' => array('alumnoseccion.matricularalumno', $seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        return view($this->folderview.'.matriculados')->with(compact('entidad', 'title', 'ruta', 'anoescolar', 'seccion_id', 'cicloacademico', 'formData', 'listar', 'cmatricula'));
     }
 
     public function matricularalumno(Request $request) {
-        $entidad          = 'Curso';
-        $listar           = 'SI';
-        $title            = $this->tituloAdmin;
-        $ruta             = $this->rutas;
-        $anoescolar       = $request->anoescolar;
-        $seccion_id       = $request->id;
-        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
-        $formData = array('route' => array('alumnoseccion.confirmarmatricularalumno', $seccion_id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.matricularalumno')->with(compact('entidad', 'title', 'ruta', 'anoescolar', 'seccion_id', 'cicloacademico', 'formData', 'listar'));
-    }
-
-    public function confirmarmatricularalumno(Request $request) {
         $error = DB::transaction(function() use($request){
+            $user              = Auth::user();
+            $local_id          = $user->persona->local_id;
             $seccion_id        = $request->seccion_id;
             $listar            = $request->listar;
-            $cicloacademico_id = $request->cicloacademico_id;
+            $anoescolar        = $request->anoescolar;
+            $persona_id        = $request->persona_id;
+            $efectivo          = ($request->efectivo==""?0.00:$request->efectivo);
+            $visa              = ($request->visa==""?0.00:$request->visa);
+            $master            = ($request->master==""?0.00:$request->master);
+            $total             = $request->total;
+            $total2            = $request->total2;
+            $cuenta            = $request->cuenta;
+            $tipodocumento     = $request->tipodocumento;
+            $ruc               = $request->ruc;
+            $razon             = $request->razon;
+            $direccion         = $request->direccion;
+            $user              = Auth::user();
+
+            //EMPIEZO A MATRICULAR AL ALUMNO
+            $seccion = Seccion::find($seccion_id);
+            $alumno  = Persona::find($persona_id);
+            $cicloacademico = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+
+            ####SI EL ALUMNO HA COMPETADO EL PAGO TOTAL
+            if((float)$cuenta == 0) {            
+                //CREO LA CUOTA
+                $cuota                    = new Cuota();
+                $cuota->monto             = $total2;
+                $cuota->estado            = "C"; //CANCELADA
+                $cuota->cicloacademico_id = $cicloacademico->id;
+                $cuota->observacion       = "MATRÍCULA DE ALUMNO";
+                $cuota->save();
+                //CREO EL PRIMERO Y ÚNICO DETALLE DE CUOTA
+                $alumnocuota            = new AlumnoCuota();
+                $alumnocuota->monto     = $total;
+                $alumnocuota->alumno_id = $alumno->id;
+                $alumnocuota->cuota_id  = $cuota->id;
+                $alumnocuota->save();
+                //CREO EL MOVIMIENTO DE INGRESO A CAJA
+                $movimiento                    = new Movimiento();
+                $movimiento->fecha             = date("Y-m-d");
+                $movimiento->numero            = $request->input('numero');
+                $movimiento->persona_id        = $alumno->id;
+                $movimiento->responsable_id    = $user->persona->id;
+                $movimiento->tipomovimiento_id = 1; //CAJA
+                $movimiento->totalefectivo     = $efectivo;
+                $movimiento->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                $movimiento->totalvisa         = $visa;
+                $movimiento->totalmaster       = $master;
+                $movimiento->total             = $total;
+                $movimiento->igv               = 0;
+                $movimiento->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
+                $movimiento->totalpagado       = $total;
+                $movimiento->estado            = "P"; //PAGADO
+                $movimiento->local_id          = $local_id;
+                $movimiento->cuota_id          = $cuota->id;
+                $movimiento->save();                
+                //CREO EL DOCUMENTO DE VENTA
+                $movimientoventa                    = new Movimiento();
+                $movimientoventa->fecha             = date("Y-m-d");
+                $movimientoventa->numero            = $request->input('numero');
+                $movimientoventa->persona_id        = $alumno->id;
+                $movimientoventa->responsable_id    = $user->persona->id;
+                $movimientoventa->tipomovimiento_id = 8; //VENTA
+                $movimientoventa->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                $movimientoventa->total             = $total;
+                $movimientoventa->igv               = 0;
+                $movimientoventa->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                $movimientoventa->comentario        = "PAGO COMPLETO POR MATRÍCULA";
+                $movimientoventa->totalpagado       = $total;
+                $movimientoventa->estado            = "P"; //PAGADO
+                $movimientoventa->ruc               = $ruc;
+                $movimientoventa->razon             = $razon;
+                $movimientoventa->direccion         = $direccion;
+                $movimientoventa->cuota_id          = $cuota->id;
+                $movimientoventa->movimiento_id     = $movimiento->id;
+                $movimientoventa->local_id               = $local_id;
+                $movimientoventa->save();
+
+            ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
+            } else {
+                //CREO LA CUOTA
+                $cuota                    = new Cuota();
+                $cuota->monto             = $total2;
+                $cuota->estado            = "P"; //PENDIENTE
+                $cuota->cicloacademico_id = $cicloacademico->id;
+                $cuota->observacion       = "MATRÍCULA DE ALUMNO";
+                $cuota->save();
+                //CREO EL PRIMER DETALLE DE CUOTA, NO IMPORTA SI ES CERO, AMARRAMOS AMARRAMOS AL ALUMNO A LA CUOTA
+                $alumnocuota            = new AlumnoCuota();
+                $alumnocuota->monto     = $total2;
+                $alumnocuota->alumno_id = $alumno->id;
+                $alumnocuota->cuota_id  = $cuota->id;
+                $alumnocuota->save();
+                //SI EL PAGO ES MAYOR A 0 SOLES
+                if((float)$total2 > 0.00) {
+                    //CREO EL MOVIMIENTO DE INGRESO A CAJA
+                    $movimiento                    = new Movimiento();
+                    $movimiento->fecha             = date("Y-m-d");
+                    $movimiento->numero            = $request->input('numero');
+                    $movimiento->persona_id        = $alumno->id;
+                    $movimiento->responsable_id    = $user->persona->id;
+                    $movimiento->tipomovimiento_id = 1; //CAJA
+                    $movimiento->totalefectivo     = $efectivo;
+                    $movimiento->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                    $movimiento->totalvisa         = $visa;
+                    $movimiento->totalmaster       = $master;
+                    $movimiento->total             = $total2;
+                    $movimiento->igv               = 0;
+                    $movimiento->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                    $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
+                    $movimiento->totalpagado       = $total2;
+                    $movimiento->estado            = "P"; //PAGADO
+                    $movimiento->cuota_id          = $cuota->id;
+                    $movimiento->local_id          = $local_id;
+                    $movimiento->save();
+                }
+            }
         });
         return is_null($error) ? "OK" : $error;
     }

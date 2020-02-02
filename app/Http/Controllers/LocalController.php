@@ -37,13 +37,14 @@ class LocalController extends Controller
     {
         $user             = Auth::user();
         $id               = $user->persona_id;
+        $local_id         = $user->persona->local_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Local';
         $serie            = Libreria::getParam($request->input('serie'));
         $nombre           = Libreria::getParam($request->input('nombre'));
         $tipo             = Libreria::getParam($request->input('tipo'));
-        $resultado        = Local::listar($serie, $nombre, $tipo);
+        $resultado        = Local::listar($serie, $nombre, $tipo, $local_id);
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -89,15 +90,13 @@ class LocalController extends Controller
         $local               = null;
         $formData            = array('local.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales          = [''=>'No depende de otro local'] + Local::pluck('nombre', 'id')->all();
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar', 'cboLocales'));
+        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function store(Request $request)
     {
         $now        = new \DateTime();
-        $user       = Auth::user();
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $validacion = Validator::make($request->all(),
             array(
@@ -112,11 +111,13 @@ class LocalController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $now){
+            $user                 = Auth::user();
+            $local_id             = $user->persona->local_id;
             $local                = new Local();
             $local->serie         = $request->input('serie');
             $local->nombre        = $request->input('nombre');
             $local->descripcion   = $request->input('descripcion');
-            $local->local_id      = $request->input('local_id');
+            $local->local_id      = $local_id;
             $local->tipo          = $request->input('tipo');
             $local->logo          = "123";
             //$local->estado        = false;
@@ -187,9 +188,8 @@ class LocalController extends Controller
         $entidad  = 'Local';
         $formData = array('local.update', $id);
         $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales = [''=>'No depende de otro local'] + Local::pluck('nombre', 'id')->all();
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar', 'cboLocales'));
+        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function update(Request $request, $id)
@@ -211,11 +211,13 @@ class LocalController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
+            $user                 = Auth::user();
+            $local_id             = $user->persona->local_id;
             $local                = Local::find($id);
             $local->serie         = $request->input('serie');
             $local->nombre        = $request->input('nombre');
             $local->descripcion   = $request->input('descripcion');
-            $local->local_id      = $request->input('local_id');
+            $local->local_id      = $local_id;
             $local->tipo          = $request->input('tipo');
             $local->logo          = "123";
             $local->save();

@@ -9,21 +9,6 @@
 				{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'placeholder' => 'Ingrese descripción', 'rows' => '3', 'maxlength' => '100')) !!}
 			</div>
 		</div>
-		@if(Auth::user()->usertype_id!==1)
-			<div class="form-group">
-				{!! Form::label('local', 'Local:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-				<div class="col-lg-9 col-md-9 col-sm-9">
-					{!! Form::text('local', $local, array('class' => 'form-control input-xs', 'id' => 'local', 'disabled' => true)) !!}
-				</div>
-			</div>
-		@else
-			<div class="form-group">
-				{!! Form::label('local_id', 'Local:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-				<div class="col-lg-9 col-md-9 col-sm-9">
-					{!! Form::select('local_id', $cboLocales, $local_id, array('class' => 'form-control input-xs', 'id' => 'local_id', 'onchange' => 'cargarNiveles();')) !!}
-				</div>
-			</div>
-		@endif
 		<div class="form-group">
 			{!! Form::label('nivel_id', 'Nivel:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">

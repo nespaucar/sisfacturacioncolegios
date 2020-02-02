@@ -9,12 +9,6 @@
 				{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'placeholder' => 'Ingrese descripción', 'rows' => '3', 'maxlength' => '100')) !!}
 			</div>
 		</div>
-		<div class="form-group">
-			{!! Form::label('local_id', 'Local:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-9 col-md-9 col-sm-9">
-				{!! Form::select('local_id', $cboLocales, null, array('class' => 'form-control input-xs', 'id' => 'local_id')) !!}
-			</div>
-		</div>		
 	</div>
 </div>
 		

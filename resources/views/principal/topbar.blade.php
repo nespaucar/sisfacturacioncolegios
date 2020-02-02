@@ -7,8 +7,9 @@ use App\Persona;
 $user                  = Auth::user();
 session(['usertype_id' => $user->usertype_id]);
 $tipousuario_id        = session('usertype_id');
-$menu2                  = generarMenuHorizontal($tipousuario_id);
+$menu2                 = generarMenuHorizontal($tipousuario_id);
 $person                = Persona::find($user->persona_id);
+$nombrelocal           = mb_strtoupper($person->local->nombre);
 ?>
 <!-- Begin page -->
         <div id="wrapper">
@@ -36,15 +37,16 @@ $person                = Persona::find($user->persona_id);
 
                             {!! $menu2 !!}
 
-                            <!--
+                            
 
                             <ul class="nav navbar-nav navbar-right pull-right">
 
-                                <li class="dropdown hidden-xs">
+                                <!--<li class="dropdown hidden-xs">
                                     <a href="#" data-target="#" class="dropdown-toggle waves-effect waves-light"
                                        data-toggle="dropdown" aria-expanded="true">
                                         <i class="md md-notifications"></i> <span
                                             class="badge badge-xs badge-pink">3</span>
+                                            lol
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-lg">
                                         <li class="text-center notifi-title">Notification</li>
@@ -106,12 +108,15 @@ $person                = Persona::find($user->persona_id);
                                 </li>
                                 <li class="hidden-xs">
                                     <a href="#" class="right-bar-toggle waves-effect waves-light"><i
-                                            class="md md-settings"></i></a>
+                                            class="md md-settings"></i>gagagag</a>
+                                </li>-->
+                                <li class="hidden-xs">
+                                    <a href="#" class="right-bar-toggle waves-effect waves-light">
+                                        <i class="md md-home"></i>
+                                        <b id="nombreGeneralLocal">{{$nombrelocal}}</b>
+                                    </a>
                                 </li>
-
                             </ul>
-
-                        -->
                         </div>
                         <!--/.nav-collapse -->
                     </div>

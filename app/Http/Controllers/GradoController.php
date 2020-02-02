@@ -37,12 +37,12 @@ class GradoController extends Controller
     public function buscar(Request $request)
     {
         $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $id               = $user->persona_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Grado';
         $descripcion      = Libreria::getParam($request->input('descripcion'));
-        $local_id         = Libreria::getParam($request->input('local_id'));
         $resultado        = Grado::listar($descripcion, $local_id);
         $lista            = $resultado->get();
         $cabecera         = array();
@@ -75,8 +75,7 @@ class GradoController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        $cboLocales       = [''=>'--TODOS--'] + Local::pluck('nombre', 'id')->all();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboLocales'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
     }
 
     public function create(Request $request)
@@ -86,12 +85,11 @@ class GradoController extends Controller
         $grado               = null;
         $formData            = array('grado.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales          = Local::pluck('nombre', 'id')->all();
         $local               = Auth::user()->persona->local->nombre;
         $local_id            = Auth::user()->persona->local->id;
         $boton               = 'Registrar';
         $primLocal           = Local::first();
-        return view($this->folderview.'.mant')->with(compact('grado', 'formData', 'entidad', 'boton', 'listar', 'cboLocales', 'local', 'local_id'));
+        return view($this->folderview.'.mant')->with(compact('grado', 'formData', 'entidad', 'boton', 'listar', 'local', 'local_id'));
     }
 
     public function store(Request $request)
@@ -132,15 +130,9 @@ class GradoController extends Controller
         $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $cboNiveles = Nivel::pluck('descripcion', 'id')->all();
         $boton    = 'Modificar';
-        $cboLocales = Local::pluck('nombre', 'id')->all();
-        if(Auth::user()->usertype_id!==1) {
-            $local = Auth::user()->persona->local->nombre;
-            $local_id = Auth::user()->persona->local->id;
-        } else {
-            $local = $grado!==NULL?($grado->nivel!==NULL?($grado->nivel->local!==NULL?$grado->nivel->local->nombre:"-"):"-"):"-";
-            $local_id = $grado!==NULL?($grado->nivel!==NULL?($grado->nivel->local!==NULL?$grado->nivel->local->id:NULL):NULL):NULL;
-        }
-        return view($this->folderview.'.mant')->with(compact('grado', 'formData', 'entidad', 'boton', 'listar', 'cboNiveles', 'cboLocales', 'local', 'local_id'));
+        $local = $grado!==NULL?($grado->nivel!==NULL?($grado->nivel->local!==NULL?$grado->nivel->local->nombre:"-"):"-"):"-";
+        $local_id = $grado!==NULL?($grado->nivel!==NULL?($grado->nivel->local!==NULL?$grado->nivel->local->id:NULL):NULL):NULL;
+        return view($this->folderview.'.mant')->with(compact('grado', 'formData', 'entidad', 'boton', 'listar', 'cboNiveles', 'local', 'local_id'));
     }
 
     public function update(Request $request, $id)
@@ -199,11 +191,7 @@ class GradoController extends Controller
 
     public function cargarNiveles(Request $request) {
         $retorno = "";
-        if(Auth::user()->usertype_id!==1) {
-            $niveles = Nivel::where("local_id", "=", Auth::user()->persona->local_id)->get();
-        } else {
-            $niveles = Nivel::where("local_id", "=", $request->par)->get();
-        }
+        $niveles = Nivel::where("local_id", "=", Auth::user()->persona->local_id)->get();
         if(count($niveles) > 0) {
             foreach ($niveles as $niv) {
                 $retorno .= '<option value="' . $niv->id . '">' . $niv->descripcion . '</option>';
@@ -220,12 +208,11 @@ class GradoController extends Controller
         $grado               = Grado::find($id);
         $formData            = array('grado.secciones');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off', 'onsubmit' => 'return false');
-        $cboLocales          = Local::pluck('nombre', 'id')->all();
         $local               = Auth::user()->persona->local->nombre;
         $local_id            = Auth::user()->persona->local->id;
         $boton               = 'Registrar';
         $primLocal           = Local::first();
-        return view($this->folderview.'.secciones')->with(compact('id', 'grado', 'formData', 'entidad', 'boton', 'listar', 'cboLocales', 'local', 'local_id'));
+        return view($this->folderview.'.secciones')->with(compact('id', 'grado', 'formData', 'entidad', 'boton', 'listar', 'local', 'local_id'));
     }
 
     public function anadirSeccion(Request $request) {

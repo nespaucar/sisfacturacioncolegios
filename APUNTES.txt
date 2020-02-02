@@ -1,0 +1,9 @@
+TRUNCATE `alumno_apoderado`;
+TRUNCATE `alumno_cuota`;
+TRUNCATE `cicloacademico`;
+TRUNCATE `configuracionpago`;
+TRUNCATE `cuota`;
+TRUNCATE `grado`;
+TRUNCATE `movimiento`;
+TRUNCATE `nivel`;
+TRUNCATE `seccion`;

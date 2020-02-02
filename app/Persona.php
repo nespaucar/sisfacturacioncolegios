@@ -25,15 +25,21 @@ class Persona extends Model
         return $this->hasMany('App\AlumnoApoderado', 'apoderado_id');
     }
 
-    public function scopelistarpersonas($query, $nombre, $dni, $usertype_id)
+    public function scopelistarpersonas($query, $nombre, $dni, $usertype_id, $local_id)
     {
-        return $query->where(function($subquery) use($nombre, $dni)
+        return $query->where(function($subquery) use($nombre, $dni, $usertype_id, $local_id)
         {
             if (!is_null($nombre)) {
                 $subquery->where(DB::raw('CONCAT(persona.nombres, " ", apellidopaterno, " ", apellidomaterno)'), 'LIKE', '%'.$nombre.'%');
             }
             if (!is_null($dni)) {
                 $subquery->where('dni', 'LIKE', '%'.$dni.'%');
+            }
+            if (!is_null($usertype_id)) {
+                $subquery->where('usuario.usertype_id', '=', $usertype_id);
+            }
+            if (!is_null($local_id)) {
+                $subquery->where('persona.local_id', '=', $local_id);
             }
         })
         ->join("usuario", "usuario.persona_id", "=", "persona.id")

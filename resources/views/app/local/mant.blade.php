@@ -4,12 +4,6 @@
 <div class="form-group">
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<div class="form-group">
-			{!! Form::label('local_id', 'Local:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-9 col-md-9 col-sm-9">
-				{!! Form::select('local_id', $cboLocales, null, array('class' => 'form-control input-xs', 'id' => 'local_id')) !!}
-			</div>
-		</div>
-		<div class="form-group">
 			{!! Form::label('serie', 'Serie:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
 				{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'Ingrese serie', 'maxlength' => '8')) !!}

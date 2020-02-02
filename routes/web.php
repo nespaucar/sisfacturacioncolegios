@@ -120,6 +120,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('local/alterarestado/{id}/{listarluego}/{estado}', 'LocalController@alterarestado')->name('local.alterarestado');
     Route::resource('local', 'LocalController', array('except' => array('show')));
 
+    Route::get('setearlocal', 'UsuarioController@escogerlocal')->name('usuario.escogerlocal');
+    Route::post('guardarlocal', 'UsuarioController@guardarlocal')->name('usuario.guardarlocal');
+
     /*NIVEL*/
     Route::post('nivel/buscar', 'NivelController@buscar')->name('nivel.buscar');
     Route::get('nivel/eliminar/{id}/{listarluego}', 'NivelController@eliminar')->name('nivel.eliminar');
@@ -188,8 +191,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('alumnoseccion/buscar', 'AlumnoSeccionController@buscar')->name('alumnoseccion.buscar');
     Route::resource('alumnoseccion', 'AlumnoSeccionController', array('except' => array('show')));
     Route::get('alumnoseccion/matriculados', 'alumnoseccionController@matriculados')->name('alumnoseccion.matriculados');
-    Route::get('alumnoseccion/matricularalumno', 'alumnoseccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
-    Route::get('alumnoseccion/confirmarmatricularalumno', 'alumnoseccionController@confirmarmatricularalumno')->name('alumnoseccion.confirmarmatricularalumno');
+    Route::post('alumnoseccion/matricularalumno', 'alumnoseccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
 });
 
 Route::get('storage/{archivo}', function ($archivo) {

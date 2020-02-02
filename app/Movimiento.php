@@ -12,12 +12,15 @@ class Movimiento extends Model
     protected $table = 'movimiento';
     protected $dates = ['deleted_at'];
 
-    public function scopelistaranoescolar($query, $ano)
+    public function scopelistaranoescolar($query, $ano, $local_id)
     {
-        return $query->where(function($subquery) use($ano)
+        return $query->where(function($subquery) use($ano, $local_id)
         {
             if (!is_null($ano)) {
                 $subquery->where(DB::raw('YEAR(fecha)'), '>=', '%'.$ano.'%');
+            }
+            if (!is_null($local_id)) {
+                $subquery->where('local_id', '=', $local_id);
             }
         })
         ->orderBy('id', 'DESC');
@@ -43,6 +46,11 @@ class Movimiento extends Model
     public function conceptopago()
     {
         return $this->belongsTo('App\Conceptopago', 'conceptopago_id');
+    }
+
+    public function local()
+    {
+        return $this->belongsTo('App\Local', 'local_id');
     }
 
     public function tipomovimiento()

@@ -2,7 +2,7 @@
 	use App\AlumnoSeccion;
 ?>
 @if($cicloacademico==NULL)
-<h4 class="text-danger text-center">Aun no se ha realizado la apertura del año escolar {{$anoescolar}}.</h4>
+<h4 class="text-danger text-center">Aún no se ha realizado la apertura del año escolar. {{$anoescolar}}.</h4>
 <div class="form-group">
 	<div class="col-lg-12 col-md-12 col-sm-12 text-right">
 		{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cerrar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
@@ -19,15 +19,16 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('seccion_id', $seccion_id, array('id' => 'seccion_id')) !!}
 	{!! Form::hidden('anoescolar', $anoescolar, array('id' => 'anoescolar')) !!}
+	{!! Form::hidden('cicloacademico_id', $cicloacademico!==NULL?$cicloacademico->id:"", array('id' => 'cicloacademico_id')) !!}
 	<div class="panel-body">
 		<div class="form-group">
 			<div class="col-lg-12 col-md-12 col-sm-12 text-center">
-				{!! Form::button('<i class="fa fa-plus fa-lg"></i> Nuevo', array('class' => 'btn btn-info btn-sm', 'id' => 'btnMatricularAlumno', "onclick" => "focoAlumno();", "href" => "#matricularAlumno", "data-toggle" => "collapse")) !!}
+				{!! Form::button('<i class="fa fa-plus fa-lg"></i> Nuevo', array('class' => 'btn btn-info btn-sm', "onmouseup" => "nuevoAlumno();", "href" => "#matricularAlumno", "data-toggle" => "collapse")) !!}
 			</div>
 		</div>
 		<div class="form-group collapse" id="matricularAlumno">
 			<div class="img img-thumbnail" style="border-style: ridge; padding: 10px; box-shadow: 2px 2px 10px #666;">
-		        <div class="col-lg-6 col-md-6 col-sm-6">
+		        <div id="divDatosAlumno" class="col-lg-12 col-md-12 col-sm-12">
 		            <div class="form-group text-center">
 		                {!! Form::label('numero', 'N° Movimiento', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
 		                <div class="col-lg-3 col-md-3 col-sm-3">
@@ -37,18 +38,18 @@
 		            <div class="form-group">
 		        		{!! Form::label('alumno', "Alumno", array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 		        		<div class="col-lg-10 col-md-10 col-sm-10">
-		                {!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
+		                {!! Form::hidden('persona_id', null, array('id' => 'persona_id')) !!}
 		        		{!! Form::text('alumno', "", array('class' => 'form-control input-sm', 'id' => 'alumno', 'placeholder' => 'Ingrese Paciente')) !!}
 		        		</div>
 		        	</div>
-		            <div class="form-group">
+	        		<div class="form-group">
 		            	<div class="col-lg-12 col-md-12 col-sm-12 text-center">
 		            		{!! Form::label('formapago', "FORMA DE PAGO", array('class' => 'control-label input-sm caja')) !!}
 		            	</div>
 		            </div>
 		            <div class="form-group">
-		                <div class="col-lg-7 col-md-7 col-sm-7 img img-thumbnail" style="border-style: ridge; padding: 10px; box-shadow: 1px 1px 3px #666;">            
-		                    <div class="input-group">
+		                <div class="col-lg-6 col-md-6 col-sm-6 img img-thumbnail" style="border-style: ridge; padding: 10px; box-shadow: 1px 1px 3px #666;">            
+		                    <div class="form-group">
 		                    	<div class="col-lg-4 col-md-4 col-sm-4">
 		                        	<span class="input-group-addon input-sm">EFECTIVO</span>
 		                        </div>
@@ -56,7 +57,7 @@
 		                        	<input onkeyup="calcularTotalPago();" name="efectivo" id="efectivo" type="text" class="form-control input-sm">
 		                        </div>
 		                    </div>
-		                    <div class="input-group">
+		                    <div class="form-group">
 								<div class="col-lg-4 col-md-4 col-sm-4">
 		                        	<span class="input-group-addon input-sm">VISA</span>
 		                        </div>
@@ -66,7 +67,7 @@
 			                        <input style="display:none;" name="numvisa" id="numvisa" type="text" class="form-control input-sm">
 			                    </div>
 		                    </div>
-		                    <div class="input-group">
+		                    <div class="form-group">
 								<div class="col-lg-4 col-md-4 col-sm-4">
 			                        <span class="input-group-addon input-sm">MASTER</span>
 			                    </div>
@@ -77,26 +78,40 @@
 			                    </div>
 		                    </div>  
 		                </div>  
-		                <div class="col-lg-5 col-md-5 col-sm-5">            
-		                    <div class="input-group">
-		                        <span class="input-group-addon input-sm">TOTAL</span>
-		                        <input name="total" id="total" type="text" class="form-control input-sm" readonly="" value="100.00">
+		                <div class="col-lg-6 col-md-6 col-sm-6">            
+		                    <div class="form-group">
+		                    	<div class="col-lg-4 col-md-4 col-sm-4">
+		                        	<span class="input-group-addon input-sm">TOTAL</span>
+		                        </div>
+		                        <div class="col-lg-8 col-md-8 col-sm-8">
+		                        	<input name="total" id="total" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                        </div>
 		                    </div>
-		                    <div class="input-group">
-		                        <span class="input-group-addon input-sm">A PAGAR</span>
-		                        <input name="total2" id="total2" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                    <div class="form-group">
+		                    	<div class="col-lg-4 col-md-4 col-sm-4">
+		                        	<span class="input-group-addon input-sm">A PAGAR</span>
+		                        </div>
+		                        <div class="col-lg-8 col-md-8 col-sm-8">
+		                        	<input name="total2" id="total2" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                        </div>
 		                    </div>
-		                    <div class="input-group">
-		                        <span class="input-group-addon input-sm">A CUENTA</span>
-		                        <input name="cuenta" id="cuenta" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                    <div class="form-group">
+		                    	<div class="col-lg-4 col-md-4 col-sm-4">
+		                        	<span class="input-group-addon input-sm">A CUENTA</span>
+		                        </div>
+		                        <div class="col-lg-8 col-md-8 col-sm-8">
+		                        	<input name="cuenta" id="cuenta" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                        </div>
 		                    </div>
-		                    <div class="input-group">
-		                    	<b class="text-right" id="mensajeMontos" style="padding-top: 20px; font-size: 12px; color:red"></b>
+		                    <div class="form-group">
+		                    	<div class="col-lg-8 col-md-8 col-sm-8">
+		                    		<b id="mensajeMontos" style="padding-top: 20px; font-size: 12px; color:red"></b>
+		                    	</div>
 		                    </div>
 		                </div>   
-		            </div>
+		            </div>		            
 		        </div>
-		        <div class="col-lg-6 col-md-6 col-sm-6 img img-thumbnail" style="border-style: ridge; padding: 10px; box-shadow: 1px 1px 3px #666;">
+		        <div id="divDocVenta" class="col-lg-6 col-md-6 col-sm-6 img img-thumbnail" style="border-style: ridge; padding: 10px; box-shadow: 1px 1px 3px #666;">
 		        	<div class="form-group">
 		            	<div class="col-lg-12 col-md-12 col-sm-12 text-center">
 		            		{!! Form::label('formapago', htmlentities('DOCUMENTO DE VENTA'), array('class' => 'control-label input-sm caja')) !!}
@@ -117,22 +132,27 @@
 		            <div class="form-group datofactura hide">
 		                {!! Form::label('ruc', 'RUC', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 		        		<div class="col-lg-5 col-md-5 col-sm-5">
-		        			{!! Form::text('ruc', null, array('class' => 'form-control input-sm', 'id' => 'ruc')) !!}
+		        			{!! Form::text('ruc', null, array('class' => 'form-control input-sm', 'id' => 'ruc', 'maxlength' => '11', 'onkeyup' => 'buscarEmpresa(this.value);')) !!}
 		        		</div>
 		            </div>
 		            <div class="form-group datofactura hide">
 		                {!! Form::label('razon', 'Razón', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 		        		<div class="col-lg-10 col-md-10 col-sm-10">
-		        			{!! Form::text('razon', null, array('class' => 'form-control input-sm', 'id' => 'razon')) !!}
+		        			{!! Form::text('razon', null, array('class' => 'form-control input-sm', 'id' => 'razon', 'readonly' => true, 'maxlength' => '80')) !!}
 		        		</div>
 		            </div>
 		            <div class="form-group datofactura hide">
 		                {!! Form::label('direccion', "Dirección", array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 		        		<div class="col-lg-10 col-md-10 col-sm-10">
-		        			{!! Form::text('direccion', null, array('class' => 'form-control input-sm', 'id' => 'direccion')) !!}
+		        			{!! Form::text('direccion', null, array('class' => 'form-control input-sm', 'id' => 'direccion', 'maxlength' => '80')) !!}
 		        		</div>
 		        	</div>
 		        </div> 
+		        <div class="form-group">
+					<div class="col-lg-12 col-md-12 col-sm-12 text-right">
+						{!! Form::button('<i class="fa fa-check fa-lg"></i> Matricular a Alumno', array('class' => 'btn btn-success btn-sm', 'id' => 'btnMatricular'.$entidad, 'onclick' => 'matricularAlumno(this);')) !!}
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="form-group">
@@ -217,15 +237,72 @@
 		});
 
 		$(".twitter-typeahead").prop("style", ""); //PARA QUITAR ESTILO A TYPEAHEAD
+
+		//SETEO EL VALOR DE LA MATRÍCULA
+		@if($cmatricula !== NULL)
+			$("#total").val("{{ $cmatricula->monto }}");
+		@endif
+
+		$("#divDocVenta").hide();
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val('-');
 	});
 
-	function matricularAlumno() {
-
+	function matricularAlumno(btn) {
+		if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val()=="") {
+			$.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'Debes seleccionar a un alumno.');
+            $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val('').focus();
+		} else {
+			confirmarMatriculaDeAlumno('{{ $entidad }}', btn);
+		}
 	}
 
-	function focoAlumno() {
-		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').focus();
+	function nuevoAlumno() {
+		mostrarDivDocVenta(false);
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').typeahead('val', '');
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="efectivo"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="visa"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="master"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razon"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val("");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipodocumento"]').val("B");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val("0.00");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cuenta"]').val("0.00");
+		generarNumero();
+		setTimeout(function() {
+		    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').focus();
+		    $("#mensajeMontos").html('');
+		}, 500);
 	}
+
+	function buscarEmpresa(ruc){  
+		if(ruc.length==11) {
+			$.ajax({
+	            type: 'GET',
+	            url: "SunatPHP/demo.php?ruc="+ruc,
+	            beforeSend(){
+	                $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val('Comprobando...');
+	            },
+	            success: function (data, textStatus, jqXHR) {
+	                if(data.RazonSocial == null) {
+	                    $.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'El RUC ingresado no existe... Digite uno válido.');
+	                    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val('').focus();
+	                    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razon"]').val('');
+	                    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val('');
+	                } else {
+	                    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val(ruc);
+	                    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razon"]').val(data.RazonSocial);
+	                    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val('-');
+	                }
+	            }
+	        });
+		} else {
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razon"]').val('');
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val('-');
+		}
+    }
 
 	function generarNumero() {
 		var tipodocumento = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipodocumento"]').val();
@@ -235,6 +312,7 @@
 				break;
 			case "F":
 				$(".datofactura").removeClass("hide");
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').focus();
 				break;
 		}
 	}
@@ -266,19 +344,69 @@
 	}
 
 	function coincidenciasMontos() {
+		mostrarDivDocVenta(false);
 	    if(parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val()) == parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val())) {
 	        $("#mensajeMontos").html('Los Montos coinciden').css('color', 'green');
 	        $('#genComp').css('display', '');
-	        return true;
+	        mostrarDivDocVenta(true);
 	    } else if(parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val()) > parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val())) {
 	        $("#mensajeMontos").html('Monto a pagar menor.').css('color', 'orange');  
-	        $('#genComp').css('display', 'none');       
-	        return true;
+	        $('#genComp').css('display', 'none');
 	    } else if(parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val()) < parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val())) {
 	        $("#mensajeMontos").html('Monto a pagar mayor.').css('color', 'red'); 
-	        $('#genComp').css('display', 'none');       
-	        return false;
+	        $('#genComp').css('display', 'none');
 	    }
+	}
+
+	function mostrarDivDocVenta(mostrar) {
+		$("#divDocVenta").hide();
+		$("#divDatosAlumno").addClass("col-lg-12").addClass("col-md-12").addClass("col-sm-12");
+		$("#divDatosAlumno").removeClass("col-lg-6").removeClass("col-md-6").removeClass("col-sm-6");
+		if(mostrar) {
+			$("#divDatosAlumno").removeClass("col-lg-12").removeClass("col-md-12").removeClass("col-sm-12");
+			$("#divDatosAlumno").addClass("col-lg-6").addClass("col-md-6").addClass("col-sm-6");
+			$("#divDocVenta").show();
+		}
+	}
+
+	function confirmarMatriculaDeAlumno(entidad, idboton) {
+		var idformulario = IDFORMMANTENIMIENTO + entidad;
+		alert(idformulario);
+		var form = $(idformulario);
+		var data = form.serialize();
+		alert(data);
+		var listar       = 'SI';
+		var btn = $(idboton);
+		btn.button('loading');
+		var accion = $(idformulario).attr('action');
+		var metodo = $(idformulario).attr('method');
+		$.ajax({
+			url : accion,
+			type: metodo,
+			data: data,
+		}).done(function(msg) {
+			respuesta = msg;
+		}).fail(function(xhr, textStatus, errorThrown) {
+			respuesta = 'ERROR';
+		}).always(function() {
+			btn.button('reset');
+			if(respuesta === 'ERROR'){
+			}else{
+				if (respuesta === 'OK') {
+					cerrarModal();
+					if (listar === 'SI') {
+						if(typeof entidad2 != 'undefined' && entidad2 !== ''){
+							entidad = entidad2;
+						}
+						buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+					}  
+					$("#matricularAlumno").collapse("hide");
+					$.Notification.autoHideNotify('success', 'top right', "¡ÉXITO!", 'Alumno registrado correctamente');      
+				} else {
+					mostrarErrores(respuesta, idformulario, entidad);
+				}
+			}
+		});
 	}
 </script>
 @endif

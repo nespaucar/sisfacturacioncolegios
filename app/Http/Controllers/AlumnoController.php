@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use Hash;
 use App\Persona;
+use App\Local;
 use App\AlumnoApoderado;
 use App\Nivel;
 use App\Usuario;
@@ -47,7 +48,8 @@ class AlumnoController extends Controller
         $entidad          = 'Alumno';
         $nombre           = Libreria::getParam($request->input('nombres'));
         $dni              = Libreria::getParam($request->input('dni'));
-        $resultado        = Persona::listarpersonas($nombre, $dni, 2); //ALUMNOS
+        $local_id         = $user->persona->local_id;
+        $resultado        = Persona::listarpersonas($nombre, $dni, 2, $local_id); //ALUMNOS
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -115,6 +117,8 @@ class AlumnoController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request){
+            $user                    = Auth::user();
+            $local_id                = $user->persona->local_id;
             $alumno                  = new Persona();
             $alumno->dni             = $request->input('dni');
             $alumno->nombres         = $request->input('nombres');
@@ -123,6 +127,7 @@ class AlumnoController extends Controller
             $alumno->direccion       = $request->input('direccion');
             $alumno->fechanacimiento = $request->input('fechanacimiento');
             $alumno->telefono        = $request->input('telefono');
+            $alumno->local_id        = $local_id;
             $alumno->save();
             //CREAMOS USUARIO
             $usuario               = new Usuario();
@@ -198,6 +203,8 @@ class AlumnoController extends Controller
             if($request->apoderado_id!==NULL&&$request->apoderado_id!=="") {
                 $apoderado = Persona::find($request->apoderado_id);
             }
+            $user                       = Auth::user();
+            $local_id                   = $user->persona->local_id;
             $apoderado->dni             = $request->input('dni');
             $apoderado->nombres         = $request->input('nombres');
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
@@ -205,6 +212,7 @@ class AlumnoController extends Controller
             $apoderado->direccion       = $request->input('direccion');
             $apoderado->fechanacimiento = $request->input('fechanacimiento');
             $apoderado->telefono        = $request->input('telefono');
+            $apoderado->local_id        = $local_id;
             $apoderado->save();
             //CREAMOS USUARIO
             $usuario                  = new Usuario();
@@ -288,6 +296,8 @@ class AlumnoController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
+            $user                    = Auth::user();
+            $local_id                = $user->persona->local_id;
             $alumno                  = Persona::find($id);
             $alumno->dni             = $request->input('dni');
             $alumno->nombres         = $request->input('nombres');
@@ -296,6 +306,7 @@ class AlumnoController extends Controller
             $alumno->direccion       = $request->input('direccion');
             $alumno->fechanacimiento = $request->input('fechanacimiento');
             $alumno->telefono        = $request->input('telefono');
+            $alumno->local_id        = $local_id;
             $alumno->save();
             //CREAMOS USUARIO
             $usuario               = Usuario::where("persona_id", "=", $id)->first();

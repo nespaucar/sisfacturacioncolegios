@@ -35,12 +35,12 @@ class NivelController extends Controller
     public function buscar(Request $request)
     {
         $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $id               = $user->persona_id;
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Nivel';
         $descripcion      = Libreria::getParam($request->input('descripcion'));
-        $local_id         = Libreria::getParam($request->input('local_id'));
         $resultado        = Nivel::listar($descripcion, $local_id);
         $lista            = $resultado->get();
         $cabecera         = array();
@@ -72,8 +72,7 @@ class NivelController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        $cboLocales       = [''=>'--TODOS--'] + Local::pluck('nombre', 'id')->all();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboLocales'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
     }
 
     public function create(Request $request)
@@ -83,9 +82,8 @@ class NivelController extends Controller
         $nivel               = null;
         $formData            = array('nivel.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales          = Local::pluck('nombre', 'id')->all();
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('nivel', 'formData', 'entidad', 'boton', 'listar', 'cboLocales'));
+        return view($this->folderview.'.mant')->with(compact('nivel', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function store(Request $request)
@@ -100,9 +98,10 @@ class NivelController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request){
+            $local_id             = $user->persona->local_id;
             $nivel                = new Nivel();
             $nivel->descripcion   = $request->input('descripcion');
-            $nivel->local_id      = $request->input('local_id');
+            $nivel->local_id      = $local_id;
             $nivel->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -124,9 +123,8 @@ class NivelController extends Controller
         $entidad  = 'Nivel';
         $formData = array('nivel.update', $id);
         $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboLocales = Local::pluck('nombre', 'id')->all();
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('nivel', 'formData', 'entidad', 'boton', 'listar', 'cboLocales'));
+        return view($this->folderview.'.mant')->with(compact('nivel', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function update(Request $request, $id)
@@ -145,9 +143,11 @@ class NivelController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
+            $user                 = Auth::user();
+            $local_id             = $user->persona->local_id;
             $nivel                = Nivel::find($id);
             $nivel->descripcion   = $request->input('descripcion');
-            $nivel->local_id      = $request->input('local_id');
+            $nivel->local_id      = $local_id;
             $nivel->save();
         });
         return is_null($error) ? "OK" : $error;
