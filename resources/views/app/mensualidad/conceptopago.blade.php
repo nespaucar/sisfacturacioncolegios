@@ -348,11 +348,12 @@
 			}else{
 				if (respuesta === 'OK') {
 					if (listar === 'SI') {
-						buscar('Matricula');
+						buscar('Mensualidad');
 					}
 					nuevoPago();
 					$.Notification.autoHideNotify('success', 'top right', "¡ÉXITO!", 'Pago registrado correctamente');  
-					llenarTablaPagos(entidad);    
+					llenarTablaPagos(entidad);   
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="efectivo"]').focus(); 
 				} else {
 					mostrarErrores(respuesta, idformulario, entidad);
 				}

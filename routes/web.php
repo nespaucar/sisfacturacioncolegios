@@ -205,7 +205,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('mensualidad/buscar', 'MensualidadController@buscar')->name('mensualidad.buscar');
     Route::resource('mensualidad', 'MensualidadController', array('except' => array('show')));
     Route::get('mensualidad/conceptopago', 'MensualidadController@conceptopago')->name('mensualidad.conceptopago');
-    Route::post('mensualidad/matricularalumno', 'MensualidadController@matricularalumno')->name('mensualidad.matricularalumno');
+    Route::post('mensualidad/realizarPago', 'MensualidadController@realizarPago')->name('mensualidad.realizarPago');
     Route::post('mensualidad/llenarTablaPagos', 'MensualidadController@llenarTablaPagos')->name('mensualidad.llenarTablaPagos');
     Route::get('mensualidad/eliminar/{id}/{listarluego}/{adicional}', 'MensualidadController@eliminar')->name('mensualidad.eliminar');
 });

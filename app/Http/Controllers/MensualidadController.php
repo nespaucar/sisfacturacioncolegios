@@ -29,7 +29,7 @@ class MensualidadController extends Controller
     protected $rutas           = array('create' => 'mensualidad.create', 
             'edit'   => 'mensualidad.edit', 
             'conceptopago' => 'mensualidad.conceptopago',
-            'matricularalumno' => 'mensualidad.matricularalumno',
+            'realizarPago' => 'mensualidad.realizarPago',
             'search' => 'mensualidad.buscar',
             'index'  => 'mensualidad.index',
         );
@@ -143,21 +143,24 @@ class MensualidadController extends Controller
             $cpago             = Conceptopago::find(6);
             $monto_mensualidad = $cpago->monto.""; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
         }
-        $listar             = 'SI';
+        $listar             = 'NO';
         $title              = $this->tituloAdmin;
         $ruta               = $this->rutas;
-        $formData           = array('route' => array('mensualidad.matricularalumno', $alumno_seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $formData           = array('route' => array('mensualidad.realizarPago', $alumno_seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         return view($this->folderview.'.conceptopago')->with(compact('entidad', 'title', 'ruta', 'formData', 'listar', 'alumnoseccion', 'monto_mensualidad', 'cpago'));
     }
 
-    public function matricularalumno(Request $request) {
+    public function realizarPago(Request $request) {
         $error = DB::transaction(function() use($request){
             $user              = Auth::user();
             $local_id          = $user->persona->local_id;
             $seccion_id        = $request->seccion_id;
+            $conceptopago_id   = $request->conceptopago_id;
+            $alumno_seccion_id = $request->alumnoseccion_id;
+            $cicloacademico_id = $request->cicloacademico_id;
+            $conceptopago_id   = $request->conceptopago_id;
             $listar            = $request->listar;
-            $anoescolar        = $request->anoescolar;
-            $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+            $cicloacademico    = Cicloacademico::find($cicloacademico_id);
             $persona_id        = $request->persona_id;
             $efectivo          = ($request->efectivo==""?0.00:$request->efectivo);
             $visa              = ($request->visa==""?0.00:$request->visa);
@@ -171,31 +174,25 @@ class MensualidadController extends Controller
             $direccion         = $request->direccion;
             $user              = Auth::user();
 
-            //EMPIEZO A MATRICULAR AL ALUMNO
+            //BUSCO LA MATRÍCULA DEL ALUMNO
             $seccion = Seccion::find($seccion_id);
             $alumno  = Persona::find($persona_id);
-            $cicloacademico = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
 
-            $mensualidad  = new AlumnoSeccion();
-            $mensualidad->alumno_id = $persona_id;
-            $mensualidad->cicloacademico_id = $cicloacademico->id;
-            $mensualidad->seccion_id = $seccion_id;
-            $mensualidad->observacion = "MATRÍCULA DE ALUMNO";
-            $mensualidad->save();
+            $mensualidad  = AlumnoSeccion::where("alumno_id", "=", $persona_id)
+                    ->where("cicloacademico_id", "=", $cicloacademico_id)
+                    ->where("seccion_id", "=", $seccion_id)
+                    ->first();
+
+            //BUSCO LA CUOTA DEL ALUMNO
+            $cuota        = Cuota::where("alumno_seccion_id", "=", $alumno_seccion_id)
+                    ->where("cicloacademico_id", "=", $cicloacademico_id)
+                    ->first();
 
             ####SI EL ALUMNO HA COMPETADO EL PAGO TOTAL
-            if((float)$cuenta == 0) {            
-                //CREO LA CUOTA
-                $cuota                    = new Cuota();
-                $cuota->monto             = $total2;
-                $cuota->estado            = "C"; //CANCELADA
-                $cuota->cicloacademico_id = $cicloacademico->id;
-                $cuota->observacion       = "MATRÍCULA DE ALUMNO";
-                $cuota->alumno_seccion_id = $mensualidad->id;
-                $cuota->save();
+            if((float)$cuenta == 0) {                
                 //CREO EL PRIMERO Y ÚNICO DETALLE DE CUOTA
                 $alumnocuota            = new AlumnoCuota();
-                $alumnocuota->monto     = $total;
+                $alumnocuota->monto     = $total2;
                 $alumnocuota->alumno_id = $alumno->id;
                 $alumnocuota->cuota_id  = $cuota->id;
                 $alumnocuota->save();
@@ -244,14 +241,6 @@ class MensualidadController extends Controller
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
             } else {
-                //CREO LA CUOTA
-                $cuota                    = new Cuota();
-                $cuota->monto             = $total2;
-                $cuota->estado            = "P"; //PENDIENTE
-                $cuota->cicloacademico_id = $cicloacademico->id;
-                $cuota->observacion       = "MATRÍCULA DE ALUMNO";
-                $cuota->alumno_seccion_id = $mensualidad->id;
-                $cuota->save();
                 //CREO EL PRIMER DETALLE DE CUOTA, NO IMPORTA SI ES CERO, AMARRAMOS AMARRAMOS AL ALUMNO A LA CUOTA
                 $alumnocuota            = new AlumnoCuota();
                 $alumnocuota->monto     = $total2;
