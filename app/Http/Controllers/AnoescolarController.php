@@ -21,7 +21,7 @@ class AnoescolarController extends Controller
     protected $tituloModificar = 'Modificar Año Escolar';
     protected $tituloEliminar  = 'Eliminar Anoescolar';
     protected $rutas           = array('create' => 'anoescolar.create', 
-            'edit'   => 'anoescolar.edit', 
+            'cierre' => 'anoescolar.cierre', 
             'delete' => 'anoescolar.eliminar',
             'search' => 'anoescolar.buscar',
             'index'  => 'anoescolar.index',
@@ -42,7 +42,9 @@ class AnoescolarController extends Controller
         $entidad          = 'Anoescolar';
         //INGRESOS Y EGRESOS DE UN MISMO AÑO ESCOLAR
         $anoactual        = date("Y");
-        $resultado        = Movimiento::listaranoescolar($anoactual, $local_id);
+        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoactual)->first();
+        $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
+        $resultado        = Movimiento::listaranoescolar($cicloacademico_id, $local_id);
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -58,7 +60,7 @@ class AnoescolarController extends Controller
         $cabecera[]       = array('valor' => 'Master', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Estado', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        $cabecera[]       = array('valor' => 'X', 'numero' => '1');
 
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -88,16 +90,16 @@ class AnoescolarController extends Controller
 
     public function create(Request $request)
     {
-        $user             = Auth::user();
-        $local_id         = $user->persona->local_id;
-        $listar              = Libreria::getParam($request->input('listar'), 'NO');
-        $entidad             = 'Anoescolar';
-        $anoescolar          = null;
-        $monto               = 0.00;
-        $boton               = "Confirmar apertura";
-        $numero              = Movimiento::numerosigue(5, null, $local_id); //NÚMERO DE APERTURA DE CAJA QUE SIGUE
-        $formData            = array('anoescolar.store');
-        $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $user       = Auth::user();
+        $local_id   = $user->persona->local_id;
+        $listar     = Libreria::getParam($request->input('listar'), 'NO');
+        $entidad    = 'Anoescolar';
+        $anoescolar = null;
+        $monto      = 0.00;
+        $boton      = "Confirmar apertura";
+        $numero     = Movimiento::numerosigue(5, null, $local_id); //NÚMERO DE APERTURA DE CAJA QUE SIGUE
+        $formData   = array('anoescolar.store');
+        $formData   = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         return view($this->folderview.'.mant')->with(compact('anoescolar', 'formData', 'entidad', 'boton', 'listar', 'monto', 'numero'));
     }
 
@@ -116,28 +118,30 @@ class AnoescolarController extends Controller
         $error = DB::transaction(function() use($request){
             $user                      = Auth::user();
             $local_id                  = $user->persona->local_id;
-            $anoescolar                = new Movimiento();
-            $anoescolar->fecha         = $request->input('fecha');
-            $anoescolar->numero        = $request->input('numero');
-            $anoescolar->persona_id    = $user->persona->id;
-            $anoescolar->responsable_id = $user->persona->id;
-            $anoescolar->tipomovimiento_id = 5; //APERTURA DE CAJA
-            $anoescolar->totalefectivo = 0;
-            $anoescolar->conceptopago_id = 5; //APERTURA DE CAJA
-            $anoescolar->totalvisa = 0;
-            $anoescolar->totalmaster = 0;
-            $anoescolar->total = 0;
-            $anoescolar->igv = 0;
-            $anoescolar->comentario = $request->input("comentario");
-            $anoescolar->totalpagado = 0;
-            $anoescolar->estado = "P"; //PAGADO
-            $anoescolar->local_id = $local_id;
-            $anoescolar->save();
 
             $cicloacademico = new Cicloacademico();
             $cicloacademico->local_id = $user->persona->local_id;
             $cicloacademico->descripcion = "Año escolar " . date("Y", strtotime($request->input('fecha')));
             $cicloacademico->save();
+
+            $anoescolar                    = new Movimiento();
+            $anoescolar->fecha             = $request->input('fecha');
+            $anoescolar->numero            = $request->input('numero');
+            $anoescolar->persona_id        = $user->persona->id;
+            $anoescolar->responsable_id    = $user->persona->id;
+            $anoescolar->tipomovimiento_id = 5; //APERTURA DE CAJA
+            $anoescolar->totalefectivo     = 0;
+            $anoescolar->conceptopago_id   = 5; //APERTURA DE CAJA
+            $anoescolar->totalvisa         = 0;
+            $anoescolar->totalmaster       = 0;
+            $anoescolar->total             = 0;
+            $anoescolar->igv               = 0;
+            $anoescolar->comentario        = $request->input("comentario");
+            $anoescolar->totalpagado       = 0;
+            $anoescolar->estado            = "P"; //PAGADO
+            $anoescolar->local_id          = $local_id;
+            $anoescolar->cicloacademico_id = $cicloacademico->id;
+            $anoescolar->save();            
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -147,23 +151,21 @@ class AnoescolarController extends Controller
         //
     }
 
-    public function edit(Request $request, $id)
-    {
-        $existe = Libreria::verificarExistencia($id, 'anoescolar');
-        if ($existe !== true) {
-            return $existe;
-        }
-        $listar   = Libreria::getParam($request->input('listar'), 'NO');
-        $anoescolar    = Anoescolar::find($id);
-        $entidad  = 'Anoescolar';
-        $formData = array('anoescolar.update', $id);
-        $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $cboAnoescolares = [''=>'No depende de otro anoescolar'] + Anoescolar::pluck('nombre', 'id')->all();
-        $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('anoescolar', 'formData', 'entidad', 'boton', 'listar', 'cboAnoescolares'));
+    public function cierre(Request $request) {
+        $user       = Auth::user();
+        $local_id   = $user->persona->local_id;
+        $listar     = "SI";
+        $entidad    = 'Anoescolar';
+        $anoescolar = null;
+        $monto      = 0.00;
+        $boton      = "Confirmar cierre";
+        $numero     = Movimiento::numerosigue(6, null, $local_id); //NÚMERO DE CIERRE DE CAJA QUE SIGUE
+        $formData   = array('anoescolar.confirmarcierre');
+        $formData   = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        return view($this->folderview.'.cierre')->with(compact('anoescolar', 'formData', 'entidad', 'boton', 'listar', 'monto', 'numero'));
     }
 
-    public function update(Request $request, $id)
+    public function confirmarcierre(Request $request, $id)
     {
         $existe = Libreria::verificarExistencia($id, 'anoescolar');
         if ($existe !== true) {

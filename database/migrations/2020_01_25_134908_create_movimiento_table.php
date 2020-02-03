@@ -33,6 +33,7 @@ class CreateMovimientoTable extends Migration
             $table->string('direccion', 80)->nullable();
             $table->integer('cuota_id')->unsigned()->nullable();
             $table->integer('local_id')->unsigned()->nullable();
+            $table->integer('cicloacademico_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -25,4 +25,21 @@ class AlumnoSeccion extends Model
 	{
 		return $this->belongsTo('App\Seccion', 'seccion_id');
     }
+
+    public function scopelistar($query, $seccion_id, $cicloacademico_id, $local_id)
+    {
+        return $query->where(function($subquery) use($seccion_id, $cicloacademico_id, $local_id)
+        {
+            if (!is_null($seccion_id)) {
+                $subquery->where('seccion_id', '=', $seccion_id);
+            }
+            if (!is_null($cicloacademico_id)) {
+                $subquery->where('cicloacademico_id', '=', $cicloacademico_id);
+            }
+        })
+        ->join("cicloacademico", "cicloacademico.id", "=", "alumno_seccion.cicloacademico_id")
+        ->where("cicloacademico.local_id", "=", $local_id)
+        ->select("alumno_seccion.*")
+        ->orderBy('alumno_seccion.id', 'DESC');
+    }
 }

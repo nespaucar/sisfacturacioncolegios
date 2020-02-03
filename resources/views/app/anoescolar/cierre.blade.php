@@ -16,7 +16,7 @@
 	<div class="form-group">
 		{!! Form::label('concepto', 'Concepto:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		<div class="col-lg-8 col-md-8 col-sm-8">
-			{!! Form::text('concepto', 'APERTURA DE AÑO ESCOLAR', array('class' => 'form-control', 'id' => 'concepto', 'readonly' => 'true')) !!}
+			{!! Form::text('concepto', 'CIERRE DE AÑO ESCOLAR', array('class' => 'form-control', 'id' => 'concepto', 'readonly' => 'true')) !!}
 		</div>
 	</div>
 	@if($monto != null)
@@ -46,8 +46,8 @@ $(document).ready(function() {
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id = "comentario"]').focus();
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :button[id = "btnGuardar"]').on("click", function() {
-		$("#btnApertura").prop("disabled", true);
-		$("#btnCierre").removeAttr("disabled");
+		$("#btnCierre").prop("disabled", true);
+		$("#btnApertura").removeAttr("disabled");
 	});
 }); 
 </script>

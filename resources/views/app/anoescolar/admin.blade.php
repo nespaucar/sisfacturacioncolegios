@@ -1,6 +1,9 @@
 <?php 
 	use App\Movimiento;
 	use Illuminate\Support\Facades\DB;
+	use Illuminate\Support\Facades\Auth;
+	$user     = Auth::user();
+    $local_id = $user->persona->local_id;
 
 	$anoactual = date("Y");
 
@@ -9,6 +12,7 @@
 	//SI NO LA ENCONTRAMOS HACEMOS EL PROCESO INVERSO
 	$apertura = Movimiento::where("tipomovimiento_id", "=", 5)
 				->where(DB::raw("YEAR(fecha)"), "=", $anoactual)
+				->where("local_id", "=", $local_id)
 				->first();
 
 ?>
@@ -40,13 +44,13 @@
 
 						{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura de Año Escolar', array('class' => 'btn btn-success waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnApertura', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 
-						{!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre de Año Escolar', array('class' => 'btn btn-danger waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnCierre', 'disabled' => 'true')) !!}
+						{!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre de Año Escolar', array('class' => 'btn btn-danger waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnCierre', 'disabled' => true, 'onclick' => 'modal (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \'Cerrar año escolar\', this);')) !!}
 
 					@else
 
-						{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura de Año Escolar', array('class' => 'btn btn-success waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnApertura', 'disabled' => 'true')) !!}
+						{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura de Año Escolar', array('class' => 'btn btn-success waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnApertura', 'disabled' => true, 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 
-						{!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre de Año Escolar', array('class' => 'btn btn-danger waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnCierre', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
+						{!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre de Año Escolar', array('class' => 'btn btn-danger waves-effect waves-light m-l-10 btn-sm input-xs', 'id' => 'btnCierre', 'onclick' => 'modal (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \'Cerrar año escolar\', this);')) !!}
 
 					@endif
 

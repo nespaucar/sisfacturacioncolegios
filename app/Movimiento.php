@@ -12,17 +12,18 @@ class Movimiento extends Model
     protected $table = 'movimiento';
     protected $dates = ['deleted_at'];
 
-    public function scopelistaranoescolar($query, $ano, $local_id)
+    public function scopelistaranoescolar($query, $cicloacademico_id, $local_id)
     {
-        return $query->where(function($subquery) use($ano, $local_id)
+        return $query->where(function($subquery) use($cicloacademico_id, $local_id)
         {
-            if (!is_null($ano)) {
-                $subquery->where(DB::raw('YEAR(fecha)'), '>=', '%'.$ano.'%');
+            if (!is_null($cicloacademico_id)) {
+                $subquery->where('cicloacademico_id', '=', $cicloacademico_id);
             }
             if (!is_null($local_id)) {
                 $subquery->where('local_id', '=', $local_id);
             }
         })
+        ->whereNull("tipodocumento_id")
         ->orderBy('id', 'DESC');
     }
 
@@ -75,5 +76,10 @@ class Movimiento extends Model
     public function movimiento()
     {
         return $this->belongsTo('App\Movimiento', 'movimiento_id');
+    }
+
+    public function cuota()
+    {
+        return $this->belongsTo('App\Cuota', 'cuota_id');
     }
 }

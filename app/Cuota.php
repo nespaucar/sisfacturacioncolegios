@@ -15,4 +15,9 @@ class Cuota extends Model
     {
         return $this->hasMany('App\AlumnoCuota');
     }
+
+    public function cicloacademico()
+    {
+        return $this->belongsTo('App\Cicloacademico', 'cicloacademico_id');
+    }
 }

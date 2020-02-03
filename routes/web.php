@@ -155,6 +155,8 @@ Route::group(['middleware' => 'auth'], function () {
     /*AÑO ESCOLAR*/
     Route::post('anoescolar/buscar', 'AnoescolarController@buscar')->name('anoescolar.buscar');
     Route::get('anoescolar/eliminar/{id}/{listarluego}', 'AnoescolarController@eliminar')->name('anoescolar.eliminar');
+    Route::post('anoescolar/confirmarcierre', 'AnoescolarController@confirmarcierre')->name('anoescolar.confirmarcierre');
+    Route::get('anoescolar/cierre', 'AnoescolarController@cierre')->name('anoescolar.cierre');
     Route::resource('anoescolar', 'AnoescolarController', array('except' => array('show')));
 
     /*CONFIGURACIÓN DE PAGO*/
@@ -190,13 +192,22 @@ Route::group(['middleware' => 'auth'], function () {
     /*ALUMNOSECCION*/
     Route::post('alumnoseccion/buscar', 'AlumnoSeccionController@buscar')->name('alumnoseccion.buscar');
     Route::resource('alumnoseccion', 'AlumnoSeccionController', array('except' => array('show')));
-    Route::get('alumnoseccion/matriculados', 'AlumnoseccionController@matriculados')->name('alumnoseccion.matriculados');
-    Route::post('alumnoseccion/matricularalumno', 'AlumnoseccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
-    Route::post('alumnoseccion/llenarTablaMatriculados', 'AlumnoseccionController@llenarTablaMatriculados')->name('alumnoseccion.llenarTablaMatriculados');
-    Route::get('alumnoseccion/comprobarSiAlumnoEstaMatriculado', 'AlumnoseccionController@comprobarSiAlumnoEstaMatriculado')->name('alumnoseccion.comprobarSiAlumnoEstaMatriculado');
+    Route::get('alumnoseccion/matriculados', 'AlumnoSeccionController@matriculados')->name('alumnoseccion.matriculados');
+    Route::post('alumnoseccion/matricularalumno', 'AlumnoSeccionController@matricularalumno')->name('alumnoseccion.matricularalumno');
+    Route::post('alumnoseccion/llenarTablaMatriculados', 'AlumnoSeccionController@llenarTablaMatriculados')->name('alumnoseccion.llenarTablaMatriculados');
+    Route::get('alumnoseccion/comprobarSiAlumnoEstaMatriculado', 'AlumnoSeccionController@comprobarSiAlumnoEstaMatriculado')->name('alumnoseccion.comprobarSiAlumnoEstaMatriculado');
+    Route::get('alumnoseccion/eliminar/{id}/{listarluego}/{adicional}', 'AlumnoSeccionController@eliminar')->name('alumnoseccion.eliminar');
 
     //NÚMERO SIGUIENTE MOVIMIENTO
-    Route::get('alumnoseccion/numeroSigue', 'AlumnoseccionController@numeroSigue')->name('alumnoseccion.numeroSigue');
+    Route::get('alumnoseccion/numeroSigue', 'AlumnoSeccionController@numeroSigue')->name('alumnoseccion.numeroSigue');
+
+    /*MENSUALIDAD*/
+    Route::post('mensualidad/buscar', 'MensualidadController@buscar')->name('mensualidad.buscar');
+    Route::resource('mensualidad', 'MensualidadController', array('except' => array('show')));
+    Route::get('mensualidad/conceptopago', 'MensualidadController@conceptopago')->name('mensualidad.conceptopago');
+    Route::post('mensualidad/matricularalumno', 'MensualidadController@matricularalumno')->name('mensualidad.matricularalumno');
+    Route::post('mensualidad/llenarTablaPagos', 'MensualidadController@llenarTablaPagos')->name('mensualidad.llenarTablaPagos');
+    Route::get('mensualidad/eliminar/{id}/{listarluego}/{adicional}', 'MensualidadController@eliminar')->name('mensualidad.eliminar');
 });
 
 Route::get('storage/{archivo}', function ($archivo) {

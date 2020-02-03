@@ -11,6 +11,7 @@ use App\Movimiento;
 use App\Nivel;
 use App\Cicloacademico;
 use App\Conceptopago;
+use App\Configuracionpago;
 use App\Persona;
 use App\Cuota;
 use App\Seccion;
@@ -21,19 +22,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class AlumnoSeccionController extends Controller
+class MensualidadController extends Controller
 {
-    protected $folderview      = 'app.alumnoseccion';
-    protected $tituloAdmin     = 'Matrícula';
-    protected $tituloRegistrar = 'Registrar Matrícula';
-    protected $tituloModificar = 'Modificar Matrícula';
-    protected $tituloEliminar  = 'Eliminar Matrícula';
-    protected $rutas           = array('create' => 'alumnoseccion.create', 
-            'edit'   => 'alumnoseccion.edit', 
-            'matriculados' => 'alumnoseccion.matriculados',
-            'matricularalumno' => 'alumnoseccion.matricularalumno',
-            'search' => 'alumnoseccion.buscar',
-            'index'  => 'alumnoseccion.index',
+    protected $folderview      = 'app.mensualidad';
+    protected $tituloAdmin     = 'Mensualidad';
+    protected $rutas           = array('create' => 'mensualidad.create', 
+            'edit'   => 'mensualidad.edit', 
+            'conceptopago' => 'mensualidad.conceptopago',
+            'matricularalumno' => 'mensualidad.matricularalumno',
+            'search' => 'mensualidad.buscar',
+            'index'  => 'mensualidad.index',
         );
 
     public function __construct()
@@ -48,23 +46,34 @@ class AlumnoSeccionController extends Controller
         $local_id          = $user->persona->local_id;
         $pagina            = $request->input('page');
         $filas             = $request->input('filas');
-        $entidad           = 'Matricula';
+        $entidad           = 'Mensualidad';
         $seccion_id        = Libreria::getParam($request->input('seccion_id'));
         $anoescolar        = Libreria::getParam($request->input('anoescolar'));
         $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
         $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
-        $resultado         = Seccion::listar($seccion_id, $local_id);
+        $resultado         = AlumnoSeccion::listar($seccion_id, $cicloacademico_id, $local_id);
         $lista             = $resultado->get();
         $cabecera          = array();
         $cabecera[]        = array('valor' => '#', 'numero' => '1');
         $cabecera[]        = array('valor' => 'Nivel', 'numero' => '1');
         $cabecera[]        = array('valor' => 'Grado', 'numero' => '1');
         $cabecera[]        = array('valor' => 'Sección', 'numero' => '1');
-        $cabecera[]        = array('valor' => 'Año escolar', 'numero' => '1');
-        $cabecera[]        = array('valor' => 'Matriculados', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Alumno', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Matrícula', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Ene', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Feb', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Mar', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Abr', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'May', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Jun', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Jul', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Ago', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Set', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Oct', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Nov', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Dic', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Resumen', 'numero' => '1');
 
-        $titulo_modificar = $this->tituloModificar;
-        $titulo_eliminar  = $this->tituloEliminar;
         $ruta             = $this->rutas;
         if (count($lista) > 0) {
             $clsLibreria     = new Libreria();
@@ -75,16 +84,15 @@ class AlumnoSeccionController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'anoescolar', 'cicloacademico_id'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'ruta', 'anoescolar', 'cicloacademico_id'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'anoescolar', 'cicloacademico_id'));
     }
 
     public function index()
     {
-        $entidad          = 'Matricula';
+        $entidad          = 'Mensualidad';
         $title            = $this->tituloAdmin;
-        $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
         $cboSecciones     = [''=>'--TODAS--'];
         $user             = Auth::user();
@@ -100,20 +108,46 @@ class AlumnoSeccionController extends Controller
             $cboSecciones[$s->id] = ($s->grado!==NULL?$s->grado->descripcion:'-') . ' grado '.($s->descripcion) . ' del nivel ' . ($s->grado!==NULL?($s->grado->nivel!==NULL?$s->grado->nivel->descripcion:'-'):'-');
         }
 
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboSecciones'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'cboSecciones'));
     }
 
-    public function matriculados(Request $request) {
-        $entidad          = 'Curso';
-        $listar           = 'SI';
-        $title            = $this->tituloAdmin;
-        $ruta             = $this->rutas;
-        $anoescolar       = $request->anoescolar;
-        $seccion_id       = $request->id;
-        $cmatricula       = Conceptopago::find(6); //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
-        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
-        $formData = array('route' => array('alumnoseccion.matricularalumno', $seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.matriculados')->with(compact('entidad', 'title', 'ruta', 'anoescolar', 'seccion_id', 'cicloacademico', 'formData', 'listar', 'cmatricula'));
+    public function conceptopago(Request $request) {
+        $entidad            = 'Mensualidad';
+        $alumno_seccion_id  = $request->id;
+        $alumnoseccion      = AlumnoSeccion::find($alumno_seccion_id);
+        //Buscamos la configuración de pago de mensualidad para el alumno
+        $monto_mensualidad  = "0.00";
+        $configuracionpago1 = Configuracionpago::where("alumno_id", "=", $alumnoseccion->alumno_id)->first();
+        $configuracionpago2 = Configuracionpago::where("seccion_id", "=", $alumnoseccion->seccion_id)->first();
+        $configuracionpago3 = Configuracionpago::where("grado_id", "=", $alumnoseccion->seccion->grado_id)->first();
+        $configuracionpago4 = Configuracionpago::where("nivel_id", "=", $alumnoseccion->seccion->grado->nivel_id)->first();
+        $cpago = Conceptopago::find(7);
+        if($configuracionpago1!==NULL) {
+            $monto_mensualidad = $configuracionpago1->monto."";
+        } else {
+            if($configuracionpago2!==NULL) {
+                $monto_mensualidad = $configuracionpago2->monto."";
+            } else {
+                if($configuracionpago3!==NULL) {
+                    $monto_mensualidad = $configuracionpago3->monto."";
+                } else {
+                    if($configuracionpago4!==NULL) {
+                        $monto_mensualidad = $configuracionpago4->monto."";
+                    } else {
+                        $monto_mensualidad = $cpago->monto.""; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
+                    }
+                }
+            }
+        }
+        if($request->listar=="SIS") {
+            $cpago             = Conceptopago::find(6);
+            $monto_mensualidad = $cpago->monto.""; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
+        }
+        $listar             = 'SI';
+        $title              = $this->tituloAdmin;
+        $ruta               = $this->rutas;
+        $formData           = array('route' => array('mensualidad.matricularalumno', $alumno_seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        return view($this->folderview.'.conceptopago')->with(compact('entidad', 'title', 'ruta', 'formData', 'listar', 'alumnoseccion', 'monto_mensualidad', 'cpago'));
     }
 
     public function matricularalumno(Request $request) {
@@ -142,12 +176,12 @@ class AlumnoSeccionController extends Controller
             $alumno  = Persona::find($persona_id);
             $cicloacademico = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
 
-            $alumnoseccion  = new AlumnoSeccion();
-            $alumnoseccion->alumno_id = $persona_id;
-            $alumnoseccion->cicloacademico_id = $cicloacademico->id;
-            $alumnoseccion->seccion_id = $seccion_id;
-            $alumnoseccion->observacion = "MATRÍCULA DE ALUMNO";
-            $alumnoseccion->save();
+            $mensualidad  = new AlumnoSeccion();
+            $mensualidad->alumno_id = $persona_id;
+            $mensualidad->cicloacademico_id = $cicloacademico->id;
+            $mensualidad->seccion_id = $seccion_id;
+            $mensualidad->observacion = "MATRÍCULA DE ALUMNO";
+            $mensualidad->save();
 
             ####SI EL ALUMNO HA COMPETADO EL PAGO TOTAL
             if((float)$cuenta == 0) {            
@@ -157,7 +191,7 @@ class AlumnoSeccionController extends Controller
                 $cuota->estado            = "C"; //CANCELADA
                 $cuota->cicloacademico_id = $cicloacademico->id;
                 $cuota->observacion       = "MATRÍCULA DE ALUMNO";
-                $cuota->alumno_seccion_id = $alumnoseccion->id;
+                $cuota->alumno_seccion_id = $mensualidad->id;
                 $cuota->save();
                 //CREO EL PRIMERO Y ÚNICO DETALLE DE CUOTA
                 $alumnocuota            = new AlumnoCuota();
@@ -184,7 +218,6 @@ class AlumnoSeccionController extends Controller
                 $movimiento->estado            = "P"; //PAGADO
                 $movimiento->local_id          = $local_id;
                 $movimiento->cuota_id          = $cuota->id;
-                $movimiento->cicloacademico_id = $cicloacademico->id;
                 $movimiento->save();                
                 //CREO EL DOCUMENTO DE VENTA
                 $movimientoventa                    = new Movimiento();
@@ -207,7 +240,6 @@ class AlumnoSeccionController extends Controller
                 $movimientoventa->cuota_id          = $cuota->id;
                 $movimientoventa->movimiento_id     = $movimiento->id;
                 $movimientoventa->local_id          = $local_id;
-                $movimientoventa->cicloacademico_id = $cicloacademico->id;
                 $movimientoventa->save();
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
@@ -218,7 +250,7 @@ class AlumnoSeccionController extends Controller
                 $cuota->estado            = "P"; //PENDIENTE
                 $cuota->cicloacademico_id = $cicloacademico->id;
                 $cuota->observacion       = "MATRÍCULA DE ALUMNO";
-                $cuota->alumno_seccion_id = $alumnoseccion->id;
+                $cuota->alumno_seccion_id = $mensualidad->id;
                 $cuota->save();
                 //CREO EL PRIMER DETALLE DE CUOTA, NO IMPORTA SI ES CERO, AMARRAMOS AMARRAMOS AL ALUMNO A LA CUOTA
                 $alumnocuota            = new AlumnoCuota();
@@ -247,7 +279,6 @@ class AlumnoSeccionController extends Controller
                     $movimiento->estado            = "P"; //PAGADO
                     $movimiento->cuota_id          = $cuota->id;
                     $movimiento->local_id          = $local_id;
-                    $movimiento->cicloacademico_id = $cicloacademico->id;
                     $movimiento->save();
                 }
             }
@@ -264,43 +295,6 @@ class AlumnoSeccionController extends Controller
         return Movimiento::numeroSigue($tipomovimiento_id, $tipodocumento_id, $local_id);
     }
 
-    function comprobarSiAlumnoEstaMatriculado(Request $request) {
-        $alumno_id         = $request->alumno_id;
-        $anoescolar        = $request->anoescolar;
-        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
-        $matricula         = AlumnoSeccion::where("alumno_id", "=", $alumno_id)
-                                        ->where("cicloacademico_id", "=", $cicloacademico->id)->first();
-        return ($matricula==NULL?"N":"S");
-    }
-
-    public function llenarTablaMatriculados(Request $request) {
-        $retorno           = "";
-        $seccion_id        = $request->seccion_id;
-        $anoescolar        = $request->anoescolar;
-        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
-
-        $matriculados = AlumnoSeccion::where("seccion_id", "=", $seccion_id)
-                ->where("cicloacademico_id", "=", $cicloacademico->id)
-                ->get();
-
-        if(count($matriculados) > 0) {
-            $contador = 1;
-            foreach ($matriculados as $matri) {
-                $retorno .= '<tr id="tabAlumnos'.$matri->id.'">
-                    <td style="padding:5px;margin:5px;" class="text-center">'.$contador.'</td>
-                    <td style="padding:5px;margin:5px;" class="text-center">'.$matri->alumno->dni.'</td>
-                    <td style="padding:5px;margin:5px;" class="text-center">'.$matri->alumno->apellidopaterno.' '.$matri->alumno->apellidomaterno.' '.$matri->alumno->nombres.'</td>
-                    <td style="padding:5px;margin:5px;" class="text-center">
-                        <button onclick="modal(\'http://localhost/facturacioncolegios/alumnoseccion/eliminar/'.$matri->id.'/SI/MATRICULA\', \'Eliminar Matrícula\', this);" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</button>
-                    </td>
-                </tr>';
-                $contador++;
-            }
-        }
-
-        return $retorno;
-    }
-
     public function destroy($id)
     {
         $existe = Libreria::verificarExistencia($id, 'alumno_seccion');
@@ -309,9 +303,9 @@ class AlumnoSeccionController extends Controller
         }
         $error = DB::transaction(function() use($id){
             //BUSCO LA MATRÍCULA
-            $alumnoseccion = AlumnoSeccion::find($id);
+            $mensualidad = AlumnoSeccion::find($id);
             //BUSCO LA CUOTA
-            $cuota         = Cuota::where("alumno_seccion_id", "=", $alumnoseccion->id)->first();
+            $cuota         = Cuota::where("alumno_seccion_id", "=", $mensualidad->id)->first();
             //BUSCO LOS DETALLES DE LA CUOTA
             $alumnocuotas  = AlumnoCuota::where("cuota_id", "=", $cuota->id)->get();
             //BUSCO EL MOVIMIENTO DE INGRESO A CAJA Y LA ANULO
@@ -343,7 +337,7 @@ class AlumnoSeccionController extends Controller
             //ELIMINO LA CUOTA DEL ALUMNO
             $cuota->delete();
             //ELIMINO LA MATRÍCULA
-            $alumnoseccion->delete();
+            $mensualidad->delete();
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -359,9 +353,52 @@ class AlumnoSeccionController extends Controller
             $listar = $listarLuego;
         }
         $modelo   = AlumnoSeccion::find($id);
-        $entidad  = 'Matricula';
-        $formData = array('route' => array('alumnoseccion.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $entidad  = 'Mensualidad';
+        $formData = array('route' => array('mensualidad.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar', 'adicional'));
+    }
+
+    function llenarTablaPagos(Request $request) {
+        $retorno            = "";
+        $seccion_id         = $request->seccion_id;
+        $alumno_id          = $request->persona_id;
+        $cicloacademico_id  = $request->cicloacademico_id;
+        $alumno_seccion_id  = $request->alumnoseccion_id;
+
+        $cuota = Cuota::where("alumno_seccion_id", "=", $alumno_seccion_id)
+                ->where("cicloacademico_id", "=", $cicloacademico_id)
+                ->first();
+
+        $cuotas = AlumnoCuota::where("alumno_cuota.cuota_id", "=", $cuota->id)
+                ->where("alumno_cuota.alumno_id", "=", $alumno_id)
+                ->get();
+
+        $montopagado = 0.00;
+
+        if(count($cuotas) > 0) {
+            $contador = 1;
+            foreach ($cuotas as $cta) {
+                $retorno .= '<tr id="tabPagos'.$cta->id.'">
+                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.$contador.'</td>
+                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($cta->created_at)).'</td>
+                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.number_format($cta->monto,2,'.','').'</td>
+                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">
+                        <button onclick="modal(\'http://localhost/facturacioncolegios/alumnoseccion/eliminar/'.$cta->id.'/SI/MATRICULA\', \'Eliminar Matrícula\', this);" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</button>
+                    </td>
+                </tr>';
+                $contador++;
+                $montopagado += $cta->monto;
+            }
+        }
+
+        $jsonArray = json_encode(
+            array(
+                "tabla" => $retorno,
+                "montopagado" => $montopagado,
+            )
+        );
+
+        return $jsonArray;
     }
 }
