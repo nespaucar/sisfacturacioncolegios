@@ -14,6 +14,7 @@
 	{!! Form::hidden('cicloacademico_id', $alumnoseccion!==NULL?$alumnoseccion->cicloacademico_id:"", array('id' => 'cicloacademico_id')) !!}
 	{!! Form::hidden('conceptopago_id', $cpago==NULL?"":$cpago->id, array('id' => 'conceptopago_id')) !!}
 	{!! Form::hidden('seccion_id', $alumnoseccion!==NULL?$alumnoseccion->seccion_id:"", array('id' => 'seccion_id')) !!}
+	{!! Form::hidden('mes', $mes, array('id' => 'mes')) !!}
 	<div class="panel-body">
 		<div class="form-group text-center">
             {!! Form::label('alumno', 'Alumno', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
@@ -168,6 +169,8 @@
 							</tr>
 						</tfood>
 				    </table>
+				    <hr>
+				    <div id="infoDocumentoVenta"></div>
 		        </div>
 			</div>
 		</div>
@@ -203,7 +206,11 @@
 		if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val()=="") {
 			$.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'Debes seleccionar a un alumno.');
 		} else {
-			confirmarPago('{{ $entidad }}', btn);
+			if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val()=="0.00") {
+				$.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'Debes digitar un monto mayor a 0.00');
+			} else {
+				confirmarPago('{{ $entidad }}', btn);
+			}			
 		}
 	}
 
@@ -391,6 +398,7 @@
 			}else{
 				$("#tablaPagos").html(respuesta.tabla);
 				$("#montopagado").html(respuesta.montopagado.toFixed(2));
+				$("#infoDocumentoVenta").html(respuesta.documentoventa);
 				var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val();
 				if(total - $("#montopagado").html() == 0) {
 					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total2"]').val("0.00");

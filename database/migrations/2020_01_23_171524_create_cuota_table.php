@@ -20,6 +20,7 @@ class CreateCuotaTable extends Migration
             $table->integer('cicloacademico_id')->unsigned()->nullable();
             $table->string('observacion', 100);
             $table->integer('alumno_seccion_id')->unsigned()->nullable();
+            $table->integer('mes')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

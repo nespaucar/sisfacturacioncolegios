@@ -34,6 +34,7 @@ class CreateMovimientoTable extends Migration
             $table->integer('cuota_id')->unsigned()->nullable();
             $table->integer('local_id')->unsigned()->nullable();
             $table->integer('cicloacademico_id')->unsigned()->nullable();
+            $table->integer('alumno_cuota_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

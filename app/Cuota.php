@@ -20,4 +20,9 @@ class Cuota extends Model
     {
         return $this->belongsTo('App\Cicloacademico', 'cicloacademico_id');
     }
+
+    public function alumnoseccion()
+    {
+        return $this->belongsTo('App\AlumnoSeccion', 'alumno_seccion_id');
+    }
 }

@@ -158,6 +158,7 @@ class AlumnoSeccionController extends Controller
                 $cuota->cicloacademico_id = $cicloacademico->id;
                 $cuota->observacion       = "MATRÍCULA DE ALUMNO";
                 $cuota->alumno_seccion_id = $alumnoseccion->id;
+                $cuota->mes               = 0;
                 $cuota->save();
                 //CREO EL PRIMERO Y ÚNICO DETALLE DE CUOTA
                 $alumnocuota            = new AlumnoCuota();
@@ -185,6 +186,7 @@ class AlumnoSeccionController extends Controller
                 $movimiento->local_id          = $local_id;
                 $movimiento->cuota_id          = $cuota->id;
                 $movimiento->cicloacademico_id = $cicloacademico->id;
+                $movimiento->alumno_cuota_id   = $alumnocuota->id;
                 $movimiento->save();                
                 //CREO EL DOCUMENTO DE VENTA
                 $movimientoventa                    = new Movimiento();
@@ -208,6 +210,7 @@ class AlumnoSeccionController extends Controller
                 $movimientoventa->movimiento_id     = $movimiento->id;
                 $movimientoventa->local_id          = $local_id;
                 $movimientoventa->cicloacademico_id = $cicloacademico->id;
+                $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
                 $movimientoventa->save();
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
@@ -219,6 +222,7 @@ class AlumnoSeccionController extends Controller
                 $cuota->cicloacademico_id = $cicloacademico->id;
                 $cuota->observacion       = "MATRÍCULA DE ALUMNO";
                 $cuota->alumno_seccion_id = $alumnoseccion->id;
+                $cuota->mes               = 0;
                 $cuota->save();
                 //CREO EL PRIMER DETALLE DE CUOTA, NO IMPORTA SI ES CERO, AMARRAMOS AMARRAMOS AL ALUMNO A LA CUOTA
                 $alumnocuota            = new AlumnoCuota();
@@ -248,6 +252,7 @@ class AlumnoSeccionController extends Controller
                     $movimiento->cuota_id          = $cuota->id;
                     $movimiento->local_id          = $local_id;
                     $movimiento->cicloacademico_id = $cicloacademico->id;
+                    $movimiento->alumno_cuota_id   = $alumnocuota->id;
                     $movimiento->save();
                 }
             }

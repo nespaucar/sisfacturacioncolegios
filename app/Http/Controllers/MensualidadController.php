@@ -114,6 +114,7 @@ class MensualidadController extends Controller
     public function conceptopago(Request $request) {
         $entidad            = 'Mensualidad';
         $alumno_seccion_id  = $request->id;
+        $mes                = $request->mes;
         $alumnoseccion      = AlumnoSeccion::find($alumno_seccion_id);
         //Buscamos la configuración de pago de mensualidad para el alumno
         $monto_mensualidad  = "0.00";
@@ -147,7 +148,7 @@ class MensualidadController extends Controller
         $title              = $this->tituloAdmin;
         $ruta               = $this->rutas;
         $formData           = array('route' => array('mensualidad.realizarPago', $alumno_seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.conceptopago')->with(compact('entidad', 'title', 'ruta', 'formData', 'listar', 'alumnoseccion', 'monto_mensualidad', 'cpago'));
+        return view($this->folderview.'.conceptopago')->with(compact('entidad', 'title', 'ruta', 'formData', 'listar', 'alumnoseccion', 'monto_mensualidad', 'cpago', 'mes'));
     }
 
     public function realizarPago(Request $request) {
@@ -172,6 +173,7 @@ class MensualidadController extends Controller
             $ruc               = $request->ruc;
             $razon             = $request->razon;
             $direccion         = $request->direccion;
+            $mes               = $request->mes;
             $user              = Auth::user();
 
             //BUSCO LA MATRÍCULA DEL ALUMNO
@@ -186,10 +188,25 @@ class MensualidadController extends Controller
             //BUSCO LA CUOTA DEL ALUMNO
             $cuota        = Cuota::where("alumno_seccion_id", "=", $alumno_seccion_id)
                     ->where("cicloacademico_id", "=", $cicloacademico_id)
+                    ->where("mes", "=", $mes)
                     ->first();
 
+            if($cuota == NULL) {
+                $cuota                    = new Cuota();
+                $cuota->monto             = $total;
+                $cuota->estado            = ($cuenta==0.00?"C":"P"); //CANCELADA
+                $cuota->cicloacademico_id = $cicloacademico->id;
+                $cuota->observacion       = "MATRÍCULA DE ALUMNO";
+                $cuota->alumno_seccion_id = $mensualidad->id;
+                $cuota->mes               = $mes;
+                $cuota->save();
+            }
+
             ####SI EL ALUMNO HA COMPETADO EL PAGO TOTAL
-            if((float)$cuenta == 0) {                
+            if((float)$cuenta == 0) {     
+                //CAMBIO ESTADO DE CUOTA
+                $cuota->estado = "C"; //COMPLETA
+                $cuota->save();           
                 //CREO EL PRIMERO Y ÚNICO DETALLE DE CUOTA
                 $alumnocuota            = new AlumnoCuota();
                 $alumnocuota->monto     = $total2;
@@ -215,6 +232,8 @@ class MensualidadController extends Controller
                 $movimiento->estado            = "P"; //PAGADO
                 $movimiento->local_id          = $local_id;
                 $movimiento->cuota_id          = $cuota->id;
+                $movimiento->cicloacademico_id = $cicloacademico->id;
+                $movimiento->alumno_cuota_id   = $alumnocuota->id;
                 $movimiento->save();                
                 //CREO EL DOCUMENTO DE VENTA
                 $movimientoventa                    = new Movimiento();
@@ -237,6 +256,8 @@ class MensualidadController extends Controller
                 $movimientoventa->cuota_id          = $cuota->id;
                 $movimientoventa->movimiento_id     = $movimiento->id;
                 $movimientoventa->local_id          = $local_id;
+                $movimientoventa->cicloacademico_id = $cicloacademico->id;
+                $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
                 $movimientoventa->save();
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
@@ -268,6 +289,8 @@ class MensualidadController extends Controller
                     $movimiento->estado            = "P"; //PAGADO
                     $movimiento->cuota_id          = $cuota->id;
                     $movimiento->local_id          = $local_id;
+                    $movimiento->alumno_cuota_id   = $alumnocuota->id;
+                    $movimiento->cicloacademico_id = $cicloacademico->id;
                     $movimiento->save();
                 }
             }
@@ -349,42 +372,90 @@ class MensualidadController extends Controller
     }
 
     function llenarTablaPagos(Request $request) {
-        $retorno            = "";
+        $tabla              = "";
+        $documentoventa     = "<font style='color:red;'>DOCUMENTO DE VENTA NO GENERADO</font>";
         $seccion_id         = $request->seccion_id;
         $alumno_id          = $request->persona_id;
         $cicloacademico_id  = $request->cicloacademico_id;
         $alumno_seccion_id  = $request->alumnoseccion_id;
+        $mes                = $request->mes;
+        $user               = Auth::user();
+        $local_id           = $user->persona->local_id;
 
         $cuota = Cuota::where("alumno_seccion_id", "=", $alumno_seccion_id)
                 ->where("cicloacademico_id", "=", $cicloacademico_id)
+                ->where("mes", "=", $mes)
                 ->first();
-
-        $cuotas = AlumnoCuota::where("alumno_cuota.cuota_id", "=", $cuota->id)
-                ->where("alumno_cuota.alumno_id", "=", $alumno_id)
-                ->get();
 
         $montopagado = 0.00;
 
-        if(count($cuotas) > 0) {
-            $contador = 1;
-            foreach ($cuotas as $cta) {
-                $retorno .= '<tr id="tabPagos'.$cta->id.'">
-                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.$contador.'</td>
-                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($cta->created_at)).'</td>
-                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.number_format($cta->monto,2,'.','').'</td>
-                    <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">
-                        <button onclick="modal(\'http://localhost/facturacioncolegios/alumnoseccion/eliminar/'.$cta->id.'/SI/MATRICULA\', \'Eliminar Matrícula\', this);" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</button>
-                    </td>
-                </tr>';
-                $contador++;
-                $montopagado += $cta->monto;
+        if($cuota!==NULL) {
+            $cuotas = AlumnoCuota::where("alumno_cuota.cuota_id", "=", $cuota->id)
+                ->where("alumno_cuota.alumno_id", "=", $alumno_id)
+                ->get();
+
+            if(count($cuotas) > 0) {
+                $contador = 1;
+                foreach ($cuotas as $cta) {
+                    $tabla .= '<tr id="tabPagos'.$cta->id.'">
+                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.$contador.'</td>
+                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($cta->created_at)).'</td>
+                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.number_format($cta->monto,2,'.','').'</td>
+                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">
+                            <button onclick="modal(\'http://localhost/facturacioncolegios/alumnoseccion/eliminar/'.$cta->id.'/SI/MATRICULA\', \'Eliminar Matrícula\', this);" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</button>
+                        </td>
+                    </tr>';
+                    $contador++;
+                    $montopagado += $cta->monto;
+                }
+            }
+
+            //BUSCO EL DOCUMENTO DE VENTA
+            $movimientoventa = Movimiento::where("persona_id", "=", $cuota->alumnoseccion->alumno_id)
+                        ->where("tipomovimiento_id", "=", 8) //VENTA
+                        ->where("conceptopago_id", "=", 6) //PAGO POR MATRÍCULA
+                        ->where("estado", "=", "P") //PAGADO
+                        ->where("cuota_id", "=", $cuota->id)
+                        ->where("local_id", "=", $local_id)
+                        ->where("cicloacademico_id", "=", $cicloacademico_id)
+                        ->first();
+
+            if($movimientoventa!==NULL) {
+                $documentoventa = '<font style="color:green;">DOCUMENTO DE VENTA GENERADO</font>
+                    <br>
+                    <br>
+                    <table id="datatable" class="table table-xs table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center" width="22%"><u>Fecha</u></th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center" width="22%"><u>Número</u></th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center" width="22%"><u>Total</u></th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center" width="22%"><u>IGV</u></th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center" width="12%"><u>Imp.</u></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPagos"
+                            <tr>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($movimientoventa->fecha)).'</th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center">'.($movimientoventa->tipodocumento_id==1?"B":"F").$movimientoventa->serie."-".$movimientoventa->numero.'</th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center">'.$movimientoventa->total.'</th>
+                                <th style="padding:5px;margin:5px; font-size: 13px;" class="text-center">'.$movimientoventa->igv.'</th>
+                                <th style="padding:0px;margin:0px;" class="text-center">
+                                    <button onclick="#" class="btn btn-xs btn-info" type="button">
+                                        <div class="fa fa-print"></div>
+                                    </button>
+                                </th>
+                            </tr>
+                        </tbody>
+                </table>';
             }
         }
 
         $jsonArray = json_encode(
             array(
-                "tabla" => $retorno,
+                "tabla" => $tabla,
                 "montopagado" => $montopagado,
+                "documentoventa" => $documentoventa,
             )
         );
 
