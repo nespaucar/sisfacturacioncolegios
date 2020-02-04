@@ -208,6 +208,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('mensualidad/realizarPago', 'MensualidadController@realizarPago')->name('mensualidad.realizarPago');
     Route::post('mensualidad/llenarTablaPagos', 'MensualidadController@llenarTablaPagos')->name('mensualidad.llenarTablaPagos');
     Route::get('mensualidad/eliminar/{id}/{listarluego}/{adicional}', 'MensualidadController@eliminar')->name('mensualidad.eliminar');
+
+    /*VENTA*/
+    Route::post('venta/buscar', 'VentaController@buscar')->name('venta.buscar');
+    Route::get('venta/eliminar/{id}/{listarluego}', 'VentaController@eliminar')->name('venta.eliminar');
+    Route::post('venta/confirmarcierre', 'VentaController@confirmarcierre')->name('venta.confirmarcierre');
+    Route::get('venta/cierre', 'VentaController@cierre')->name('venta.cierre');
+    Route::resource('venta', 'VentaController', array('except' => array('show')));
 });
 
 Route::get('storage/{archivo}', function ($archivo) {

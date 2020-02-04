@@ -27,6 +27,35 @@ class Movimiento extends Model
         ->orderBy('id', 'DESC');
     }
 
+    public function scopelistardocumentoventa($query, $fecha, $numero, $serie, $tipomovimiento_id, $tipodocumento_id, $estado, $local_id)
+    {
+        return $query->where(function($subquery) use($fecha, $numero, $serie, $tipomovimiento_id, $tipodocumento_id, $estado, $local_id)
+        {
+            if (!is_null($fecha)) {
+                $subquery->where('fecha', '=', $fecha);
+            }
+            if (!is_null($numero)) {
+                $subquery->where('numero', '=', $numero);
+            }
+            if (!is_null($serie)) {
+                $subquery->where('serie', '=', $serie);
+            }
+            if (!is_null($tipomovimiento_id)) {
+                $subquery->where('tipomovimiento_id', '=', $tipomovimiento_id);
+            }
+            if (!is_null($tipodocumento_id)) {
+                $subquery->where('tipodocumento_id', '=', $tipodocumento_id);
+            }
+            if (!is_null($estado)) {
+                $subquery->where('estado', '=', $estado);
+            }
+            if (!is_null($local_id)) {
+                $subquery->where('local_id', '=', $local_id);
+            }
+        })
+        ->orderBy('id', 'DESC');
+    }
+
     public function scopeNumeroSigue($query, $tipomovimiento_id, $tipodocumento_id, $local_id) {    
 
         $rs = $query->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"));
