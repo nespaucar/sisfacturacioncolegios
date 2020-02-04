@@ -8,7 +8,7 @@
 </div>
 
 
-<div class="row" style="background: rgba(51,122,183,0.10);">
+<div class="row boxfondo">
     <div class="col-sm-12">
         <div class="card-box table-responsive">
 

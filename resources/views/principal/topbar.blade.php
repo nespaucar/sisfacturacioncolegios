@@ -12,6 +12,11 @@ $person                = Persona::find($user->persona_id);
 $nombrelocal           = mb_strtoupper($person->local->nombre);
 ?>
 <!-- Begin page -->
+    <style>
+        .boxfondo {
+            background: rgba(51,122,183,0.10);
+        }
+    </style>
         <div id="wrapper">
         
             <!-- Top Bar Start -->

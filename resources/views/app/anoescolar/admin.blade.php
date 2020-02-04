@@ -27,7 +27,7 @@
 </div>
 
 <!-- Main content -->
-<div class="row">
+<div class="row boxfondo">
     <div class="col-sm-12">
         <div class="card-box table-responsive">
             <div class="row m-b-30">
