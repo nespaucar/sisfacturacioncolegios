@@ -4,9 +4,21 @@
 <div class="form-group">
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<div class="form-group">
-			{!! Form::label('serie', 'Serie:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			{!! Form::label('serie', 'Serie Boletas:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
-				{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'Ingrese serie', 'maxlength' => '8')) !!}
+				{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'Ingrese serie')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('serie2', 'Serie Facturas:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			<div class="col-lg-9 col-md-9 col-sm-9">
+				{!! Form::text('serie2', null, array('class' => 'form-control input-xs', 'id' => 'serie2', 'placeholder' => 'Ingrese serie de facturas')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('serie3', 'Serie Notas de Crédito:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			<div class="col-lg-9 col-md-9 col-sm-9">
+				{!! Form::text('serie3', null, array('class' => 'form-control input-xs', 'id' => 'serie3', 'placeholder' => 'Ingrese serie de notas de crédito')) !!}
 			</div>
 		</div>
 		<div class="form-group">

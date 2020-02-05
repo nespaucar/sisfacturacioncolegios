@@ -23,7 +23,6 @@ class CreateConfiguracionpagoTable extends Migration
             $table->integer('nivel_id')->unsigned()->nullable();
             $table->integer('grado_id')->unsigned()->nullable();
             $table->integer('seccion_id')->unsigned()->nullable();
-            $table->integer('seccion_id')->unsigned()->nullable();
             $table->double('monto', 10, 2);
             $table->timestamps();
             $table->softDeletes();

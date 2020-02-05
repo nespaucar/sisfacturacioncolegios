@@ -100,7 +100,9 @@ class LocalController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $validacion = Validator::make($request->all(),
             array(
-                'serie'       => 'required|size:8',
+                'serie'       => 'required|numeric',
+                'serie2'      => 'required|numeric',
+                'serie3'      => 'required|numeric',
                 'descripcion' => 'required|max:100',
                 'nombre'      => 'required|max:80',
                 'tipo'        => 'required|size:1',
@@ -115,6 +117,8 @@ class LocalController extends Controller
             $local_id             = $user->persona->local_id;
             $local                = new Local();
             $local->serie         = $request->input('serie');
+            $local->serie2        = $request->input('serie2');
+            $local->serie3        = $request->input('serie3');
             $local->nombre        = $request->input('nombre');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;
@@ -200,7 +204,9 @@ class LocalController extends Controller
         }
         $validacion = Validator::make($request->all(),
             array(
-                'serie'       => 'required|size:8',
+                'serie'       => 'required|numeric',
+                'serie2'      => 'required|numeric',
+                'serie3'      => 'required|numeric',
                 'descripcion' => 'required|max:100',
                 'nombre'      => 'required|max:80',
                 'tipo'        => 'required|size:1',
@@ -215,6 +221,8 @@ class LocalController extends Controller
             $local_id             = $user->persona->local_id;
             $local                = Local::find($id);
             $local->serie         = $request->input('serie');
+            $local->serie2        = $request->input('serie2');
+            $local->serie3        = $request->input('serie3');
             $local->nombre        = $request->input('nombre');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;
