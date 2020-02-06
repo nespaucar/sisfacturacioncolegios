@@ -37,16 +37,20 @@
 			@for($i = 0; $i < 13; $i++)
 				{{-- COMPRUEBO SI EXISTE Y ESTÁ PENDIENTE, TAMBIÉN SI ES DE ESTE AÑO PENDIENTE --}}
 				<?php
+					$matricula = 0;
 					if(!$disabled && ((int)$anoescolar == (int)date("Y"))) {
 						//DESHABILITO LOS MESES MAYORES A ESTE MES
 						if($i>$mesactual) {
 							$disabled = true;
 						}
 					}
+					if($i == 0) {
+						$matricula = 1;
+					}
 				?>
 				<td style="padding:5px;margin:5px;font-size:13px;" class="text-center">
 				@if($disabled)
-					{!! Form::button('<div class="fa fa-remove"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.conceptopago', array("id=".$value->id, 'listar=SIS', 'mes='.$i)).'\', \'Historial de Pagos de '.$meses[$i].'\', this);', 'class' => 'btn btn-xs btn-danger', 'disabled' => true)) !!}
+					{!! Form::button('<div class="fa fa-remove"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.conceptopago', array("id=".$value->id, 'listar='.$matricula, 'mes='.$i)).'\', \'Historial de Pagos de '.$meses[$i].'\', this);', 'class' => 'btn btn-xs btn-danger', 'disabled' => true)) !!}
 				@else
 					<?php
 						$logo = "check";//CONFORME
@@ -69,7 +73,7 @@
 							$color = "danger";//ROJO
 						}
 					?>
-					{!! Form::button('<div class="fa fa-'.$logo.'"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.conceptopago', array("id=".$value->id, 'listar=SIS', 'mes='.$i)).'\', \'Historial de Pagos de '.$meses[$i].'\', this);', 'class' => 'btn btn-xs btn-'.$color)) !!}
+					{!! Form::button('<div class="fa fa-'.$logo.'"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.conceptopago', array("id=".$value->id, 'listar='.$matricula, 'mes='.$i)).'\', \'Historial de Pagos de '.$meses[$i].'\', this);', 'class' => 'btn btn-xs btn-'.$color)) !!}
 				@endif				
 				</td>
 			@endfor

@@ -36,9 +36,9 @@
 					{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 					{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}	
 
-					<div class="form-group">
+					{{--<div class="form-group">
 						{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
-					</div>
+					</div>--}}
 
 					@if($apertura==NULL)
 

@@ -11,6 +11,7 @@ use App\Movimiento;
 use App\Nivel;
 use App\Cicloacademico;
 use App\Conceptopago;
+use App\Montoconceptopago;
 use App\Configuracionpago;
 use App\Persona;
 use App\Cuota;
@@ -49,7 +50,9 @@ class MensualidadController extends Controller
         $entidad           = 'Mensualidad';
         $seccion_id        = Libreria::getParam($request->input('seccion_id'));
         $anoescolar        = Libreria::getParam($request->input('anoescolar'));
-        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                            ->where("local_id", "=", $local_id)
+                            ->first();
         $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
         $resultado         = AlumnoSeccion::listar($seccion_id, $cicloacademico_id, $local_id);
         $lista             = $resultado->get();
@@ -112,6 +115,8 @@ class MensualidadController extends Controller
     }
 
     public function conceptopago(Request $request) {
+        $user     = Auth::user();
+        $local_id = $user->persona->local_id;
         $entidad            = 'Mensualidad';
         $alumno_seccion_id  = $request->id;
         $mes                = $request->mes;
@@ -135,14 +140,18 @@ class MensualidadController extends Controller
                     if($configuracionpago4!==NULL) {
                         $monto_mensualidad = $configuracionpago4->monto."";
                     } else {
-                        $monto_mensualidad = $cpago->monto.""; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
+                        $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                            ->where("local_id", "=", $local_id)
+                            ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
                     }
                 }
             }
         }
-        if($request->listar=="SIS") {
+        if($request->listar==1) {
             $cpago             = Conceptopago::find(6);
-            $monto_mensualidad = $cpago->monto.""; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
+            $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                ->where("local_id", "=", $local_id)
+                ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
         }
         $listar             = 'NO';
         $title              = $this->tituloAdmin;
@@ -159,7 +168,6 @@ class MensualidadController extends Controller
             $conceptopago_id   = $request->conceptopago_id;
             $alumno_seccion_id = $request->alumnoseccion_id;
             $cicloacademico_id = $request->cicloacademico_id;
-            $conceptopago_id   = $request->conceptopago_id;
             $listar            = $request->listar;
             $cicloacademico    = Cicloacademico::find($cicloacademico_id);
             $persona_id        = $request->persona_id;
@@ -191,19 +199,26 @@ class MensualidadController extends Controller
                     ->where("mes", "=", $mes)
                     ->first();
 
+            //SACO EL CONCEPTO DE PAGO PARA EL DETALLE
+            if($conceptopago_id == 6) {
+                $cp = "MATRÍCULA";
+            } else if($conceptopago_id == 7) {
+                $cp = "MENSUALIDAD";
+            }
+
             if($cuota == NULL) {
                 $cuota                    = new Cuota();
                 $cuota->monto             = $total;
                 $cuota->estado            = ($cuenta==0.00?"C":"P"); //CANCELADA
                 $cuota->cicloacademico_id = $cicloacademico->id;
-                $cuota->observacion       = "MATRÍCULA DE ALUMNO";
+                $cuota->observacion       = $cp." DE ALUMNO";
                 $cuota->alumno_seccion_id = $mensualidad->id;
                 $cuota->mes               = $mes;
                 $cuota->save();
             }
 
             ####SI EL ALUMNO HA COMPETADO EL PAGO TOTAL
-            if((float)$cuenta == 0) {     
+            if((float)$cuenta == 0) {
                 //CAMBIO ESTADO DE CUOTA
                 $cuota->estado = "C"; //COMPLETA
                 $cuota->save();           
@@ -221,13 +236,12 @@ class MensualidadController extends Controller
                 $movimiento->responsable_id    = $user->persona->id;
                 $movimiento->tipomovimiento_id = 1; //CAJA
                 $movimiento->totalefectivo     = $efectivo;
-                $movimiento->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                $movimiento->conceptopago_id   = $conceptopago_id; //PAGO POR EL CONCEPTO O MATRICULA O MENSUALIDAD
                 $movimiento->totalvisa         = $visa;
                 $movimiento->totalmaster       = $master;
                 $movimiento->total             = $total;
                 $movimiento->igv               = 0;
                 $movimiento->tipodocumento_id  = NULL;
-                $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
                 $movimiento->totalpagado       = $total;
                 $movimiento->estado            = "P"; //PAGADO
                 $movimiento->local_id          = $local_id;
@@ -240,14 +254,14 @@ class MensualidadController extends Controller
                 $movimientoventa->fecha             = date("Y-m-d");
                 $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
                 $movimientoventa->persona_id        = $alumno->id;
-                $movimientoventa->serie             = $request->serie;
+                $movimientoventa->serie             = ($tipodocumento=="B"?$user->persona->local->serie:$user->persona->local->serie2);
                 $movimientoventa->responsable_id    = $user->persona->id;
                 $movimientoventa->tipomovimiento_id = 8; //VENTA
-                $movimientoventa->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                $movimientoventa->conceptopago_id   = $conceptopago_id; //PAGO POR CONCEPTO O MATRICULA O MENSUALIDAD
                 $movimientoventa->total             = $total;
                 $movimientoventa->igv               = 0;
                 $movimientoventa->tipodocumento_id  = ($tipodocumento=="B"?1:2);
-                $movimientoventa->comentario        = "PAGO COMPLETO POR MATRÍCULA";
+                $movimientoventa->comentario        = "PAGO COMPLETO POR ".$cp;
                 $movimientoventa->totalpagado       = $total;
                 $movimientoventa->estado            = "P"; //PAGADO
                 $movimientoventa->ruc               = $ruc;
@@ -259,6 +273,9 @@ class MensualidadController extends Controller
                 $movimientoventa->cicloacademico_id = $cicloacademico->id;
                 $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
                 $movimientoventa->save();
+
+                $movimiento->comentario             = "PAGO COMPLETO POR " . $cp . " - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
+                $movimiento->save();
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
             } else {
@@ -278,13 +295,13 @@ class MensualidadController extends Controller
                     $movimiento->responsable_id    = $user->persona->id;
                     $movimiento->tipomovimiento_id = 1; //CAJA
                     $movimiento->totalefectivo     = $efectivo;
-                    $movimiento->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                    $movimiento->conceptopago_id   = $conceptopago_id; //PAGO POR CONCEPTO O MATRICULA O MENSUALIDAD
                     $movimiento->totalvisa         = $visa;
                     $movimiento->totalmaster       = $master;
                     $movimiento->total             = $total2;
                     $movimiento->igv               = 0;
                     $movimiento->tipodocumento_id  = ($tipodocumento=="B"?1:2);
-                    $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
+                    $movimiento->comentario        = "PAGO PARCIAL POR ".$cp." DE ALUMNO";
                     $movimiento->totalpagado       = $total2;
                     $movimiento->estado            = "P"; //PAGADO
                     $movimiento->cuota_id          = $cuota->id;
@@ -377,6 +394,7 @@ class MensualidadController extends Controller
         $seccion_id         = $request->seccion_id;
         $alumno_id          = $request->persona_id;
         $cicloacademico_id  = $request->cicloacademico_id;
+        $conceptopago_id    = $request->conceptopago_id;
         $alumno_seccion_id  = $request->alumnoseccion_id;
         $mes                = $request->mes;
         $user               = Auth::user();
@@ -413,7 +431,7 @@ class MensualidadController extends Controller
             //BUSCO EL DOCUMENTO DE VENTA
             $movimientoventa = Movimiento::where("persona_id", "=", $cuota->alumnoseccion->alumno_id)
                         ->where("tipomovimiento_id", "=", 8) //VENTA
-                        ->where("conceptopago_id", "=", 6) //PAGO POR MATRÍCULA
+                        ->where("conceptopago_id", "=", $conceptopago_id) //PAGO POR MATRÍCULA O MENSUALIDAD
                         ->where("estado", "=", "P") //PAGADO
                         ->where("cuota_id", "=", $cuota->id)
                         ->where("local_id", "=", $local_id)

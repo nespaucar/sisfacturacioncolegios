@@ -1,5 +1,12 @@
 <?php 
 	use App\AlumnoSeccion;
+	use App\Montoconceptopago;
+	use Illuminate\Support\Facades\Auth;
+	$user     = Auth::user();
+    $local_id = $user->persona->local_id;
+    $monto = Montoconceptopago::where("conceptopago_id", "=", $cmatricula->id)
+		->where("local_id", "=", $local_id)
+		->first()->monto;
 ?>
 @if($cicloacademico==NULL)
 <h4 class="text-danger text-center">Aún no se ha realizado la apertura del año escolar. {{$anoescolar}}.</h4>
@@ -223,8 +230,8 @@
 
 		//SETEO EL VALOR DE LA MATRÍCULA
 		@if($cmatricula !== NULL)
-			$("#total").val("{{ $cmatricula->monto }}");
-			$("#cuenta").val("{{ $cmatricula->monto }}");
+			$("#total").val("{{ $monto }}");
+			$("#cuenta").val("{{ $monto }}");
 		@endif
 
 		$("#divDocVenta").hide();
@@ -399,9 +406,11 @@
 	function numeroSigue(tipomovimiento_id, tipodocumento_id, input_id) {
 		$.ajax({
 			url : "alumnoseccion/numeroSigue?tipomovimiento_id="+tipomovimiento_id+"&tipodocumento_id="+tipodocumento_id,
-			type: "GET"
+			type: "GET",
+			dataType: "JSON",
 		}).done(function(msg) {
-			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + input_id + '"]').val(msg);
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + input_id + '"]').val(msg.numero);
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serieventa"]').val(msg.serie);
 		});
 	}
 

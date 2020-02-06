@@ -4,19 +4,19 @@
 	<div class="form-group">
 		{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-9 col-md-9 col-sm-9">
-			{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
+			{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'readonly' => 'readonly')) !!}
 		</div>
 	</div>
 	<div class="form-group">
 		{!! Form::label('monto', 'Monto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-9 col-md-9 col-sm-9">
-			{!! Form::text('monto', null, array('class' => 'form-control input-xs', 'id' => 'monto')) !!}
+			{!! Form::text('monto', $detallepago->monto, array('class' => 'form-control input-xs', 'id' => 'monto')) !!}
 		</div>
 	</div>
 	<div class="form-group">
 		{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-9 col-md-9 col-sm-9">
-			{!! Form::select('tipo', array("I" => "INGRESO", "S" => "SALIDA"), null, array('class' => 'form-control input-xs', 'id' => 'tipo')) !!}
+			{!! Form::select('tipo', array("I" => "INGRESO", "S" => "SALIDA"), null, array('class' => 'form-control input-xs', 'id' => 'tipo', 'disabled' => 'disabled')) !!}
 		</div>
 	</div>
 	<div class="form-group">

@@ -38,11 +38,14 @@ class AnoescolarController extends Controller
         $id               = $user->persona_id;
         $local_id         = $user->persona->local_id;
         $pagina           = $request->input('page');
-        $filas            = $request->input('filas');
+        //$filas            = $request->input('filas');
+        $filas            = 100000;
         $entidad          = 'Anoescolar';
         //INGRESOS Y EGRESOS DE UN MISMO AÑO ESCOLAR
         $anoactual        = date("Y");
-        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoactual)->first();
+        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoactual)
+                            ->where("local_id", "=", $local_id)
+                            ->first();
         $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
         $resultado        = Movimiento::listaranoescolar($cicloacademico_id, $local_id);
         $lista            = $resultado->get();

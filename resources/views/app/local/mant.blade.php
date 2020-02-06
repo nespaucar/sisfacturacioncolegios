@@ -1,8 +1,23 @@
+<?php 
+	
+	use Illuminate\Support\Facades\Auth;
+	$user        = Auth::user();
+    $usertype_id = $user->usertype_id;
+
+?>
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($local, $formData) !!}	
 {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 <div class="form-group">
 	<div class="col-lg-6 col-md-6 col-sm-6">
+		@if($usertype_id == 1)
+		<div class="form-group">
+			{!! Form::label('nuevo', 'Tipo Local:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			<div class="col-lg-9 col-md-9 col-sm-9">
+				{!! Form::select("nuevo", array("N" => "Nuevo", "D" => "Dependiente"), null, array("class" => "form-control input-xs", "id" => "nuevo")) !!}
+			</div>
+		</div>
+		@endif
 		<div class="form-group">
 			{!! Form::label('serie', 'Serie Boletas:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">

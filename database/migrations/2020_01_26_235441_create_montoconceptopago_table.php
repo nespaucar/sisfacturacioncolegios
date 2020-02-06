@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateConceptopagoTable extends Migration
+class CreateMontoconceptopagoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateConceptopagoTable extends Migration
      */
     public function up()
     {
-        Schema::create('conceptopago', function (Blueprint $table) {
+        Schema::create('montoconceptopago', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('nombre',500);
+            $table->integer('conceptopago_id')->unsigned();
+            $table->integer('local_id')->unsigned();
             $table->decimal('monto', 10, 2)->nullable();
-            $table->string('tipo', 1); //I -> Ingreso, E -> Egreso
             $table->timestamps();
             $table->softDeletes();
         });
@@ -30,6 +30,6 @@ class CreateConceptopagoTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('conceptopago');
+        Schema::dropIfExists('montoconceptopago');
     }
 }

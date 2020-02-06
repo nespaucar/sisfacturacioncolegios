@@ -43,7 +43,7 @@ class VentaController extends Controller
         $estado            = $request->input('estado');
         $fecha             = date("Y-m-d", strtotime($request->input('fecha')));
         $entidad           = 'Anoescolar';
-        $resultado         = Movimiento::listardocumentoventa($fecha, $numero, $serie, 1, $tipodocumento_id, $estado, $local_id);
+        $resultado         = Movimiento::listardocumentoventa($fecha, $numero, $serie, 8, $tipodocumento_id, $estado, $local_id);
         $lista             = $resultado->get();
         $cabecera          = array();
         $cabecera[] = array('valor' => '#', 'numero' => '1');

@@ -51,7 +51,9 @@ class AlumnoSeccionController extends Controller
         $entidad           = 'Matricula';
         $seccion_id        = Libreria::getParam($request->input('seccion_id'));
         $anoescolar        = Libreria::getParam($request->input('anoescolar'));
-        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                        ->where("local_id", "=", $local_id)
+                        ->first();
         $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
         $resultado         = Seccion::listar($seccion_id, $local_id);
         $lista             = $resultado->get();
@@ -104,6 +106,8 @@ class AlumnoSeccionController extends Controller
     }
 
     public function matriculados(Request $request) {
+        $user             = Auth::user();
+        $local_id         = $user->persona->local_id;
         $entidad          = 'Curso';
         $listar           = 'SI';
         $title            = $this->tituloAdmin;
@@ -111,7 +115,9 @@ class AlumnoSeccionController extends Controller
         $anoescolar       = $request->anoescolar;
         $seccion_id       = $request->id;
         $cmatricula       = Conceptopago::find(6); //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
-        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $cicloacademico   = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                    ->where("local_id", "=", $local_id)
+                    ->first();
         $formData = array('route' => array('alumnoseccion.matricularalumno', $seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         return view($this->folderview.'.matriculados')->with(compact('entidad', 'title', 'ruta', 'anoescolar', 'seccion_id', 'cicloacademico', 'formData', 'listar', 'cmatricula'));
     }
@@ -123,7 +129,9 @@ class AlumnoSeccionController extends Controller
             $seccion_id        = $request->seccion_id;
             $listar            = $request->listar;
             $anoescolar        = $request->anoescolar;
-            $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+            $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                        ->where("local_id", "=", $local_id)
+                        ->first();
             $persona_id        = $request->persona_id;
             $efectivo          = ($request->efectivo==""?0.00:$request->efectivo);
             $visa              = ($request->visa==""?0.00:$request->visa);
@@ -140,7 +148,6 @@ class AlumnoSeccionController extends Controller
             //EMPIEZO A MATRICULAR AL ALUMNO
             $seccion = Seccion::find($seccion_id);
             $alumno  = Persona::find($persona_id);
-            $cicloacademico = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
 
             $alumnoseccion  = new AlumnoSeccion();
             $alumnoseccion->alumno_id = $persona_id;
@@ -180,7 +187,6 @@ class AlumnoSeccionController extends Controller
                 $movimiento->total             = $total;
                 $movimiento->igv               = 0;
                 $movimiento->tipodocumento_id  = NULL;
-                $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
                 $movimiento->totalpagado       = $total;
                 $movimiento->estado            = "P"; //PAGADO
                 $movimiento->local_id          = $local_id;
@@ -193,7 +199,7 @@ class AlumnoSeccionController extends Controller
                 $movimientoventa->fecha             = date("Y-m-d");
                 $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
                 $movimientoventa->persona_id        = $alumno->id;
-                $movimientoventa->serie             = $request->serie;
+                $movimientoventa->serie             = ($tipodocumento=="B"?$user->persona->local->serie:$user->persona->local->serie2);
                 $movimientoventa->responsable_id    = $user->persona->id;
                 $movimientoventa->tipomovimiento_id = 8; //VENTA
                 $movimientoventa->conceptopago_id   = 6; //PAGO POR MATRÍCULA
@@ -212,6 +218,9 @@ class AlumnoSeccionController extends Controller
                 $movimientoventa->cicloacademico_id = $cicloacademico->id;
                 $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
                 $movimientoventa->save();
+
+                $movimiento->comentario             = "PAGO COMPLETO POR MATRÍCULA - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
+                $movimiento->save();
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
             } else {
@@ -266,23 +275,43 @@ class AlumnoSeccionController extends Controller
         $tipomovimiento_id = $request->tipomovimiento_id==""?NULL:$request->tipomovimiento_id;
         $tipodocumento_id  = $request->tipodocumento_id==""?NULL:$request->tipodocumento_id;
 
-        return Movimiento::numeroSigue($tipomovimiento_id, $tipodocumento_id, $local_id);
+        //FACTURA
+        $serie             = str_pad($user->persona->local->serie2,5,'0',STR_PAD_LEFT);
+        if($tipodocumento_id == "1") {
+            //BOLETA
+            $serie         = str_pad($user->persona->local->serie,5,'0',STR_PAD_LEFT);
+        }
+
+        $arrayjson = array(
+            'numero' => Movimiento::numeroSigue($tipomovimiento_id, $tipodocumento_id, $local_id), 
+            'serie' => $serie, 
+        );
+
+        return json_encode($arrayjson);
     }
 
     function comprobarSiAlumnoEstaMatriculado(Request $request) {
+        $user              = Auth::user();
+        $local_id          = $user->persona->local_id;
         $alumno_id         = $request->alumno_id;
         $anoescolar        = $request->anoescolar;
-        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                            ->where("local_id", "=", $local_id)
+                            ->first();
         $matricula         = AlumnoSeccion::where("alumno_id", "=", $alumno_id)
                                         ->where("cicloacademico_id", "=", $cicloacademico->id)->first();
         return ($matricula==NULL?"N":"S");
     }
 
     public function llenarTablaMatriculados(Request $request) {
+        $user              = Auth::user();
+        $local_id          = $user->persona->local_id;
         $retorno           = "";
         $seccion_id        = $request->seccion_id;
         $anoescolar        = $request->anoescolar;
-        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)->first();
+        $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                            ->where("local_id", "=", $local_id)
+                            ->first();
 
         $matriculados = AlumnoSeccion::where("seccion_id", "=", $seccion_id)
                 ->where("cicloacademico_id", "=", $cicloacademico->id)

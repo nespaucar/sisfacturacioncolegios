@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Conceptopago;
+use App\Montoconceptopago;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +48,7 @@ class ConceptopagoController extends Controller
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Monto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '1');
 
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -128,7 +129,12 @@ class ConceptopagoController extends Controller
         $formData = array('conceptopago.update', $id);
         $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('conceptopago', 'formData', 'entidad', 'boton', 'listar'));
+        $user     = Auth::user();
+        $local_id = $user->persona->local_id;
+        $detallepago = Montoconceptopago::where("conceptopago_id", "=", $conceptopago->id)
+                ->where("local_id", "=", $local_id)
+                ->first();
+        return view($this->folderview.'.mant')->with(compact('conceptopago', 'formData', 'entidad', 'boton', 'listar', 'detallepago'));
     }
 
     public function update(Request $request, $id)
@@ -139,7 +145,7 @@ class ConceptopagoController extends Controller
         }
         $validacion = Validator::make($request->all(),
             array(
-                'tipo' => 'required|max:1',
+                //'tipo' => 'required|max:1',
                 'nombre'      => 'required|max:100',
                 'monto'      => 'required|numeric',
             )
@@ -148,11 +154,18 @@ class ConceptopagoController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
-            $conceptopago                = Conceptopago::find($id);
-            $conceptopago->tipo = $request->input('tipo');
-            $conceptopago->nombre      = $request->input('nombre');
-            $conceptopago->monto      = $request->input('monto');
-            $conceptopago->save();
+            $user                  = Auth::user();
+            $local_id              = $user->persona->local_id;
+            $conceptopago          = Conceptopago::find($id);
+            //$conceptopago->tipo    = $request->input('tipo');
+            //$conceptopago->nombre  = $request->input('nombre');
+            //$conceptopago->monto  = $request->input('monto');
+            //$conceptopago->save();
+            $detallepago           = Montoconceptopago::where("conceptopago_id", "=", $conceptopago->id)
+                ->where("local_id", "=", $local_id)
+                ->first();
+            $detallepago->monto    = $request->input('monto');
+            $detallepago->save();
         });
         return is_null($error) ? "OK" : $error;
     }

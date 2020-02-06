@@ -8,6 +8,8 @@ use Validator;
 use App\Local;
 use App\Nivel;
 use App\Grado;
+use App\Conceptopago;
+use App\Montoconceptopago;
 use App\Http\Requests;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -122,6 +124,12 @@ class LocalController extends Controller
             $local->nombre        = $request->input('nombre');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;
+            //SI SOY SUPERUSUARIO ID 1, ENTONCES PUEDO ELEGIR SI EL LOCAL ES NUEVO O DEPENDIENTE DEL LOCAL_ID DE SU USUARIO
+            if($user->usertype_id == 1) {
+                if($request->nuevo == "N") {
+                    $local->local_id = NULL;
+                }
+            }
             $local->tipo          = $request->input('tipo');
             $local->logo          = "123";
             //$local->estado        = false;
@@ -170,8 +178,21 @@ class LocalController extends Controller
                         break;
                 }
             }
-            //CREAMOS LOS GRADOS
-
+            //CREAMOS LOS MONTOS CONCEPTOS DE PAGO
+            //MENSUALIDAD
+            $cpago1                    = Conceptopago::find(7);
+            $detalle1                  = new Montoconceptopago();
+            $detalle1->conceptopago_id = $cpago1->id;
+            $detalle1->local_id        = $local->id;
+            $detalle1->monto           = 0;
+            $detalle1->save();
+            //MATRÍCULA
+            $cpago2                    = Conceptopago::find(6);
+            $detalle2                  = new Montoconceptopago();
+            $detalle2->conceptopago_id = $cpago2->id;
+            $detalle2->local_id        = $local->id;
+            $detalle2->monto           = 0;
+            $detalle2->save();
         });
         return is_null($error) ? "OK" : $error;
     }

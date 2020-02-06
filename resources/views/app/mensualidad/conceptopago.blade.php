@@ -371,9 +371,11 @@
 	function numeroSigue(tipomovimiento_id, tipodocumento_id, input_id) {
 		$.ajax({
 			url : "alumnoseccion/numeroSigue?tipomovimiento_id="+tipomovimiento_id+"&tipodocumento_id="+tipodocumento_id,
-			type: "GET"
+			type: "GET",
+			dataType: "JSON",
 		}).done(function(msg) {
-			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + input_id + '"]').val(msg);
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + input_id + '"]').val(msg.numero);
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serieventa"]').val(msg.serie);
 		});
 	}
 

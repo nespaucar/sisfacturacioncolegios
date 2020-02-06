@@ -29,7 +29,7 @@
 					</div>
 					<div class="form-group">
 						{!! Form::label('tipodocumento_id', 'Tipo de documento:', array('class'=>'input-sm')) !!}
-						{!! Form::select('tipodocumento_id', array(1 => "BOLETA", 2 => "FACTURA"), null, array('class' => 'form-control input-sm', 'id' => 'tipodocumento_id', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+						{!! Form::select('tipodocumento_id', array("" => "--TODOS--", 1 => "BOLETA", 2 => "FACTURA"), null, array('class' => 'form-control input-sm', 'id' => 'tipodocumento_id', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('estado', 'Estado:', array('class'=>'input-sm')) !!}
