@@ -19,14 +19,13 @@ class RedirectIfAuthenticated
     {
         if (Auth::guard($guard)->check()) {
             $user = Auth::user();
-            if($user->usertype_id == "2" || $user->usertype_id == "5"|| $user->usertype_id == "1"){
+            /*if($user->usertype_id == "2" || $user->usertype_id == "5"|| $user->usertype_id == "1"){
                 return redirect('/seguimiento');
             }else if($user->usertype_id == "3" || $user->usertype_id == "4"|| $user->usertype_id == "1"){
                 return redirect('/bolsa');
-            }
-            
+            }*/
+            return redirect('/');
         }
-
         return $next($request);
     }
 }
