@@ -7,10 +7,6 @@ Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout');
 Route::get('logout', 'Auth\LoginController@logout');
 
-Route::get('/', function(){
-    return redirect('login');
-});
-
 //other routes
 
 Route::group(['middleware' => 'guest'], function() {    
@@ -208,6 +204,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('mensualidad/realizarPago', 'MensualidadController@realizarPago')->name('mensualidad.realizarPago');
     Route::post('mensualidad/llenarTablaPagos', 'MensualidadController@llenarTablaPagos')->name('mensualidad.llenarTablaPagos');
     Route::get('mensualidad/eliminar/{id}/{listarluego}/{adicional}', 'MensualidadController@eliminar')->name('mensualidad.eliminar');
+    Route::get('mensualidad/envioBoletas', 'MensualidadController@envioBoletas')->name('mensualidad.envioBoletas');
+    Route::get('mensualidad/resumen', 'MensualidadController@resumen')->name('mensualidad.resumen');
 
     /*VENTA*/
     Route::post('venta/buscar', 'VentaController@buscar')->name('venta.buscar');

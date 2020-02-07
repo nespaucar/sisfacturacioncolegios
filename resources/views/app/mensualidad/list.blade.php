@@ -77,7 +77,7 @@
 				@endif				
 				</td>
 			@endfor
-			<td style="padding:5px;margin:5px;font-size:13px;" class="text-center">{!! Form::button('<div class="fa fa-eye"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.conceptopago', array("id=".$value->id, 'listar=SI')).'\', \'Historial de Pagos\', this);', 'class' => 'btn btn-xs btn-primary')) !!}
+			<td style="padding:5px;margin:5px;font-size:13px;" class="text-center">{!! Form::button('<div class="fa fa-eye"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.resumen', array("id=".$value->id)).'\', \'Resumen de Matricula y Mensualidades\', this);', 'class' => 'btn btn-xs btn-primary')) !!}
 			</td>
 		</tr>
 		<?php

@@ -10,6 +10,7 @@ $tipousuario_id        = session('usertype_id');
 $menu2                 = generarMenuHorizontal($tipousuario_id);
 $person                = Persona::find($user->persona_id);
 $nombrelocal           = mb_strtoupper($person->local->nombre);
+
 ?>
 <!-- Begin page -->
     <style>

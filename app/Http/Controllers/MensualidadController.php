@@ -479,4 +479,197 @@ class MensualidadController extends Controller
 
         return $jsonArray;
     }
+
+    function envioBoletas1(Request $request) {
+        $esdiafinal = $this->_data_last_month_day();
+        $error = DB::transaction(function() use($request, $esdiafinal){
+            //SOLO CREO LAS BOLETAS Y SI ES FIN DE MES
+            $user              = Auth::user();
+            $local_id          = $user->persona->local_id;
+            $anoescolar        = date("Y");
+            $mensactual        = date("m");
+            $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
+                                ->where("local_id", "=", $local_id)
+                                ->first();
+            if($esdiafinal) {
+                $matriculas_de_ciclo = AlumnoSeccion::where('cicloacademico_id', '=', $cicloacademico->id)
+                ->join("cicloacademico", "cicloacademico.id", "=", "alumno_seccion.cicloacademico_id")
+                ->where("cicloacademico.local_id", "=", $local_id)
+                ->orderBy('alumno_seccion.id', 'DESC')
+                ->select("alumno_seccion.*")
+                ->get();
+
+                if(count($matriculas_de_ciclo) > 0) {
+                    foreach ($matriculas_de_ciclo as $mdc) {
+
+                        //BUSCO LA CONFIGURACIÓN DE PAGO DE MENSUALIDAD QUE TIENE ESTE ALUMNO
+                        $monto_mensualidad  = 0.00;
+                        $configuracionpago1 = Configuracionpago::where("alumno_id", "=", $mdc->alumno_id)->first();
+                        if($configuracionpago1!==NULL) {
+                            $monto_mensualidad = $configuracionpago1->monto;
+                        } else {
+                            $configuracionpago2 = Configuracionpago::where("seccion_id", "=", $mdc->seccion_id)->first();
+                            if($configuracionpago2!==NULL) {
+                                $monto_mensualidad = $configuracionpago2->monto;
+                            } else {
+                                $configuracionpago3 = Configuracionpago::where("grado_id", "=", $mdc->seccion->grado_id)->first();
+                                if($configuracionpago3!==NULL) {
+                                    $monto_mensualidad = $configuracionpago3->monto;
+                                } else {
+                                    $configuracionpago4 = Configuracionpago::where("nivel_id", "=", $mdc->seccion->grado->nivel_id)->first();
+                                    if($configuracionpago4!==NULL) {
+                                        $monto_mensualidad = $configuracionpago4->monto;
+                                    } else {
+                                        $cpago = Conceptopago::find(7); //MENSUALIDAD
+                                        $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                                            ->where("local_id", "=", $local_id)
+                                            ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
+                                    }
+                                }
+                            }
+                        }
+
+                        #######################
+                        $seccion_id        = $mdc->seccion_id;
+                        $persona_id        = $mdc->alumno_id;
+                        $efectivo          = 0.00;
+                        $visa              = 0.00;
+                        $master            = 0.00;
+                        $total             = $monto_mensualidad;
+                        $cuenta            = 0.00;
+                        $tipodocumento     = 1; //SOLO BOLETAS
+                        $ruc               = NULL;
+                        $razon             = NULL;
+                        $direccion         = NULL;
+
+                        ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
+                        //CREO LA CUOTA
+                        $cuota                    = new Cuota();
+                        $cuota->monto             = $total;
+                        $cuota->estado            = "P"; //PENDIENTE
+                        $cuota->cicloacademico_id = $cicloacademico->id;
+                        $cuota->observacion       = "MENSUALIDAD DE ALUMNO";
+                        $cuota->alumno_seccion_id = $mdc->id;
+                        $cuota->mes               = $mensactual;
+                        $cuota->save();
+                        //CREO EL DETALLE DE CUOTA
+                        $alumnocuota            = new AlumnoCuota();
+                        $alumnocuota->monto     = 0.00;
+                        $alumnocuota->alumno_id = $persona_id;
+                        $alumnocuota->cuota_id  = $cuota->id;
+                        $alumnocuota->save();
+                        //CREO EL MOVIMIENTO DE INGRESO A CAJA
+                        $movimiento                    = new Movimiento();
+                        $movimiento->fecha             = date("Y-m-d");
+                        $movimiento->numero            = Movimiento::numerosigue(1, null, $local_id); //NÚMERO DE MOVIMIENTO EN CAJA
+                        $movimiento->persona_id        = $persona_id;
+                        $movimiento->responsable_id    = $user->persona->id;
+                        $movimiento->tipomovimiento_id = 1; //CAJA
+                        $movimiento->totalefectivo     = $efectivo;
+                        $movimiento->conceptopago_id   = 7; //PAGO POR MENSUALIDAD
+                        $movimiento->totalvisa         = $visa;
+                        $movimiento->totalmaster       = $master;
+                        $movimiento->total             = 0.00;
+                        $movimiento->igv               = 0;
+                        $movimiento->tipodocumento_id  = NULL;
+                        $movimiento->totalpagado       = 0.00;
+                        $movimiento->estado            = "P"; //PAGADO
+                        $movimiento->local_id          = $local_id;
+                        $movimiento->cuota_id          = $cuota->id;
+                        $movimiento->cicloacademico_id = $cicloacademico->id;
+                        $movimiento->alumno_cuota_id   = $alumnocuota->id;
+                        $movimiento->save();                
+                        //CREO EL DOCUMENTO DE VENTA
+                        $movimientoventa                    = new Movimiento();
+                        $movimientoventa->fecha             = date("Y-m-d");
+                        $movimientoventa->numero            = Movimiento::numerosigue(8, 1, $local_id); //NÚMERO DE BOLETA QUE SIGUE
+                        $movimientoventa->persona_id        = $persona_id;
+                        $movimientoventa->serie             = $user->persona->local->serie;
+                        $movimientoventa->responsable_id    = $user->persona->id;
+                        $movimientoventa->tipomovimiento_id = 8; //VENTA
+                        $movimientoventa->conceptopago_id   = 7; //PAGO POR MENSUALIDAD
+                        $movimientoventa->total             = $total;
+                        $movimientoventa->igv               = 0;
+                        $movimientoventa->tipodocumento_id  = 1; //BOLETO
+                        $movimientoventa->comentario        = "GENERACIÓN AUTOMÁTICA DE BOLETA DE VENTA SIN PAGO";
+                        $movimientoventa->totalpagado       = 0.00;
+                        $movimientoventa->estado            = "D"; //DEUDA
+                        $movimientoventa->ruc               = $ruc;
+                        $movimientoventa->razon             = $razon;
+                        $movimientoventa->direccion         = $direccion;
+                        $movimientoventa->cuota_id          = $cuota->id;
+                        $movimientoventa->movimiento_id     = $movimiento->id;
+                        $movimientoventa->local_id          = $local_id;
+                        $movimientoventa->cicloacademico_id = $cicloacademico->id;
+                        $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
+                        $movimientoventa->save();
+
+                        $movimiento->comentario             = "GENERACIÓN AUTOMÁTICA DE BOLETA DE VENTA SIN PAGO - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
+                        $movimiento->save();
+                        #######################
+                    }
+                }
+            }                
+        });
+        return is_null($error) ? "OK" : $error;
+    }
+
+    function _data_last_month_day() { 
+        $esdiafinal = false;
+        $month = date('m');
+        $year = date('Y');
+        $todayday = date('d');
+        $finalday = date("d", mktime(0,0,0, $month+1, 0, $year));
+
+        if($todayday == $finalday) {
+            $esdiafinal = true;
+        } 
+        return $esdiafinal;
+    }
+
+    public function resumen(Request $request) {
+        $user     = Auth::user();
+        $local_id = $user->persona->local_id;
+        $entidad            = 'Mensualidad';
+        $alumno_seccion_id  = $request->id;
+        $mes                = $request->mes;
+        $alumnoseccion      = AlumnoSeccion::find($alumno_seccion_id);
+        //Buscamos la configuración de pago de mensualidad para el alumno
+        $monto_mensualidad  = "0.00";
+        $configuracionpago1 = Configuracionpago::where("alumno_id", "=", $alumnoseccion->alumno_id)->first();
+        $configuracionpago2 = Configuracionpago::where("seccion_id", "=", $alumnoseccion->seccion_id)->first();
+        $configuracionpago3 = Configuracionpago::where("grado_id", "=", $alumnoseccion->seccion->grado_id)->first();
+        $configuracionpago4 = Configuracionpago::where("nivel_id", "=", $alumnoseccion->seccion->grado->nivel_id)->first();
+        $cpago = Conceptopago::find(7);
+        if($configuracionpago1!==NULL) {
+            $monto_mensualidad = $configuracionpago1->monto."";
+        } else {
+            if($configuracionpago2!==NULL) {
+                $monto_mensualidad = $configuracionpago2->monto."";
+            } else {
+                if($configuracionpago3!==NULL) {
+                    $monto_mensualidad = $configuracionpago3->monto."";
+                } else {
+                    if($configuracionpago4!==NULL) {
+                        $monto_mensualidad = $configuracionpago4->monto."";
+                    } else {
+                        $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                            ->where("local_id", "=", $local_id)
+                            ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
+                    }
+                }
+            }
+        }
+        if($request->listar==1) {
+            $cpago             = Conceptopago::find(6);
+            $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                ->where("local_id", "=", $local_id)
+                ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
+        }
+        $listar             = 'NO';
+        $title              = $this->tituloAdmin;
+        $ruta               = $this->rutas;
+        $formData           = array('route' => array('mensualidad.realizarPago', $alumno_seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        return view($this->folderview.'.resumen')->with(compact('entidad', 'title', 'ruta', 'formData', 'listar', 'alumnoseccion', 'monto_mensualidad', 'cpago', 'mes'));
+    }
 }
