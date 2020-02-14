@@ -19,11 +19,14 @@
 		<tr>
 			<td>{{ $contador }}</td>
 			<td>{{ $value->serie }}</td>
+			<td>{{ $value->serie2 }}</td>
+			<td>{{ $value->serie3 }}</td>
+			<td>{{ $value->ruc }}</td>
 			<td>{{ $value->nombre }}</td>
 			<td>{{ $value->descripcion }}</td>
 			<td>{{ $value->tipo=="P"?"PARTICULAR":"NACIONAL" }}</td>
 			<td class="center-block">
-				<img height='50px' width='50px' class='img img-responsive center-block' src='{{ asset("logos/" . $value->logo) }}' />
+				<img height='50px' width='50px' class='img img-responsive center-block' src='{{ asset("logos/" . $value->logo)."?t=".time() }}' />
 			</td>
 			<td>{{ $value->local==NULL?"-":$value->local->nombre }}</td>
 			<td>{{ $value->estado=="A"?"HABILITADO":"DESHABILITADO" }}</td>

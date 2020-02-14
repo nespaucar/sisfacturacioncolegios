@@ -2,7 +2,8 @@
 	use Illuminate\Support\Facades\Auth;
 	$localpadre = false;
 	$user       = Auth::user();
-	if($user->persona->local->local_id == NULL) {
+	//if($user->persona->local->local_id == NULL) {
+	if($user->usertype_id == 1) {
 		$localpadre = true;
 	}
 ?>

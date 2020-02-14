@@ -50,7 +50,10 @@ class LocalController extends Controller
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Serie', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Serie Bol', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Serie Fact', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Serie Not', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'RUC', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Descripción', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
@@ -105,7 +108,7 @@ class LocalController extends Controller
                 'serie'       => 'required|numeric',
                 'serie2'      => 'required|numeric',
                 'serie3'      => 'required|numeric',
-                'descripcion' => 'required|max:100',
+                'ruc'         => 'required|max:11|unique:local,ruc,NULL,id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
                 'tipo'        => 'required|size:1',
                 'logo'        => 'required|image|mimes:jpeg,png,bmp,jpg,JPEG,JPG,PNG,BMP|max:3000',
@@ -228,7 +231,7 @@ class LocalController extends Controller
                 'serie'       => 'required|numeric',
                 'serie2'      => 'required|numeric',
                 'serie3'      => 'required|numeric',
-                'descripcion' => 'required|max:100',
+                'ruc'         => 'required|max:11|unique:local,ruc,'.$id.',id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
                 'tipo'        => 'required|size:1',
                 'logo'        => "image|mimes:jpeg,png,bmp,jpg,JPEG,JPG,PNG,BMP|max:3000",

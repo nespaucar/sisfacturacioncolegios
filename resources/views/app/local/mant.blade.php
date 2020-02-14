@@ -12,38 +12,44 @@
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		@if($usertype_id == 1)
 		<div class="form-group">
-			{!! Form::label('nuevo', 'Tipo Local:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-9 col-md-9 col-sm-9">
+			{!! Form::label('nuevo', 'Tipo Local (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
 				{!! Form::select("nuevo", array("N" => "Nuevo", "D" => "Dependiente"), null, array("class" => "form-control input-xs", "id" => "nuevo")) !!}
 			</div>
 		</div>
 		@endif
 		<div class="form-group">
-			{!! Form::label('serie', 'Serie Boletas:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-9 col-md-9 col-sm-9">
+			{!! Form::label('ruc', 'RUC (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
+				{!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc', 'placeholder' => 'Ingrese ruc', 'maxlength' => '11')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('serie', 'Serie Boletas (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
 				{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'Ingrese serie')) !!}
 			</div>
 		</div>
 		<div class="form-group">
-			{!! Form::label('serie2', 'Serie Facturas:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-9 col-md-9 col-sm-9">
+			{!! Form::label('serie2', 'Serie Facturas (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
 				{!! Form::text('serie2', null, array('class' => 'form-control input-xs', 'id' => 'serie2', 'placeholder' => 'Ingrese serie de facturas')) !!}
 			</div>
 		</div>
 		<div class="form-group">
-			{!! Form::label('serie3', 'Serie Notas de Crédito:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-9 col-md-9 col-sm-9">
+			{!! Form::label('serie3', 'Serie Notas de Crédito (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
 				{!! Form::text('serie3', null, array('class' => 'form-control input-xs', 'id' => 'serie3', 'placeholder' => 'Ingrese serie de notas de crédito')) !!}
 			</div>
 		</div>
 		<div class="form-group">
-			{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			{!! Form::label('nombre', 'Nombre (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
 				{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre', 'maxlength' => '80')) !!}
 			</div>
 		</div>
 		<div class="form-group">
-			{!! Form::label('descripcion', 'Descripción:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			{!! Form::label('descripcion', 'Descripción', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
 				{!! Form::textarea('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'placeholder' => 'Ingrese descripción', 'rows' => '3', 'maxlength' => '100')) !!}
 			</div>
@@ -51,13 +57,13 @@
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<div class="form-group">
-			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			{!! Form::label('tipo', 'Tipo (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
 				{!! Form::select("tipo", array("P" => "Particular", "N" => "Nacional"), null, array("class" => "form-control input-xs", "id" => "tipo")) !!}
 			</div>
 		</div>
 		<div class="form-group">
-			{!! Form::label('logo', 'Logo:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			{!! Form::label('logo', 'Logo (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
 				{!! Form::file("logo", array("class" => "form-control input-xs", "id" => "logo")) !!}
 			</div>
@@ -84,6 +90,10 @@
 		@if($local!==null)
 			$("#imagen_local").html("<img height='200px' width='200px' class='img img-responsive center-block' src='{{ asset("logos/" . $local->logo) }}' />");
 		@endif
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serie"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serie2"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serie3"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 	}); 
 
 	function filePreview(input) {

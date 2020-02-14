@@ -48,13 +48,16 @@ class MensualidadController extends Controller
         $pagina            = $request->input('page');
         $filas             = $request->input('filas');
         $entidad           = 'Mensualidad';
+        $nivel_id          = Libreria::getParam($request->input('nivel_id'));
+        $grado_id          = Libreria::getParam($request->input('grado_id'));
         $seccion_id        = Libreria::getParam($request->input('seccion_id'));
-        $anoescolar        = Libreria::getParam($request->input('anoescolar'));
+        //$anoescolar        = Libreria::getParam($request->input('anoescolar'));
+        $anoescolar        = date("Y");
         $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
                             ->where("local_id", "=", $local_id)
                             ->first();
         $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
-        $resultado         = AlumnoSeccion::listar($seccion_id, $cicloacademico_id, $local_id);
+        $resultado         = AlumnoSeccion::listar($nivel_id, $grado_id, $seccion_id, $cicloacademico_id, $local_id);
         $lista             = $resultado->get();
         $cabecera          = array();
         $cabecera[]        = array('valor' => '#', 'numero' => '1');
@@ -97,21 +100,19 @@ class MensualidadController extends Controller
         $entidad          = 'Mensualidad';
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
-        $cboSecciones     = [''=>'--TODAS--'];
+        $cboNiveles       = [''=>'--TODOS--'];
         $user             = Auth::user();
         $local_id         = $user->persona->local_id;
 
-        $secciones        = Seccion::join("grado", "grado.id", "=", "seccion.grado_id")
-                            ->join("nivel", "nivel.id", "=", "grado.nivel_id")
-                            ->where("nivel.local_id", "=", $local_id)
-                            ->select("seccion.id", "seccion.descripcion", "seccion.grado_id", "grado.nivel_id")
+        $niveles          = Nivel::where("nivel.local_id", "=", $local_id)
+                            ->select("nivel.id", "nivel.descripcion")
                             ->get();
 
-        foreach ($secciones as $s) {
-            $cboSecciones[$s->id] = ($s->grado!==NULL?$s->grado->descripcion:'-') . ' grado '.($s->descripcion) . ' del nivel ' . ($s->grado!==NULL?($s->grado->nivel!==NULL?$s->grado->nivel->descripcion:'-'):'-');
+        foreach ($niveles as $s) {
+            $cboNiveles[$s->id] = $s->descripcion;
         }
 
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'cboSecciones'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'cboNiveles'));
     }
 
     public function conceptopago(Request $request) {

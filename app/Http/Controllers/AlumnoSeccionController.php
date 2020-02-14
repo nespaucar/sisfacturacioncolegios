@@ -49,13 +49,15 @@ class AlumnoSeccionController extends Controller
         $pagina            = $request->input('page');
         $filas             = $request->input('filas');
         $entidad           = 'Matricula';
-        $seccion_id        = Libreria::getParam($request->input('seccion_id'));
-        $anoescolar        = Libreria::getParam($request->input('anoescolar'));
+        $nivel_id          = Libreria::getParam($request->input('nivel_id'));
+        $grado_id          = Libreria::getParam($request->input('grado_id'));
+        //$anoescolar        = Libreria::getParam($request->input('anoescolar'));
+        $anoescolar        = date("Y");
         $cicloacademico    = Cicloacademico::where(DB::raw("YEAR(created_at)"), "=", $anoescolar)
                         ->where("local_id", "=", $local_id)
                         ->first();
         $cicloacademico_id = ($cicloacademico==NULL?0:$cicloacademico->id);
-        $resultado         = Seccion::listar($seccion_id, $local_id);
+        $resultado         = Seccion::listar($nivel_id, $grado_id, $local_id);
         $lista             = $resultado->get();
         $cabecera          = array();
         $cabecera[]        = array('valor' => '#', 'numero' => '1');
@@ -88,21 +90,19 @@ class AlumnoSeccionController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        $cboSecciones     = [''=>'--TODAS--'];
+        $cboNiveles       = [''=>'--TODOS--'];
         $user             = Auth::user();
         $local_id         = $user->persona->local_id;
 
-        $secciones        = Seccion::join("grado", "grado.id", "=", "seccion.grado_id")
-                            ->join("nivel", "nivel.id", "=", "grado.nivel_id")
-                            ->where("nivel.local_id", "=", $local_id)
-                            ->select("seccion.id", "seccion.descripcion", "seccion.grado_id", "grado.nivel_id")
+        $niveles          = Nivel::where("nivel.local_id", "=", $local_id)
+                            ->select("nivel.id", "nivel.descripcion")
                             ->get();
 
-        foreach ($secciones as $s) {
-            $cboSecciones[$s->id] = ($s->grado!==NULL?$s->grado->descripcion:'-') . ' grado '.($s->descripcion) . ' del nivel ' . ($s->grado!==NULL?($s->grado->nivel!==NULL?$s->grado->nivel->descripcion:'-'):'-');
+        foreach ($niveles as $s) {
+            $cboNiveles[$s->id] = $s->descripcion;
         }
 
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboSecciones'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboNiveles'));
     }
 
     public function matriculados(Request $request) {

@@ -131,6 +131,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('grado/eliminarSeccion', 'GradoController@eliminarSeccion')->name('grado.eliminarSeccion');
     Route::post('grado/cargarNiveles', 'GradoController@cargarNiveles')->name('grado.cargarNiveles');
     Route::get('grado/eliminar/{id}/{listarluego}', 'GradoController@eliminar')->name('grado.eliminar');
+    Route::get('grado/grados', 'GradoController@grados')->name('grado.grados');
+    Route::get('grado/seccionesM', 'GradoController@seccionesM')->name('grado.seccionesM');
     Route::resource('grado', 'GradoController', array('except' => array('show')));
 
     /*TIPO DOCUMENTO*/

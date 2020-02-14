@@ -15,6 +15,7 @@ class CreateLocalTable extends Migration
     {
         Schema::create('local', function (Blueprint $table) {
             $table->increments('id');
+            $table->string("ruc", 11);
             $table->string("serie", 10);
             $table->integer('serie2')->unsigned()->nullable();
             $table->integer('serie3')->unsigned()->nullable();

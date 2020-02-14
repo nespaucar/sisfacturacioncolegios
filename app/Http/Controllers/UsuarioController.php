@@ -149,6 +149,7 @@ class UsuarioController extends Controller {
         $error = DB::transaction(function() use($request, $id){
             $usuario                 = Usuario::find($id);
             $usuario->login          = $request->input('login');
+            $usuario->usertype_id    = $request->input('usertype_id');
             if ($request->input('password') != null && $request->input('password') != '') {
                 $usuario->password = Hash::make($request->input('password'));
             }

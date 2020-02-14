@@ -17,6 +17,9 @@ $nombrelocal           = mb_strtoupper($person->local->nombre);
         .boxfondo {
             background: rgba(51,122,183,0.10);
         }
+        .labelr {
+            color: blue;
+        }
     </style>
         <div id="wrapper">
         

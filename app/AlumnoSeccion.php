@@ -26,18 +26,27 @@ class AlumnoSeccion extends Model
 		return $this->belongsTo('App\Seccion', 'seccion_id');
     }
 
-    public function scopelistar($query, $seccion_id, $cicloacademico_id, $local_id)
+    public function scopelistar($query, $nivel_id, $grado_id, $seccion_id, $cicloacademico_id, $local_id)
     {
-        return $query->where(function($subquery) use($seccion_id, $cicloacademico_id, $local_id)
+        return $query->where(function($subquery) use($nivel_id, $grado_id, $seccion_id, $cicloacademico_id, $local_id)
         {
-            if (!is_null($seccion_id)) {
-                $subquery->where('seccion_id', '=', $seccion_id);
+            if (!is_null($grado_id)&&$grado_id!=="") {
+                $subquery->where('seccion.grado_id', '=', $grado_id);
+            }
+            if (!is_null($nivel_id)&&$nivel_id!=="") {
+                $subquery->where('grado.nivel_id', '=', $nivel_id);
             }
             if (!is_null($cicloacademico_id)) {
                 $subquery->where('cicloacademico_id', '=', $cicloacademico_id);
             }
+            if (!is_null($seccion_id)&&$seccion_id!=="") {
+                $subquery->where('seccion.id', '=', $seccion_id);
+            }
         })
         ->join("cicloacademico", "cicloacademico.id", "=", "alumno_seccion.cicloacademico_id")
+        ->join("seccion", "seccion.id", "=", "alumno_seccion.seccion_id")
+        ->join("grado", "grado.id", "=", "seccion.grado_id")
+        ->join("nivel", "nivel.id", "=", "grado.nivel_id")
         ->where("cicloacademico.local_id", "=", $local_id)
         ->select("alumno_seccion.*")
         ->orderBy('alumno_seccion.id', 'DESC');

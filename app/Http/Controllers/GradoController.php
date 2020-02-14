@@ -201,6 +201,40 @@ class GradoController extends Controller
         echo $retorno;
     }
 
+    public function grados(Request $request) {
+        $user     = Auth::user();
+        $local_id = $user->persona->local_id;
+        $nivel_id = $request->nivel_id;
+        $retorno  = "<option value=''>--TODOS--</option>";
+        if($nivel_id!=="") {
+            $grados = Grado::where("nivel_id", "=", $nivel_id)
+                ->get();
+            if(count($grados)>0) {
+                foreach ($grados as $grado) {
+                    $retorno  .= "<option value='".$grado->id."'>".$grado->descripcion."</option>";
+                }
+            }
+        }
+        echo $retorno;
+    }
+
+    public function seccionesM(Request $request) {
+        $user     = Auth::user();
+        $local_id = $user->persona->local_id;
+        $grado_id = $request->grado_id;
+        $retorno  = "<option value=''>--TODOS--</option>";
+        if($grado_id!=="") {
+            $secciones = Seccion::where("grado_id", "=", $grado_id)
+                ->get();
+            if(count($secciones)>0) {
+                foreach ($secciones as $seccion) {
+                    $retorno  .= "<option value='".$seccion->id."'>".$seccion->descripcion."</option>";
+                }
+            }
+        }
+        echo $retorno;
+    }
+
     public function secciones(Request $request)
     {
         $entidad             = 'Grado';
