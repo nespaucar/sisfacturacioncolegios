@@ -103,14 +103,13 @@ class AlumnoController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $validacion = Validator::make($request->all(),
             array(
-                'dni'             => 'required|size:8|unique:persona,dni,NULL,id,deleted_at,NULL',
+                'dni'             => 'required|digits:8|unique:persona,dni,NULL,id,deleted_at,NULL',
                 'nombres'  		  => 'required|max:100',
                 'apellidopaterno' => 'required|max:100',
                 'apellidomaterno' => 'required|max:100',
-                'direccion'       => 'required|max:100',
-                'fechanacimiento' => 'required|date',
-                'telefono'        => 'required|max:9',
-                'email'           => 'required|email|unique:usuario,email,NULL,id,deleted_at,NULL',
+                'direccion'       => 'max:100',
+                'telefono'        => 'max:9',
+                'email'           => 'email|unique:usuario,email,NULL,id,deleted_at,NULL',
             )
         );
         if ($validacion->fails()) {
@@ -125,7 +124,7 @@ class AlumnoController extends Controller
             $alumno->apellidopaterno = $request->input('apellidopaterno');
             $alumno->apellidomaterno = $request->input('apellidomaterno');
             $alumno->direccion       = $request->input('direccion');
-            $alumno->fechanacimiento = $request->input('fechanacimiento');
+            $alumno->fechanacimiento = $request->input('fechanacimiento')==""?NULL:$request->input('fechanacimiento');
             $alumno->telefono        = $request->input('telefono');
             $alumno->local_id        = $local_id;
             $alumno->save();
@@ -170,25 +169,23 @@ class AlumnoController extends Controller
             $usuario = Usuario::where("persona_id", "=", $request->apoderado_id)->first();
             $validacion = Validator::make($request->all(),
                 array(
-                    'dni'             => 'required|size:8|unique:persona,dni,'.$request->apoderado_id.',id,deleted_at,NULL',
+                    'dni'             => 'required|digits:8|unique:persona,dni,'.$request->apoderado_id.',id,deleted_at,NULL',
                     'nombres'         => 'required|max:100',
                     'apellidopaterno' => 'required|max:100',
                     'apellidomaterno' => 'required|max:100',
                     'direccion'       => 'required|max:100',
-                    'fechanacimiento' => 'required|date',
-                    'telefono'        => 'required|max:10',
+                    'telefono'        => 'required|max:9',
                     'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
                 )
             );
         } else {
             $validacion = Validator::make($request->all(),
                 array(
-                    'dni'             => 'required|size:8|unique:persona,dni,NULL,id,deleted_at,NULL',
+                    'dni'             => 'required|digits:8|unique:persona,dni,NULL,id,deleted_at,NULL',
                     'nombres'         => 'required|max:100',
                     'apellidopaterno' => 'required|max:100',
                     'apellidomaterno' => 'required|max:100',
                     'direccion'       => 'required|max:100',
-                    'fechanacimiento' => 'required|date',
                     'telefono'        => 'required|max:9',
                     'email'           => 'required|email|unique:usuario,email,NULL,id,deleted_at,NULL',
                 )
@@ -210,7 +207,7 @@ class AlumnoController extends Controller
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
             $apoderado->apellidomaterno = $request->input('apellidomaterno');
             $apoderado->direccion       = $request->input('direccion');
-            $apoderado->fechanacimiento = $request->input('fechanacimiento');
+            $apoderado->fechanacimiento = $request->input('fechanacimiento')==""?NULL:$request->input('fechanacimiento');
             $apoderado->telefono        = $request->input('telefono');
             $apoderado->local_id        = $local_id;
             $apoderado->save();
@@ -286,9 +283,8 @@ class AlumnoController extends Controller
                 'nombres'  		  => 'required|max:100',
                 'apellidopaterno' => 'required|max:100',
                 'apellidomaterno' => 'required|max:100',
-                'direccion'       => 'required|max:100',
-                'fechanacimiento' => 'required|date',
-                'telefono'        => 'required|max:10',
+                'direccion'       => 'max:100',
+                'telefono'        => 'max:9',
                 'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
             )
         );
@@ -304,7 +300,7 @@ class AlumnoController extends Controller
             $alumno->apellidopaterno = $request->input('apellidopaterno');
             $alumno->apellidomaterno = $request->input('apellidomaterno');
             $alumno->direccion       = $request->input('direccion');
-            $alumno->fechanacimiento = $request->input('fechanacimiento');
+            $alumno->fechanacimiento = $request->input('fechanacimiento')==""?NULL:$request->input('fechanacimiento');
             $alumno->telefono        = $request->input('telefono');
             $alumno->local_id        = $local_id;
             $alumno->save();

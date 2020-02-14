@@ -108,8 +108,9 @@ class LocalController extends Controller
                 'serie'       => 'required|numeric',
                 'serie2'      => 'required|numeric',
                 'serie3'      => 'required|numeric',
-                'ruc'         => 'required|max:11|unique:local,ruc,NULL,id,deleted_at,NULL',
+                'ruc'         => 'required|digits:11|unique:local,ruc,NULL,id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
+                'descripcion' => 'max:100',
                 'tipo'        => 'required|size:1',
                 'logo'        => 'required|image|mimes:jpeg,png,bmp,jpg,JPEG,JPG,PNG,BMP|max:3000',
             )
@@ -231,8 +232,9 @@ class LocalController extends Controller
                 'serie'       => 'required|numeric',
                 'serie2'      => 'required|numeric',
                 'serie3'      => 'required|numeric',
-                'ruc'         => 'required|max:11|unique:local,ruc,'.$id.',id,deleted_at,NULL',
+                'ruc'         => 'required|digits:11|unique:local,ruc,'.$id.',id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
+                'descripcion' => 'max:100',
                 'tipo'        => 'required|size:1',
                 'logo'        => "image|mimes:jpeg,png,bmp,jpg,JPEG,JPG,PNG,BMP|max:3000",
             )

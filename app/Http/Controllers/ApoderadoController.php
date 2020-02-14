@@ -109,7 +109,6 @@ class ApoderadoController extends Controller
                 'apellidopaterno' => 'required|max:100',
                 'apellidomaterno' => 'required|max:100',
                 'direccion'       => 'required|max:100',
-                'fechanacimiento' => 'required|date',
                 'telefono'        => 'required|max:9',
                 'email'           => 'required|email|unique:usuario,email,NULL,id,deleted_at,NULL',
             )
@@ -126,7 +125,7 @@ class ApoderadoController extends Controller
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
             $apoderado->apellidomaterno = $request->input('apellidomaterno');
             $apoderado->direccion       = $request->input('direccion');
-            $apoderado->fechanacimiento = $request->input('fechanacimiento');
+            $apoderado->fechanacimiento = $request->input('fechanacimiento')==""?NULL:$request->input('fechanacimiento');
             $apoderado->telefono        = $request->input('telefono');
             $apoderado->local_id        = $local_id;
             $apoderado->save();
@@ -192,7 +191,7 @@ class ApoderadoController extends Controller
                 'apellidomaterno' => 'required|max:100',
                 'direccion'       => 'required|max:100',
                 'fechanacimiento' => 'required|date',
-                'telefono'        => 'required|max:10',
+                'telefono'        => 'required|max:9',
                 'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
             )
         );
@@ -208,7 +207,7 @@ class ApoderadoController extends Controller
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
             $apoderado->apellidomaterno = $request->input('apellidomaterno');
             $apoderado->direccion       = $request->input('direccion');
-            $apoderado->fechanacimiento = $request->input('fechanacimiento');
+            $apoderado->fechanacimiento = $request->input('fechanacimiento')==""?NULL:$request->input('fechanacimiento');
             $apoderado->telefono        = $request->input('telefono');
             $apoderado->local_id        = $local_id;
             $apoderado->save();
