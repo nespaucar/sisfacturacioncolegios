@@ -33,6 +33,8 @@ class MensualidadController extends Controller
             'realizarPago' => 'mensualidad.realizarPago',
             'search' => 'mensualidad.buscar',
             'index'  => 'mensualidad.index',
+            'checktodo' => 'mensualidad.checktodo',
+            'confirmarchecktodo' => 'mensualidad.confirmarchecktodo'
         );
 
     public function __construct()
@@ -79,6 +81,7 @@ class MensualidadController extends Controller
         $cabecera[]        = array('valor' => 'Nov', 'numero' => '1');
         $cabecera[]        = array('valor' => 'Dic', 'numero' => '1');
         $cabecera[]        = array('valor' => 'Resumen', 'numero' => '1');
+        $cabecera[]        = array('valor' => 'Habilitar todos los pagos', 'numero' => '1');
 
         $ruta             = $this->rutas;
         if (count($lista) > 0) {
@@ -695,5 +698,34 @@ class MensualidadController extends Controller
         $ruta               = $this->rutas;
         $formData           = array('route' => array('mensualidad.realizarPago', $alumno_seccion_id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         return view($this->folderview.'.resumen')->with(compact('entidad', 'title', 'ruta', 'formData', 'listar', 'alumnoseccion', 'monto_mensualidad', 'cpago', 'mes'));
+    }
+
+    public function checktodo(Request $request) {
+        $id = $request->id;
+        $existe = Libreria::verificarExistencia($id, 'alumno_seccion');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar = "SI";
+        $modelo   = AlumnoSeccion::find($id);
+        $entidad  = 'Mensualidad';
+        $formData = array('route' => array('mensualidad.confirmarchecktodo', "id=".$id), 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton    = 'Eliminar';
+        return view('app.confirmarAlterarestado')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+    }
+
+    public function confirmarchecktodo(Request $request) {
+        $id = $request->id;
+        $existe = Libreria::verificarExistencia($id, 'alumno_seccion');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $error = DB::transaction(function() use($id){
+            //BUSCO LA MATRÍCULA
+            $mensualidad = AlumnoSeccion::find($id);
+            $mensualidad->checktodo = 1;
+            $mensualidad->save();
+        });
+        return is_null($error) ? "OK" : $error;
     }
 }

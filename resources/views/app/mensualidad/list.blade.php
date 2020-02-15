@@ -47,6 +47,9 @@
 					if($i == 0) {
 						$matricula = 1;
 					}
+					if($value->checktodo == 1) {
+						$disabled = false;
+					}
 				?>
 				<td style="padding:5px;margin:5px;font-size:13px;" class="text-center">
 				@if($disabled)
@@ -79,6 +82,13 @@
 			@endfor
 			<td style="padding:5px;margin:5px;font-size:13px;" class="text-center">{!! Form::button('<div class="fa fa-eye"></div>', array('onclick' => 'modal (\''.URL::route('mensualidad.resumen', array("id=".$value->id)).'\', \'Resumen de Matricula y Mensualidades\', this);', 'class' => 'btn btn-xs btn-primary')) !!}
 			</td>
+			<td style="padding:5px;margin:5px;font-size:13px;" class="text-center">
+				@if($value->checktodo == 0)
+				{!! Form::checkbox("NEM", false, false, array('onclick' => 'modal (\''.URL::route($ruta["checktodo"], array("id=".$value->id)).'\', \'¿Desea habilitar los pagos de todas las mensualidades de este alumno?\', this);$(this).prop("checked", false);', 'style' => 'cursor:pointer;')) !!}
+				@else
+				{!! Form::checkbox("NEM", true, true, array("disabled"=>true)) !!}
+				@endif
+			</td>
 		</tr>
 		<?php
 		$contador = $contador + 1;
@@ -87,9 +97,4 @@
 	</tbody>
 </table>
 {!! $paginacion or '' !!}
-<script>
-	$(document).ready(function () {
-		
-	});
-</script>
 @endif

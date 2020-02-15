@@ -7,7 +7,7 @@
 					<div class="form-group">
 						{!! Form::label('dni', 'DNI (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
 						<div class="col-lg-4 col-md-4 col-sm-4">
-							{!! Form::text('dni', null, array('class' => 'form-control input-xs', 'id' => 'dni', 'placeholder' => 'Ingrese dni', 'maxlength' => '8')) !!}
+							{!! Form::text('dni', null, array('class' => 'form-control input-xs', 'id' => 'dni', 'placeholder' => 'Ingrese dni', 'maxlength' => '8', 'onkeyup' => 'consultarDatosxDNI();')) !!}
 						</div>
 					</div>
 					<div class="form-group">
@@ -66,5 +66,37 @@
 	$(document).ready(function() {
 		configurarAnchoModal('650');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
+		@if($alumno !== NULL)
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').prop("readonly", true);
+		@endif
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').focus();
 	});
+	function consultarDatosxDNI() {
+		//alert($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').val().length);
+		if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').val().length == 8) {
+			var dni = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').val();
+			var url = 'ReniecPHP/consulta_reniec.php';
+			$.ajax({
+				type:'POST',
+				url:url,
+				data:'dni='+dni,
+				beforeSend: function() {
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').val("Cargando...");
+				},
+				success: function(datos_dni){
+					var datos = eval(datos_dni);
+					//$('#mostrar_dni').text(datos[0]);
+					//$('#paterno').text(datos[1]);
+					//$('#materno').text(datos[2]);
+					//$('#nombres').text(datos[3]);
+					//alert(datos[3]);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').val(dni);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="apellidopaterno"]').val(datos[2]);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="apellidomaterno"]').val(datos[3]);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombres"]').val(datos[1]);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="email"]').focus();
+				}
+			});
+		}
+	}
 </script>

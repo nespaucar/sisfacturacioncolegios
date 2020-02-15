@@ -208,6 +208,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mensualidad/eliminar/{id}/{listarluego}/{adicional}', 'MensualidadController@eliminar')->name('mensualidad.eliminar');
     Route::get('mensualidad/envioBoletas', 'MensualidadController@envioBoletas')->name('mensualidad.envioBoletas');
     Route::get('mensualidad/resumen', 'MensualidadController@resumen')->name('mensualidad.resumen');
+    Route::post('mensualidad/confirmarchecktodo', 'MensualidadController@confirmarchecktodo')->name('mensualidad.confirmarchecktodo');
+    Route::get('mensualidad/checktodo', 'MensualidadController@checktodo')->name('mensualidad.checktodo');
 
     /*VENTA*/
     Route::post('venta/buscar', 'VentaController@buscar')->name('venta.buscar');
