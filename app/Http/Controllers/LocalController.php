@@ -110,6 +110,7 @@ class LocalController extends Controller
                 'serie3'      => 'required|numeric',
                 'ruc'         => 'required|digits:11|unique:local,ruc,NULL,id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
+                'razonsocial' => 'required|max:120',
                 'descripcion' => 'max:100',
                 'tipo'        => 'required|size:1',
                 'logo'        => 'required|image|mimes:jpeg,png,bmp,jpg,JPEG,JPG,PNG,BMP|max:3000',
@@ -126,6 +127,7 @@ class LocalController extends Controller
             $local->serie2        = $request->input('serie2');
             $local->serie3        = $request->input('serie3');
             $local->nombre        = $request->input('nombre');
+            $local->razonsocial   = $request->input('razonsocial');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;
             //SI SOY SUPERUSUARIO ID 1, ENTONCES PUEDO ELEGIR SI EL LOCAL ES NUEVO O DEPENDIENTE DEL LOCAL_ID DE SU USUARIO
@@ -234,6 +236,7 @@ class LocalController extends Controller
                 'serie3'      => 'required|numeric',
                 'ruc'         => 'required|digits:11|unique:local,ruc,'.$id.',id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
+                'razonsocial' => 'required|max:120',
                 'descripcion' => 'max:100',
                 'tipo'        => 'required|size:1',
                 'logo'        => "image|mimes:jpeg,png,bmp,jpg,JPEG,JPG,PNG,BMP|max:3000",
@@ -250,6 +253,7 @@ class LocalController extends Controller
             $local->serie2        = $request->input('serie2');
             $local->serie3        = $request->input('serie3');
             $local->nombre        = $request->input('nombre');
+            $local->razonsocial   = $request->input('razonsocial');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;
             $local->tipo          = $request->input('tipo');

@@ -21,7 +21,7 @@
 		<div class="form-group">
 			{!! Form::label('ruc', 'RUC (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
-				{!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc', 'placeholder' => 'Ingrese ruc', 'maxlength' => '11')) !!}
+				{!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc', 'placeholder' => 'Ingrese ruc', 'maxlength' => '11', 'onkeyup' => 'consultarRUC(this.value)')) !!}
 			</div>
 		</div>
 		<div class="form-group">
@@ -40,6 +40,12 @@
 			{!! Form::label('serie3', 'Serie Notas de Crédito (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
 				{!! Form::text('serie3', null, array('class' => 'form-control input-xs', 'id' => 'serie3', 'placeholder' => 'Ingrese serie de notas de crédito')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('razonsocial', 'Razon Social', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
+			<div class="col-lg-9 col-md-9 col-sm-9">
+				{!! Form::text('razonsocial', null, array('class' => 'form-control input-xs', 'id' => 'razonsocial', 'placeholder' => 'Ingrese razon social', 'maxlength' => '120')) !!}
 			</div>
 		</div>
 		<div class="form-group">
@@ -85,7 +91,7 @@
 {!! Form::close() !!}
 <script type="text/javascript">
 	$(document).ready(function() {
-		configurarAnchoModal('900');
+		configurarAnchoModal('1200');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 		@if($local!==null)
 			$("#imagen_local").html("<img height='200px' width='200px' class='img img-responsive center-block' src='{{ asset("logos/" . $local->logo) }}' />");
@@ -94,6 +100,7 @@
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serie"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serie2"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="serie3"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').focus();
 	}); 
 
 	function filePreview(input) {
@@ -159,5 +166,29 @@
 				}
 			}
 		});
+	}
+
+	function consultarRUC(ruc){  
+		if(ruc.length===11) {
+			$.ajax({
+		        type: 'GET',
+		        url: "SunatPHP/demo.php",
+		        data: "ruc="+ruc,
+		        beforeSend(){
+		            $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razonsocial"]').val('Comprobando...');
+		        },
+		        success: function (data, textStatus, jqXHR) {
+		            if(data.RazonSocial == null) {
+		        		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val('').focus();
+		                $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razonsocial"]').val('');
+		                $.Notification.autoHideNotify('error', 'top right', "ERROR!", 'El RUC ingresado no existe... Digite uno válido.');  
+		            } else {
+		                $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val(ruc);
+		                $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razonsocial"]').val(data.RazonSocial);
+		                $.Notification.autoHideNotify('success', 'top right', "EXITO!", 'RUC válido.');  
+		            }
+		        }
+		    });
+		}
 	}
 </script>
