@@ -30,7 +30,7 @@
 <div class="row boxfondo">
     <div class="col-sm-12">
         <div class="card-box table-responsive">
-            <div class="row m-b-30">
+            <div class="row m-b-30" @if($user->usertype_id!==1) style="display: none;" @endif>
                 <div class="col-sm-12">
 					{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 					{!! Form::hidden('page', 1, array('id' => 'page')) !!}

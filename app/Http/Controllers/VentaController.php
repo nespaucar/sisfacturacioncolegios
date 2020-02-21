@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Movimiento;
 use App\Cicloacademico;
+use App\Alumnocuota;
+use App\Cuota;
 use App\Http\Requests;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -42,8 +44,9 @@ class VentaController extends Controller
         $tipodocumento_id  = $request->input('tipodocumento_id');
         $estado            = $request->input('estado');
         $fecha             = date("Y-m-d", strtotime($request->input('fecha')));
+        $fecha2            = date("Y-m-d", strtotime($request->input('fecha2')));
         $entidad           = 'Anoescolar';
-        $resultado         = Movimiento::listardocumentoventa($fecha, $numero, $serie, 8, $tipodocumento_id, $estado, $local_id);
+        $resultado         = Movimiento::listardocumentoventa($fecha, $fecha2, $numero, $serie, 8, $tipodocumento_id, $estado, $local_id);
         $lista             = $resultado->get();
         $cabecera          = array();
         $cabecera[] = array('valor' => '#', 'numero' => '1');
@@ -85,29 +88,42 @@ class VentaController extends Controller
 
     public function destroy($id)
     {
-        $existe = Libreria::verificarExistencia($id, 'venta');
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
         if ($existe !== true) {
             return $existe;
         }
         $error = DB::transaction(function() use($id){
-            $venta = Anoescolar::find($id);
-            $venta->estado = "D";
+            //ANULO BOLETA DE VENTA
+            $venta = Movimiento::find($id);
+            $venta->estado = "A";
             $venta->save();
+            //ANULO INGRESO A CAJA
+            $movimientocaja = Movimiento::find($venta->movimiento_id);
+            $movimientocaja->estado = "A";
+            $movimientocaja->save();
+            //ELIMINO ALUMNO CUOTA
+            $alumnocuota = Alumnocuota::find($venta->alumno_cuota_id);
+            //PERO ANTES CAMBIO ESTADO A CUOTA PENDIENTE
+            $cuota = Cuota::find($alumnocuota->cuota_id);
+            $cuota->estado = "P";
+            $cuota->save();
+            //FINALMENTE ELIMINO EL ALUMNO CUOTA
+            $alumnocuota->delete();
         });
         return is_null($error) ? "OK" : $error;
     }
 
     public function eliminar($id, $listarLuego)
     {
-        $existe = Libreria::verificarExistencia($id, 'venta');
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
         if ($existe !== true) {
             return $existe;
         }
-        $listar = "NO";
+        $listar = "SI";
         if (!is_null(Libreria::obtenerParametro($listarLuego))) {
             $listar = $listarLuego;
         }
-        $modelo   = Anoescolar::find($id);
+        $modelo   = Movimiento::find($id);
         $entidad  = 'Anoescolar';
         $formData = array('route' => array('venta.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';

@@ -16,8 +16,12 @@
 					{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 					{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 					<div class="form-group">
-						{!! Form::label('fecha', 'Fecha:', array('class'=>'input-sm')) !!}
-						{!! Form::date('fecha', date("Y-m-d"), array('class' => 'form-control input-sm', 'id' => 'fecha', 'onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
+						{!! Form::label('fecha', 'Fecha Inicial:', array('class'=>'input-sm')) !!}
+						{!! Form::date('fecha', date("Y-m-d",strtotime(date("Y-m-d")."- 1 month")), array('class' => 'form-control input-sm', 'id' => 'fecha', 'onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
+					</div>
+					<div class="form-group">
+						{!! Form::label('fecha2', 'Fecha Final:', array('class'=>'input-sm')) !!}
+						{!! Form::date('fecha2', date("Y-m-d"), array('class' => 'form-control input-sm', 'id' => 'fecha2', 'onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('serie', 'Serie:', array('class'=>'input-sm')) !!}
@@ -33,7 +37,7 @@
 					</div>
 					<div class="form-group">
 						{!! Form::label('estado', 'Estado:', array('class'=>'input-sm')) !!}
-						{!! Form::select('estado', array("P" => "PAGADO", "A" => "ANULADO"), null, array('class' => 'form-control input-sm', 'id' => 'estado', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+						{!! Form::select('estado', array("" => "--TODOS--", "P" => "PAGADO", "A" => "ANULADO"), null, array('class' => 'form-control input-sm', 'id' => 'estado', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('estado', 'Filas:', array('class'=>'input-sm')) !!}

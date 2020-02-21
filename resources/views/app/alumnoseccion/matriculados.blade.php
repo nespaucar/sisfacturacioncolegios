@@ -91,7 +91,7 @@
 		                        	<span class="input-group-addon input-sm">TOTAL</span>
 		                        </div>
 		                        <div class="col-lg-8 col-md-8 col-sm-8">
-		                        	<input name="total" id="total" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                        	<input name="total" id="total" type="text" class="form-control input-sm" readonly="">
 		                        </div>
 		                    </div>
 		                    <div class="form-group">
@@ -99,7 +99,7 @@
 		                        	<span class="input-group-addon input-sm">A PAGAR</span>
 		                        </div>
 		                        <div class="col-lg-8 col-md-8 col-sm-8">
-		                        	<input name="total2" id="total2" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                        	<input name="total2" id="total2" type="text" class="form-control input-sm" readonly="">
 		                        </div>
 		                    </div>
 		                    <div class="form-group">
@@ -107,7 +107,7 @@
 		                        	<span class="input-group-addon input-sm">A CUENTA</span>
 		                        </div>
 		                        <div class="col-lg-8 col-md-8 col-sm-8">
-		                        	<input name="cuenta" id="cuenta" type="text" class="form-control input-sm" readonly="" value="0.00">
+		                        	<input name="cuenta" id="cuenta" type="text" class="form-control input-sm" readonly="">
 		                        </div>
 		                    </div>
 		                    <div class="form-group">
@@ -119,46 +119,56 @@
 		            </div>		            
 		        </div>
 		        <div id="divDocVenta" class="col-lg-6 col-md-6 col-sm-6 img img-thumbnail" style="border-style: ridge; padding: 10px; box-shadow: 1px 1px 3px #666;">
-		        	<div class="form-group">
-		            	<div class="col-lg-12 col-md-12 col-sm-12 text-center">
-		            		{!! Form::label('formapago', htmlentities('DOCUMENTO DE VENTA'), array('class' => 'control-label input-sm caja')) !!}
-		            	</div>
-		            </div>
-		            <div class="form-group">
-		        		<div class="col-lg-5 col-md-5 col-sm-5">
-		        			{!! Form::select('tipodocumento', array("B"=>"BOLETA", "F"=>"FACTURA"), null, array('class' => 'form-control input-sm', 'id' => 'tipodocumento', 'onchange' => 'generarNumeroVenta()')) !!}
+		        	<div class="form-group" style="background-color: yellow">
+			        	{!! Form::label('venta', 'Generar Documento de Venta?', array('class' => 'col-lg-9 col-md-9 col-sm-9 control-label input-sm')) !!}
+					  	<div class="col-lg-3 col-md-3 col-sm-3">
+		        			{!! Form::select('venta', array("S"=>"SI", "N"=>"NO"), null, array('class' => 'form-control input-sm', 'id' => 'venta', 'onchange' => 'generarDocumentoVenta(this.value);')) !!}
 		        		</div>
-		                {!! Form::label('numeroventa', 'N°', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
-		        		<div class="col-lg-3 col-md-3 col-sm-3">
-		        			{!! Form::text('serieventa', "001", array('class' => 'form-control input-sm', 'id' => 'serieventa', "readonly")) !!}
-		        		</div>
-		                <div class="col-lg-3 col-md-3 col-sm-3">
-		        			{!! Form::text('numeroventa', "", array('class' => 'form-control input-sm', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
-		        		</div>
-		        	</div>
-		            <div class="form-group datofactura hide">
-		                {!! Form::label('ruc', 'RUC', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-		        		<div class="col-lg-5 col-md-5 col-sm-5">
-		        			{!! Form::text('ruc', null, array('class' => 'form-control input-sm', 'id' => 'ruc', 'maxlength' => '11', 'onkeyup' => 'buscarEmpresa(this.value);')) !!}
-		        		</div>
-		            </div>
-		            <div class="form-group datofactura hide">
-		                {!! Form::label('razon', 'Razón', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-		        		<div class="col-lg-10 col-md-10 col-sm-10">
-		        			{!! Form::text('razon', null, array('class' => 'form-control input-sm', 'id' => 'razon', 'readonly' => true, 'maxlength' => '80')) !!}
-		        		</div>
-		            </div>
-		            <div class="form-group datofactura hide">
-		                {!! Form::label('direccion', "Dirección", array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-		        		<div class="col-lg-10 col-md-10 col-sm-10">
-		        			{!! Form::text('direccion', null, array('class' => 'form-control input-sm', 'id' => 'direccion', 'maxlength' => '80')) !!}
-		        		</div>
-		        	</div>
-		        </div> 
-		        <div class="form-group">
-					<div class="col-lg-12 col-md-12 col-sm-12 text-right">
-						{!! Form::button('<i class="fa fa-check fa-lg"></i> Matricular a Alumno', array('class' => 'btn btn-success btn-sm', 'id' => 'btnMatricular'.$entidad, 'onclick' => 'matricularAlumno(this);')) !!}
 					</div>
+					<div id="parteDocumentoVenta">
+						<hr>
+						<hr>
+			        	<div class="form-group">
+			            	<div class="col-lg-12 col-md-12 col-sm-12 text-center">
+			            		{!! Form::label('formapago', htmlentities('DOCUMENTO DE VENTA'), array('class' => 'control-label input-sm caja')) !!}
+			            	</div>
+			            </div>
+			            <div class="form-group">
+			        		<div class="col-lg-5 col-md-5 col-sm-5">
+			        			{!! Form::select('tipodocumento', array("B"=>"BOLETA", "F"=>"FACTURA"), null, array('class' => 'form-control input-sm', 'id' => 'tipodocumento', 'onchange' => 'generarNumeroVenta()')) !!}
+			        		</div>
+			                {!! Form::label('numeroventa', 'N°', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+			        		<div class="col-lg-3 col-md-3 col-sm-3">
+			        			{!! Form::text('serieventa', "001", array('class' => 'form-control input-sm', 'id' => 'serieventa', "readonly")) !!}
+			        		</div>
+			                <div class="col-lg-3 col-md-3 col-sm-3">
+			        			{!! Form::text('numeroventa', "", array('class' => 'form-control input-sm', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+			        		</div>
+			        	</div>
+			            <div class="form-group datofactura hide">
+			                {!! Form::label('ruc', 'RUC', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			        		<div class="col-lg-5 col-md-5 col-sm-5">
+			        			{!! Form::text('ruc', null, array('class' => 'form-control input-sm', 'id' => 'ruc', 'maxlength' => '11', 'onkeyup' => 'buscarEmpresa(this.value);')) !!}
+			        		</div>
+			            </div>
+			            <div class="form-group datofactura hide">
+			                {!! Form::label('razon', 'Razón', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			        		<div class="col-lg-10 col-md-10 col-sm-10">
+			        			{!! Form::text('razon', null, array('class' => 'form-control input-sm', 'id' => 'razon', 'readonly' => true, 'maxlength' => '80')) !!}
+			        		</div>
+			            </div>
+			            <div class="form-group datofactura hide">
+			                {!! Form::label('direccion', "Dirección", array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			        		<div class="col-lg-10 col-md-10 col-sm-10">
+			        			{!! Form::text('direccion', null, array('class' => 'form-control input-sm', 'id' => 'direccion', 'maxlength' => '80')) !!}
+			        		</div>
+			        	</div>
+			        </div>
+		        </div>
+			</div>
+			<div class="form-group">
+				<div class="col-lg-12 col-md-12 col-sm-12 text-right">
+					{!! Form::button('<i class="fa fa-check fa-lg"></i> Matricular a Alumno', array('class' => 'btn btn-success btn-sm', 'id' => 'btnMatricular'.$entidad, 'onclick' => 'matricularAlumno(this);')) !!}
 				</div>
 			</div>
 		</div>
@@ -244,7 +254,19 @@
 			$.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'Debes seleccionar a un alumno.');
             $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val('').focus();
 		} else {
-			confirmarMatriculaDeAlumno('{{ $entidad }}', btn);
+			if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').val()=="S") {
+					if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipodocumento"]').val()=="F") {
+						if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="ruc"]').val()!==""&&
+							$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="razon"]').val()!==""&&
+							$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="direccion"]').val()!=="") {
+							confirmarMatriculaDeAlumno('{{ $entidad }}', btn);
+						} else {
+							$.Notification.autoHideNotify('error', 'top right', "CUIDADO!",'Debes ingresar datos de la empresa.');
+						}
+					}
+				} else {
+					confirmarMatriculaDeAlumno('{{ $entidad }}', btn);
+				}
 		}
 	}
 
@@ -360,10 +382,20 @@
 		$("#divDocVenta").hide();
 		$("#divDatosAlumno").addClass("col-lg-12").addClass("col-md-12").addClass("col-sm-12");
 		$("#divDatosAlumno").removeClass("col-lg-6").removeClass("col-md-6").removeClass("col-sm-6");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').val("N");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').prop("disabled", true);
 		if(mostrar) {
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').val("S");
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').prop("disabled", false);
+			$("#parteDocumentoVenta").show();
 			$("#divDatosAlumno").removeClass("col-lg-12").removeClass("col-md-12").removeClass("col-sm-12");
 			$("#divDatosAlumno").addClass("col-lg-6").addClass("col-md-6").addClass("col-sm-6");
 			$("#divDocVenta").show();
+			if(parseFloat($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val()) == 0) {
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').val("N");
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="venta"]').prop("disabled", true);
+				$("#parteDocumentoVenta").hide();
+			}
 		}
 	}
 
@@ -454,6 +486,13 @@
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').typeahead('val', '');
 			}
 		});
+	}
+
+	function generarDocumentoVenta(val) {
+		$("#parteDocumentoVenta").hide();
+		if(val === "S") {
+			$("#parteDocumentoVenta").show();
+		}
 	}
 </script>
 @endif

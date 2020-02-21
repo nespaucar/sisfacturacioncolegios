@@ -143,6 +143,7 @@ class AlumnoSeccionController extends Controller
             $ruc               = $request->ruc;
             $razon             = $request->razon;
             $direccion         = $request->direccion;
+            $venta             = $request->venta;
             $user              = Auth::user();
 
             //EMPIEZO A MATRICULAR AL ALUMNO
@@ -184,10 +185,10 @@ class AlumnoSeccionController extends Controller
                 $movimiento->conceptopago_id   = 6; //PAGO POR MATRÍCULA
                 $movimiento->totalvisa         = $visa;
                 $movimiento->totalmaster       = $master;
-                $movimiento->total             = $total;
+                $movimiento->total             = $total2;
                 $movimiento->igv               = 0;
                 $movimiento->tipodocumento_id  = NULL;
-                $movimiento->totalpagado       = $total;
+                $movimiento->totalpagado       = $total2;
                 $movimiento->estado            = "P"; //PAGADO
                 $movimiento->local_id          = $local_id;
                 $movimiento->cuota_id          = $cuota->id;
@@ -195,32 +196,43 @@ class AlumnoSeccionController extends Controller
                 $movimiento->alumno_cuota_id   = $alumnocuota->id;
                 $movimiento->save();                
                 //CREO EL DOCUMENTO DE VENTA
-                $movimientoventa                    = new Movimiento();
-                $movimientoventa->fecha             = date("Y-m-d");
-                $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
-                $movimientoventa->persona_id        = $alumno->id;
-                $movimientoventa->serie             = ($tipodocumento=="B"?$user->persona->local->serie:$user->persona->local->serie2);
-                $movimientoventa->responsable_id    = $user->persona->id;
-                $movimientoventa->tipomovimiento_id = 8; //VENTA
-                $movimientoventa->conceptopago_id   = 6; //PAGO POR MATRÍCULA
-                $movimientoventa->total             = $total;
-                $movimientoventa->igv               = 0;
-                $movimientoventa->tipodocumento_id  = ($tipodocumento=="B"?1:2);
-                $movimientoventa->comentario        = "PAGO COMPLETO POR MATRÍCULA";
-                $movimientoventa->totalpagado       = $total;
-                $movimientoventa->estado            = "P"; //PAGADO
-                $movimientoventa->ruc               = $ruc;
-                $movimientoventa->razon             = $razon;
-                $movimientoventa->direccion         = $direccion;
-                $movimientoventa->cuota_id          = $cuota->id;
-                $movimientoventa->movimiento_id     = $movimiento->id;
-                $movimientoventa->local_id          = $local_id;
-                $movimientoventa->cicloacademico_id = $cicloacademico->id;
-                $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
-                $movimientoventa->save();
+                if($total > 0) {
+                    //SOLO SI SE ACEPTA QUE SE GENERE DOCUMENTO DE VENTA
+                    if($venta == "S") {
+                        $movimientoventa                    = new Movimiento();
+                        $movimientoventa->fecha             = date("Y-m-d");
+                        $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
+                        $movimientoventa->persona_id        = $alumno->id;
+                        $movimientoventa->serie             = ($tipodocumento=="B"?$user->persona->local->serie:$user->persona->local->serie2);
+                        $movimientoventa->responsable_id    = $user->persona->id;
+                        $movimientoventa->tipomovimiento_id = 8; //VENTA
+                        $movimientoventa->conceptopago_id   = 6; //PAGO POR MATRÍCULA
+                        $movimientoventa->total             = $total;
+                        $movimientoventa->igv               = 0;
+                        $movimientoventa->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                        $movimientoventa->comentario        = "PAGO COMPLETO POR MATRÍCULA";
+                        $movimientoventa->totalpagado       = $total;
+                        $movimientoventa->estado            = "P"; //PAGADO
+                        $movimientoventa->ruc               = $ruc;
+                        $movimientoventa->razon             = $razon;
+                        $movimientoventa->direccion         = $direccion;
+                        $movimientoventa->cuota_id          = $cuota->id;
+                        $movimientoventa->movimiento_id     = $movimiento->id;
+                        $movimientoventa->local_id          = $local_id;
+                        $movimientoventa->cicloacademico_id = $cicloacademico->id;
+                        $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
+                        $movimientoventa->save();
 
-                $movimiento->comentario             = "PAGO COMPLETO POR MATRÍCULA - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
-                $movimiento->save();
+                        $movimiento->comentario             = "PAGO COMPLETO POR MATRÍCULA - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
+                        $movimiento->save();
+                    } else {
+                        $movimiento->comentario             = "PAGO COMPLETO POR MATRÍCULA - SIN GENERACIÓN DE DOCUMENTO DE VENTA";
+                        $movimiento->save();
+                    }
+                } else {
+                    $movimiento->comentario             = "PAGO COMPLETO POR MATRÍCULA - SIN GENERACIÓN DE DOCUMENTO DE VENTA, MONTO 0.00 SOLES";
+                    $movimiento->save();
+                }
 
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
             } else {
@@ -254,7 +266,7 @@ class AlumnoSeccionController extends Controller
                     $movimiento->totalmaster       = $master;
                     $movimiento->total             = $total2;
                     $movimiento->igv               = 0;
-                    $movimiento->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                    $movimiento->tipodocumento_id  = NULL;
                     $movimiento->comentario        = "PAGO COMPLETO POR MATRÍCULA";
                     $movimiento->totalpagado       = $total2;
                     $movimiento->estado            = "P"; //PAGADO

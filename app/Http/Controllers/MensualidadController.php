@@ -186,6 +186,7 @@ class MensualidadController extends Controller
             $razon             = $request->razon;
             $direccion         = $request->direccion;
             $mes               = $request->mes;
+            $venta             = $request->venta;
             $user              = Auth::user();
 
             //BUSCO LA MATRÍCULA DEL ALUMNO
@@ -213,9 +214,9 @@ class MensualidadController extends Controller
             if($cuota == NULL) {
                 $cuota                    = new Cuota();
                 $cuota->monto             = $total;
-                $cuota->estado            = ($cuenta==0.00?"C":"P"); //CANCELADA
                 $cuota->cicloacademico_id = $cicloacademico->id;
                 $cuota->observacion       = $cp." DE ALUMNO";
+                $cuota->estado            = "P";
                 $cuota->alumno_seccion_id = $mensualidad->id;
                 $cuota->mes               = $mes;
                 $cuota->save();
@@ -243,10 +244,10 @@ class MensualidadController extends Controller
                 $movimiento->conceptopago_id   = $conceptopago_id; //PAGO POR EL CONCEPTO O MATRICULA O MENSUALIDAD
                 $movimiento->totalvisa         = $visa;
                 $movimiento->totalmaster       = $master;
-                $movimiento->total             = $total;
+                $movimiento->total             = $total2;
                 $movimiento->igv               = 0;
                 $movimiento->tipodocumento_id  = NULL;
-                $movimiento->totalpagado       = $total;
+                $movimiento->totalpagado       = $total2;
                 $movimiento->estado            = "P"; //PAGADO
                 $movimiento->local_id          = $local_id;
                 $movimiento->cuota_id          = $cuota->id;
@@ -254,36 +255,50 @@ class MensualidadController extends Controller
                 $movimiento->alumno_cuota_id   = $alumnocuota->id;
                 $movimiento->save();                
                 //CREO EL DOCUMENTO DE VENTA
-                $movimientoventa                    = new Movimiento();
-                $movimientoventa->fecha             = date("Y-m-d");
-                $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
-                $movimientoventa->persona_id        = $alumno->id;
-                $movimientoventa->serie             = ($tipodocumento=="B"?$user->persona->local->serie:$user->persona->local->serie2);
-                $movimientoventa->responsable_id    = $user->persona->id;
-                $movimientoventa->tipomovimiento_id = 8; //VENTA
-                $movimientoventa->conceptopago_id   = $conceptopago_id; //PAGO POR CONCEPTO O MATRICULA O MENSUALIDAD
-                $movimientoventa->total             = $total;
-                $movimientoventa->igv               = 0;
-                $movimientoventa->tipodocumento_id  = ($tipodocumento=="B"?1:2);
-                $movimientoventa->comentario        = "PAGO COMPLETO POR ".$cp;
-                $movimientoventa->totalpagado       = $total;
-                $movimientoventa->estado            = "P"; //PAGADO
-                $movimientoventa->ruc               = $ruc;
-                $movimientoventa->razon             = $razon;
-                $movimientoventa->direccion         = $direccion;
-                $movimientoventa->cuota_id          = $cuota->id;
-                $movimientoventa->movimiento_id     = $movimiento->id;
-                $movimientoventa->local_id          = $local_id;
-                $movimientoventa->cicloacademico_id = $cicloacademico->id;
-                $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
-                $movimientoventa->save();
+                //SOLO SI EL TOTAL ES MAYOR A CERO
 
-                $movimiento->comentario             = "PAGO COMPLETO POR " . $cp . " - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
-                $movimiento->save();
+                if($total > 0) {
+                    //SOLO SI SE ACEPTA QUE SE GENERE DOCUMENTO DE VENTA
+                    if($venta == "S") {
+                        $movimientoventa                    = new Movimiento();
+                        $movimientoventa->fecha             = date("Y-m-d");
+                        $movimientoventa->numero            = Movimiento::numerosigue(8, ($tipodocumento=="B"?1:2), $local_id); //NÚMERO DE DOC VENTA QUE SIGUE
+                        $movimientoventa->persona_id        = $alumno->id;
+                        $movimientoventa->serie             = ($tipodocumento=="B"?$user->persona->local->serie:$user->persona->local->serie2);
+                        $movimientoventa->responsable_id    = $user->persona->id;
+                        $movimientoventa->tipomovimiento_id = 8; //VENTA
+                        $movimientoventa->conceptopago_id   = $conceptopago_id; //PAGO POR CONCEPTO O MATRICULA O MENSUALIDAD
+                        $movimientoventa->total             = $total;
+                        $movimientoventa->igv               = 0;
+                        $movimientoventa->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                        $movimientoventa->comentario        = "PAGO COMPLETO POR ".$cp;
+                        $movimientoventa->totalpagado       = $total;
+                        $movimientoventa->estado            = "P"; //PAGADO
+                        $movimientoventa->ruc               = $ruc;
+                        $movimientoventa->razon             = $razon;
+                        $movimientoventa->direccion         = $direccion;
+                        $movimientoventa->cuota_id          = $cuota->id;
+                        $movimientoventa->movimiento_id     = $movimiento->id;
+                        $movimientoventa->local_id          = $local_id;
+                        $movimientoventa->cicloacademico_id = $cicloacademico->id;
+                        $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
+                        $movimientoventa->save();
 
+                        $movimiento->comentario             = "PAGO COMPLETO POR " . $cp . " - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
+                        $movimiento->save();
+                    } else {
+                        $movimiento->comentario             = "PAGO COMPLETO POR " . $cp . " - SIN GENERACIÓN DE DOCUMENTO DE VENTA";
+                        $movimiento->save();
+                    }
+                } else {
+                    $movimiento->comentario             = "PAGO COMPLETO POR " . $cp . " - SIN GENERACIÓN DE DOCUMENTO DE VENTA, MONTO 0.00 SOLES";
+                    $movimiento->save();
+                }
             ####SI EL ALUMNO NO HA COMPLETADO EL PAGO TOTAL
             } else {
                 //CREO EL PRIMER DETALLE DE CUOTA, NO IMPORTA SI ES CERO, AMARRAMOS AMARRAMOS AL ALUMNO A LA CUOTA
+                $cuota->estado = "P"; //PENDIENTE
+                $cuota->save();
                 $alumnocuota            = new AlumnoCuota();
                 $alumnocuota->monto     = $total2;
                 $alumnocuota->alumno_id = $alumno->id;
@@ -304,7 +319,7 @@ class MensualidadController extends Controller
                     $movimiento->totalmaster       = $master;
                     $movimiento->total             = $total2;
                     $movimiento->igv               = 0;
-                    $movimiento->tipodocumento_id  = ($tipodocumento=="B"?1:2);
+                    $movimiento->tipodocumento_id  = NULL;
                     $movimiento->comentario        = "PAGO PARCIAL POR ".$cp." DE ALUMNO";
                     $movimiento->totalpagado       = $total2;
                     $movimiento->estado            = "P"; //PAGADO
@@ -330,54 +345,24 @@ class MensualidadController extends Controller
 
     public function destroy($id)
     {
-        $existe = Libreria::verificarExistencia($id, 'alumno_seccion');
+        $existe = Libreria::verificarExistencia($id, 'alumno_cuota');
         if ($existe !== true) {
             return $existe;
         }
         $error = DB::transaction(function() use($id){
             //BUSCO LA MATRÍCULA
-            $mensualidad = AlumnoSeccion::find($id);
-            //BUSCO LA CUOTA
-            $cuota         = Cuota::where("alumno_seccion_id", "=", $mensualidad->id)->first();
-            //BUSCO LOS DETALLES DE LA CUOTA
-            $alumnocuotas  = AlumnoCuota::where("cuota_id", "=", $cuota->id)->get();
-            //BUSCO EL MOVIMIENTO DE INGRESO A CAJA Y LA ANULO
-            $movimiento    = Movimiento::where("tipomovimiento_id", "=", 1)
-                            ->where("conceptopago_id", "=", 6)
-                            ->whereNull("tipodocumento_id")
-                            ->where("cuota_id", "=", $cuota->id)
-                            ->first();
-            if($movimiento!==NULL) {
-                $movimiento->estado = "A"; //ANULADO
-                $movimiento->save();
-            }           
-            //BUSCO EL DOCUMENTO DE VENTA Y LA ANULO
-            $movimientoventa    = Movimiento::where("tipomovimiento_id", "=", 8)
-                                ->where("conceptopago_id", "=", 6)
-                                ->whereIn("tipodocumento_id", [1, 2]) //BOLETA O FACTURA
-                                ->where("cuota_id", "=", $cuota->id)
-                                ->first();
-            if($movimientoventa!==NULL) {
-                $movimientoventa->estado = "A"; //ANULADO
-                $movimientoventa->save();
-            }                
-            //ELIMINO PRIMERO LOS DETALLES DE LA CUOTA SI EXISTIEREN
-            if(count($alumnocuotas)>0) {
-                foreach ($alumnocuotas as $ac) {
-                    $ac->delete();
-                }
-            }
-            //ELIMINO LA CUOTA DEL ALUMNO
-            $cuota->delete();
-            //ELIMINO LA MATRÍCULA
-            $mensualidad->delete();
+            $alumno_cuota    = AlumnoCuota::find($id);
+            $ingreso         = Movimiento::where("alumno_cuota_id", "=", $id)->first();
+            $ingreso->estado = "A"; //ANULAMOS INGRESO A CAJA
+            $ingreso->save();
+            $alumno_cuota->delete();
         });
         return is_null($error) ? "OK" : $error;
     }
 
     public function eliminar($id, $listarLuego, $adicional)
     {
-        $existe = Libreria::verificarExistencia($id, 'alumno_seccion');
+        $existe = Libreria::verificarExistencia($id, 'alumno_cuota');
         if ($existe !== true) {
             return $existe;
         }
@@ -386,8 +371,8 @@ class MensualidadController extends Controller
             $listar = $listarLuego;
         }
         $modelo   = AlumnoSeccion::find($id);
-        $entidad  = 'Mensualidad';
-        $formData = array('route' => array('mensualidad.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $entidad  = 'Mensualidad2';
+        $formData = array('route' => array('mensualidad.destroy', $id), 'method' => 'GET', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar', 'adicional'));
     }
@@ -419,14 +404,23 @@ class MensualidadController extends Controller
             if(count($cuotas) > 0) {
                 $contador = 1;
                 foreach ($cuotas as $cta) {
-                    $tabla .= '<tr id="tabPagos'.$cta->id.'">
-                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.$contador.'</td>
-                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($cta->created_at)).'</td>
-                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.number_format($cta->monto,2,'.','').'</td>
-                        <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">
-                            <button onclick="modal(\'http://localhost/facturacioncolegios/alumnoseccion/eliminar/'.$cta->id.'/SI/MATRICULA\', \'Eliminar Matrícula\', this);" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</button>
-                        </td>
-                    </tr>';
+                    if($cuota->estado == "C") {
+                        $tabla .= '<tr id="tabPagos'.$cta->id.'">
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.$contador.'</td>
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($cta->created_at)).'</td>
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.number_format($cta->monto,2,'.','').'</td>
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">-</td>
+                        </tr>';
+                    } else if($cuota->estado == "P") {
+                        $tabla .= '<tr id="tabPagos'.$cta->id.'">
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.$contador.'</td>
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.date("d-m-Y", strtotime($cta->created_at)).'</td>
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">'.number_format($cta->monto,2,'.','').'</td>
+                            <td style="padding:5px;margin:5px;font-size: 13px;" class="text-center">
+                                <button onclick="modal(\'mensualidad/eliminar/'.$cta->id.'/SI/TABLACUOTAS\', \'Eliminar Detalle de Cuota\', this);" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</button>
+                            </td>
+                        </tr>';
+                    }                        
                     $contador++;
                     $montopagado += $cta->monto;
                 }
@@ -606,32 +600,37 @@ class MensualidadController extends Controller
                             $movimiento->alumno_cuota_id   = $alumnocuota->id;
                             $movimiento->save();                
                             //CREO EL DOCUMENTO DE VENTA
-                            $movimientoventa                    = new Movimiento();
-                            $movimientoventa->fecha             = date("Y-m-d");
-                            $movimientoventa->numero            = Movimiento::numerosigue(8, 1, $local_id); //NÚMERO DE BOLETA QUE SIGUE
-                            $movimientoventa->persona_id        = $persona_id;
-                            $movimientoventa->serie             = $user->persona->local->serie;
-                            $movimientoventa->responsable_id    = $user->persona->id;
-                            $movimientoventa->tipomovimiento_id = 8; //VENTA
-                            $movimientoventa->conceptopago_id   = 7; //PAGO POR MENSUALIDAD
-                            $movimientoventa->total             = $total;
-                            $movimientoventa->igv               = 0;
-                            $movimientoventa->tipodocumento_id  = 1; //BOLETO
-                            $movimientoventa->comentario        = "GENERACIÓN AUTOMÁTICA DE BOLETA DE VENTA SIN PAGO";
-                            $movimientoventa->totalpagado       = 0.00;
-                            $movimientoventa->estado            = "D"; //DEUDA
-                            $movimientoventa->ruc               = $ruc;
-                            $movimientoventa->razon             = $razon;
-                            $movimientoventa->direccion         = $direccion;
-                            $movimientoventa->cuota_id          = $cuota->id;
-                            $movimientoventa->movimiento_id     = $movimiento->id;
-                            $movimientoventa->local_id          = $local_id;
-                            $movimientoventa->cicloacademico_id = $cicloacademico->id;
-                            $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
-                            $movimientoventa->save();
+                            if($monto_mensualidad > 0) {
+                                $movimientoventa                    = new Movimiento();
+                                $movimientoventa->fecha             = date("Y-m-d");
+                                $movimientoventa->numero            = Movimiento::numerosigue(8, 1, $local_id); //NÚMERO DE BOLETA QUE SIGUE
+                                $movimientoventa->persona_id        = $persona_id;
+                                $movimientoventa->serie             = $user->persona->local->serie;
+                                $movimientoventa->responsable_id    = $user->persona->id;
+                                $movimientoventa->tipomovimiento_id = 8; //VENTA
+                                $movimientoventa->conceptopago_id   = 7; //PAGO POR MENSUALIDAD
+                                $movimientoventa->total             = $total;
+                                $movimientoventa->igv               = 0;
+                                $movimientoventa->tipodocumento_id  = 1; //BOLETO
+                                $movimientoventa->comentario        = "GENERACIÓN AUTOMÁTICA DE BOLETA DE VENTA SIN PAGO";
+                                $movimientoventa->totalpagado       = 0.00;
+                                $movimientoventa->estado            = "D"; //DEUDA
+                                $movimientoventa->ruc               = $ruc;
+                                $movimientoventa->razon             = $razon;
+                                $movimientoventa->direccion         = $direccion;
+                                $movimientoventa->cuota_id          = $cuota->id;
+                                $movimientoventa->movimiento_id     = $movimiento->id;
+                                $movimientoventa->local_id          = $local_id;
+                                $movimientoventa->cicloacademico_id = $cicloacademico->id;
+                                $movimientoventa->alumno_cuota_id   = $alumnocuota->id;
+                                $movimientoventa->save();
 
-                            $movimiento->comentario             = "GENERACIÓN AUTOMÁTICA DE BOLETA DE VENTA SIN PAGO - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
-                            $movimiento->save();
+                                $movimiento->comentario             = "GENERACIÓN AUTOMÁTICA DE BOLETA DE VENTA SIN PAGO - ".$tipodocumento.$request->serie."-".$movimientoventa->numero;
+                                $movimiento->save();
+                            } else {
+                                $movimiento->comentario             = "GENERACIÓN AUTOMÁTICA DE PAGO, SIN GENERACIÓN DE DOCUMENTO DE VENTA POR MONTO 0.00 SOLES";
+                                $movimiento->save();
+                            }
                         }                        
                         #######################
                     }

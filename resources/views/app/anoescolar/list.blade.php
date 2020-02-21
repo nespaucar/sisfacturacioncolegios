@@ -54,9 +54,9 @@
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;">{{ $value->comentario }}</font></td>
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;">{{ $value->estado=="P"?"PAGADO":"ANULADO" }}</font></td>
 			@if($value->estado !== "A" && $value->tipomovimiento_id !== 5) {{-- LA APERTURA Y CIERRE NO SE PUEDEN ANULAR --}}
-				<td class="text-center" style="padding:5px;margin:5px;">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
+				{{--<td class="text-center" style="padding:5px;margin:5px;">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>--}}
 			@else
-				<td>-</td>
+				{{--<td>-</td>--}}
 			@endif
 			
 		</tr>

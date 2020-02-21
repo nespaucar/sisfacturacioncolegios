@@ -46,7 +46,29 @@ $nombrelocal           = mb_strtoupper($person->local->nombre);
 
                             {!! $menu2 !!}
 
-                            
+                            <div class="topbar-left">
+                                <div class="text-center">
+                                    <a href="#" onclick="cargarRutaMenu('alumno', 'container', '14');" class="logo"><i class="glyphicon glyphicon-user"></i> <span>ALUMNOS</span> </a>
+                                </div>
+                            </div>
+
+                            <div class="topbar-left">
+                                <div class="text-center">
+                                    <a href="#" onclick="cargarRutaMenu('apoderado', 'container', '14');" class="logo"><i class="glyphicon glyphicon-user"></i> <span>APODERADOS</span> </a>
+                                </div>
+                            </div>
+
+                            <div class="topbar-left">
+                                <div class="text-center">
+                                    <a href="#" onclick="cargarRutaMenu('alumnoseccion', 'container', '14');" class="logo"><i class="glyphicon glyphicon-expand"></i> <span>MATRICULA</span> </a>
+                                </div>
+                            </div>
+
+                            <div class="topbar-left">
+                                <div class="text-center">
+                                    <a href="#" onclick="cargarRutaMenu('mensualidad', 'container', '14');" class="logo"><i class="glyphicon glyphicon-expand"></i> <span>MENSUALIDAD</span> </a>
+                                </div>
+                            </div>
 
                             <ul class="nav navbar-nav navbar-right pull-right">
 

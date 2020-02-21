@@ -127,6 +127,7 @@ class LocalController extends Controller
             $local->serie2        = $request->input('serie2');
             $local->serie3        = $request->input('serie3');
             $local->nombre        = $request->input('nombre');
+            $local->ruc           = $request->input('ruc');
             $local->razonsocial   = $request->input('razonsocial');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;
@@ -253,6 +254,7 @@ class LocalController extends Controller
             $local->serie2        = $request->input('serie2');
             $local->serie3        = $request->input('serie3');
             $local->nombre        = $request->input('nombre');
+            $local->ruc           = $request->input('ruc');
             $local->razonsocial   = $request->input('razonsocial');
             $local->descripcion   = $request->input('descripcion');
             $local->local_id      = $local_id;

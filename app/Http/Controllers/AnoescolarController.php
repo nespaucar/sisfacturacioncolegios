@@ -63,7 +63,7 @@ class AnoescolarController extends Controller
         $cabecera[]       = array('valor' => 'Master', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Estado', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'X', 'numero' => '1');
+        //$cabecera[]       = array('valor' => 'X', 'numero' => '1');
 
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;

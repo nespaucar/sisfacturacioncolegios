@@ -21,6 +21,10 @@
 				setTimeout(function() {
 				    llenarTablaMatriculados('Curso');
 				}, 500);
+			@elseif($adicional == "TABLACUOTAS")
+				setTimeout(function() {
+				    llenarTablaPagos('Mensualidad');
+				}, 500);
 			@endif
 		@endif
 	}

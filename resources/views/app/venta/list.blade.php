@@ -30,8 +30,10 @@
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->responsable!==NULL?($value->responsable->apellidopaterno . " " . $value->responsable->apellidomaterno." ".$value->persona->nombres):"-" }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->conceptopago!==NULL?$value->conceptopago->nombre:"-" }}</td>
 			@if($value->estado !== "A" && $value->tipomovimiento_id !== 5) {{-- LA APERTURA Y CIERRE NO SE PUEDEN ANULAR --}}
+				<td class="text-center" style="padding:5px;margin:5px;">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => '#', 'class' => 'btn btn-xs btn-info')) !!}</td>
 				<td class="text-center" style="padding:5px;margin:5px;">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 			@else
+				<td>-</td>
 				<td>-</td>
 			@endif
 			

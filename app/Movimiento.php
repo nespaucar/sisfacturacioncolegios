@@ -27,12 +27,15 @@ class Movimiento extends Model
         ->orderBy('id', 'DESC');
     }
 
-    public function scopelistardocumentoventa($query, $fecha, $numero, $serie, $tipomovimiento_id, $tipodocumento_id, $estado, $local_id)
+    public function scopelistardocumentoventa($query, $fecha, $fecha2, $numero, $serie, $tipomovimiento_id, $tipodocumento_id, $estado, $local_id)
     {
-        return $query->where(function($subquery) use($fecha, $numero, $serie, $tipomovimiento_id, $tipodocumento_id, $estado, $local_id)
+        return $query->where(function($subquery) use($fecha, $fecha2, $numero, $serie, $tipomovimiento_id, $tipodocumento_id, $estado, $local_id)
         {
             if (!is_null($fecha)) {
-                $subquery->where('fecha', '=', $fecha);
+                $subquery->where('fecha', '>=', $fecha);
+            }
+            if (!is_null($fecha2)) {
+                $subquery->where('fecha', '<=', $fecha2);
             }
             if (!is_null($numero)) {
                 $subquery->where('numero', '=', $numero);
