@@ -10,6 +10,9 @@
 {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 <div class="form-group">
 	<div class="col-lg-6 col-md-6 col-sm-6">
+		<div class="form-group text-center">
+			{!! Form::label('ruc', 'INFORMACIÓN DE COLEGIO', array('class' => 'col-lg-12 col-md-12 col-sm-12 text-center', 'style' => 'color:green')) !!}
+		</div>
 		@if($usertype_id == 1)
 		<div class="form-group">
 			{!! Form::label('nuevo', 'Tipo Local (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
@@ -77,6 +80,25 @@
 		<div class="form-group">
 			<div class="col-md-9 col-sm-offset-2">
 				<div id="imagen_local" class="center-block"></div>
+			</div>
+		</div>
+		<hr>
+		<div class="form-group text-center">
+			{!! Form::label('dniusuario', 'INFORMACIÓN DE USUARIO', array('class' => 'col-lg-12 col-md-12 col-sm-12 text-center', 'style' => 'color:green')) !!}
+		</div>
+		<div class="form-group">
+			{!! Form::label('dniusuario', 'DNI de Usuario (*)', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label labelr')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
+				{!! Form::text('dniusuario', null, array('class' => 'form-control input-xs', 'id' => 'dniusuario', 'placeholder' => 'Ingrese dni de usuario', 'maxlength' => '8', 'onkeyup' => 'consultarDatosxDNI();')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('nombreusuario', 'Nombre de Usuario (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
+			<div class="col-lg-9 col-md-9 col-sm-9">
+				{!! Form::text('nombreusuario', null, array('class' => 'form-control input-xs', 'id' => 'nombreusuario', 'placeholder' => 'Ingrese nombre de usuario')) !!}
+				{!! Form::hidden('nombreu', null, array('id' => 'nombreu')) !!}
+				{!! Form::hidden('apellidopaternou', null, array('id' => 'apellidopaternou')) !!}
+				{!! Form::hidden('apellidomaternou', null, array('id' => 'apellidomaternou')) !!}
 			</div>
 		</div>
 	</div>
@@ -189,6 +211,36 @@
 		            }
 		        }
 		    });
+		}
+	}
+
+	function consultarDatosxDNI() {
+		//alert($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dni"]').val().length);
+		if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dniusuario"]').val().length == 8) {
+			var dni = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dniusuario"]').val();
+			var url = 'ReniecPHP/consulta_reniec.php';
+			$.ajax({
+				type:'POST',
+				url:url,
+				data:'dni='+dni,
+				beforeSend: function() {
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dniusuario"]').val("Cargando...");
+				},
+				success: function(datos_dni){
+					var datos = eval(datos_dni);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="dniusuario"]').val(dni);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreusuario"]').val("");
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="apellidopaternou"]').val("");
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="apellidomaternou"]').val("");
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreu"]').val("");
+					if(datos[2]!==null&&datos[3]!==null&&datos[1]!==null) {
+						$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreusuario"]').val(datos[2]+" "+datos[3]+" "+datos[1]);
+						$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="apellidopaternou"]').val(datos[2]);
+						$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="apellidomaternou"]').val(datos[3]);
+						$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreu"]').val(datos[1]);
+					}				
+				}
+			});
 		}
 	}
 </script>

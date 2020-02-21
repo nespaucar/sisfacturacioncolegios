@@ -19,7 +19,7 @@
         		$.Notification.autoHideNotify('success', 'top right', "¡ÉXITO!", 'Boletas registradas correctamente.');
         	},
         	error: function() {
-        		$.Notification.autoHideNotify('error', 'top right', "¡ERROR!", 'Hubo un problema al crear las boletas.');
+        		//$.Notification.autoHideNotify('error', 'top right', "¡ERROR!", 'Hubo un problema al crear las boletas.');
         	}
         });
     });

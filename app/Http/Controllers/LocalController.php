@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Validator;
+use Hash;
+use File;
 use App\Local;
 use App\Nivel;
 use App\Grado;
+use App\Usuario;
+use App\Persona;
 use App\Conceptopago;
 use App\Montoconceptopago;
 use App\Http\Requests;
@@ -110,6 +114,8 @@ class LocalController extends Controller
                 'serie3'      => 'required|numeric',
                 'ruc'         => 'required|digits:11|unique:local,ruc,NULL,id,deleted_at,NULL',
                 'nombre'      => 'required|max:80',
+                'nombreusuario' => 'required|max:80',
+                'dniusuario'  => 'required|digits:8',
                 'razonsocial' => 'required|max:120',
                 'descripcion' => 'max:100',
                 'tipo'        => 'required|size:1',
@@ -141,7 +147,38 @@ class LocalController extends Controller
             $local->logo          = "123";
             //$local->estado        = false;
             $local->save();
+
+            //CREAMOS A LA PERSONA DEL USUARIO
+            $administrador = new Persona();
+            if($request->nombreu!=="") {
+                $administrador->nombres = $request->nombreu;
+                $administrador->apellidopaterno = $request->apellidopaternou;
+                $administrador->apellidomaterno = $request->apellidomaternou;
+            } else {
+                $administrador->nombres = $request->nombreusuario;
+                $administrador->apellidopaterno = "";
+                $administrador->apellidomaterno = "";
+            }
+            $administrador->local_id = $local->id;
+            //$administrador->tipo = "A";
+            $administrador->dni = $request->dniusuario;
+            $administrador->save();
+
+            //CREAMOS AL USUARIO
+            $adminuser              = new Usuario();
+            $adminuser->login       = $local->ruc;
+            $adminuser->password    = Hash::make($local->ruc);
+            $adminuser->avatar      = "admin.jpg";
+            $adminuser->email       = "@";
+            $adminuser->state       = "H";
+            $adminuser->persona_id  = $administrador->id;
+            $adminuser->usertype_id = 4;//ADMINISTRADOR
+            $adminuser->save();               
+
             if($request->hasFile("logo")) {
+                if(file_exists(public_path() . "/../../html/colegios/logos/LOGO_" . $local->id . ".JPG")) {
+                    File::delete(public_path() . "/../../html/colegios/logos/LOGO_" . $local->id . ".JPG");
+                }
                 $archivo = $request->file("logo");
                 $archivo->move(public_path() . "/../../htdocs/facturacioncolegios/logos/", "LOGO_" . $local->id . ".JPG");
             }
@@ -262,6 +299,9 @@ class LocalController extends Controller
             $local->logo          = "123";
             $local->save();
             if($request->hasFile("logo")) {
+                if(file_exists(public_path() . "/../../html/colegios/logos/LOGO_" . $local->id . ".JPG")) {
+                    File::delete(public_path() . "/../../html/colegios/logos/LOGO_" . $local->id . ".JPG");
+                }
                 $archivo = $request->file("logo");
                 $archivo->move(public_path() . "/../../htdocs/facturacioncolegios/logos/", "LOGO_" . $local->id . ".JPG");
             }
