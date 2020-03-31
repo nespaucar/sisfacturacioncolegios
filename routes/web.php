@@ -129,6 +129,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('grado/anadirSeccion', 'GradoController@anadirSeccion')->name('grado.anadirSeccion');
     Route::get('grado/secciones', 'GradoController@secciones')->name('grado.secciones');
     Route::post('grado/eliminarSeccion', 'GradoController@eliminarSeccion')->name('grado.eliminarSeccion');
+    Route::post('grado/editarSeccion', 'GradoController@editarSeccion')->name('grado.editarSeccion');
     Route::post('grado/cargarNiveles', 'GradoController@cargarNiveles')->name('grado.cargarNiveles');
     Route::get('grado/eliminar/{id}/{listarluego}', 'GradoController@eliminar')->name('grado.eliminar');
     Route::get('grado/grados', 'GradoController@grados')->name('grado.grados');

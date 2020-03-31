@@ -9,7 +9,7 @@
 {!! Form::model($local, $formData) !!}	
 {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 <div class="form-group">
-	<div class="col-lg-6 col-md-6 col-sm-6">
+	<div class="col-lg-5 col-md-5 col-sm-5">
 		<div class="form-group text-center">
 			{!! Form::label('ruc', 'INFORMACIÓN DE COLEGIO', array('class' => 'col-lg-12 col-md-12 col-sm-12 text-center', 'style' => 'color:green')) !!}
 		</div>
@@ -64,7 +64,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-lg-6 col-md-6 col-sm-6">
+	<div class="col-lg-5 col-md-5 col-sm-5">
 		<div class="form-group">
 			{!! Form::label('tipo', 'Tipo (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
@@ -93,7 +93,7 @@
 			</div>
 		</div>
 		<div class="form-group">
-			{!! Form::label('nombreusuario', 'Nombre de Usuario (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
+			{!! Form::label('nombreusuario', 'Usuario (*)', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label labelr')) !!}
 			<div class="col-lg-9 col-md-9 col-sm-9">
 				{!! Form::text('nombreusuario', null, array('class' => 'form-control input-xs', 'id' => 'nombreusuario', 'placeholder' => 'Ingrese nombre de usuario')) !!}
 				{!! Form::hidden('nombreu', null, array('id' => 'nombreu')) !!}
@@ -101,6 +101,28 @@
 				{!! Form::hidden('apellidomaternou', null, array('id' => 'apellidomaternou')) !!}
 			</div>
 		</div>
+	</div>
+	<div class="col-lg-2 col-md-2 col-sm-2">
+		<div class="form-group text-center">
+			{!! Form::label('dniusuario', 'NIVELES', array('class' => 'col-lg-12 col-md-12 col-sm-12 text-center', 'style' => 'color:green')) !!}
+		</div>
+		@if($local==null)
+			<div class="form-group">
+				&nbsp;&nbsp;&nbsp;&nbsp;<input style="height: 17px; width: 17px;" checked="true" id="niv_0" name="niv_0" type="checkbox" value="1">&nbsp;&nbsp;&nbsp;<font style="font-size: 17px;">INICIAL</font>
+			</div> 
+			<div class="form-group">
+				&nbsp;&nbsp;&nbsp;&nbsp;<input style="height: 17px; width: 17px;" checked="true" id="niv_1" name="niv_1" type="checkbox" value="1">&nbsp;&nbsp;&nbsp;<font style="font-size: 17px;">PRIMARIA</font>
+			</div> 
+			<div class="form-group">
+				&nbsp;&nbsp;&nbsp;&nbsp;<input style="height: 17px; width: 17px;" checked="true" id="niv_2" name="niv_2" type="checkbox" value="1">&nbsp;&nbsp;&nbsp;<font style="font-size: 17px;">SECUNDARIA</font>
+			</div> 
+			<div class="form-group">
+				&nbsp;&nbsp;&nbsp;&nbsp;<input style="height: 17px; width: 17px;" checked="true" id="niv_3" name="niv_3" type="checkbox" value="1">&nbsp;&nbsp;&nbsp;<font style="font-size: 17px;">GENERAL</font>
+			</div> 
+		@else
+			<?php echo $infoNiveles; ?>
+		@endif
+			
 	</div>
 </div>
 		
@@ -113,7 +135,7 @@
 {!! Form::close() !!}
 <script type="text/javascript">
 	$(document).ready(function() {
-		configurarAnchoModal('1200');
+		configurarAnchoModal('1500');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 		@if($local!==null)
 			$("#imagen_local").html("<img height='200px' width='200px' class='img img-responsive center-block' src='{{ asset("logos/" . $local->logo) }}' />");

@@ -7,7 +7,7 @@
 					<div class="form-group">
 						{!! Form::label('dni', 'DNI (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
 						<div class="col-lg-4 col-md-4 col-sm-4">
-							{!! Form::text('dni', null, array('class' => 'form-control input-xs', 'id' => 'dni', 'placeholder' => 'Ingrese dni', 'maxlength' => '8', 'onkeyup' => 'consultarDatosxDNI();')) !!}
+							{!! Form::text('dni', null, array('class' => 'form-control input-xs', 'id' => 'dni', 'placeholder' => 'Ingrese dni', 'maxlength' => '8')) !!}
 						</div>
 					</div>
 					<div class="form-group">
@@ -29,7 +29,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						{!! Form::label('email', 'E-Mail (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('email', 'E-Mail', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-8 col-md-8 col-sm-8">
 							{!! Form::text('email', $correo, array('class' => 'form-control input-xs', 'id' => 'email', 'placeholder' => 'email@ejemplo.com')) !!}
 						</div>

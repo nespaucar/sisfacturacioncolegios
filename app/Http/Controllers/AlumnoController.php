@@ -173,7 +173,7 @@ class AlumnoController extends Controller
                     'nombres'         => 'required|max:100',
                     'apellidopaterno' => 'required|max:100',
                     'apellidomaterno' => 'required|max:100',
-                    'direccion'       => 'required|max:100',
+                    //'direccion'       => 'required|max:100',
                     'telefono'        => 'required|max:9',
                     'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
                 )
@@ -185,7 +185,7 @@ class AlumnoController extends Controller
                     'nombres'         => 'required|max:100',
                     'apellidopaterno' => 'required|max:100',
                     'apellidomaterno' => 'required|max:100',
-                    'direccion'       => 'required|max:100',
+                    //'direccion'       => 'required|max:100',
                     'telefono'        => 'required|max:9',
                     'email'           => 'required|email|unique:usuario,email,NULL,id,deleted_at,NULL',
                 )

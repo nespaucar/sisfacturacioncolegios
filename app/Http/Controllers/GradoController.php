@@ -8,6 +8,7 @@ use App\Local;
 use App\Nivel;
 use App\Grado;
 use App\Seccion;
+use App\AlumnoSeccion;
 use App\Http\Requests;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -250,27 +251,58 @@ class GradoController extends Controller
     }
 
     public function anadirSeccion(Request $request) {
+        $existe  = Seccion::where("descripcion", "=", $request->descripcion)->where("grado_id", "=", $request->par)->first();
         $retorno = "";
-        $seccion = new Seccion();
-        $seccion->descripcion = $request->descripcion;
-        $seccion->grado_id = $request->par;
-        $seccion->save();
+        if($existe == null) {
+            $seccion = new Seccion();
+            $seccion->descripcion = $request->descripcion;
+            $seccion->grado_id = $request->par;
+            $seccion->save();
 
-        $retorno = '<tr id="rowSeccion'.$seccion->id.'">
-                        <td class="text-center">'.$seccion->descripcion.'</td>
-                        <td class="text-center">
-                            <a class="btn btn-xs btn-danger" onclick="eliminarSeccion('.$seccion->id.')" href="#"><i class="fa fa-minus fa-xs"></i></a>
-                        </td>
-                    </tr>';
+            $retorno = '<tr id="rowSeccion'.$seccion->id.'">
+                            <td class="celdita text-center" onclick="editarSeccion('.$seccion->id.')">
+                                <div class="mostrarDescripcion show" id="mostrarDescripcion'.$seccion->id.'">
+                                    <font id="fontDescripcion'.$seccion->id.'">'.$seccion->descripcion.'</font><i class="boton glyphicon glyphicon-pencil"></i>
+                                </div>
+                                <div class="hide editarDescripcion" id="editarDescripcion'.$seccion->id.'">
+                                    <input class="form-control input-xs text-center" id="descripcion2'.$seccion->id.'" placeholder="Ingrese descripción" onkeypress="detectarScapeEnter('.$seccion->id.');" maxlength="100" onblur="reseteoTabla()" name="descripcion2'.$seccion->id.'" type="text" value="'.$seccion->descripcion.'">
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-xs btn-danger" onclick="eliminarSeccion('.$seccion->id.')" href="#">
+                                    <i class="fa fa-minus fa-xs"></i>
+                                </a>
+                            </td>
+                        </tr>';
+        } else {
+            $retorno = "KO";
+        }   
 
         echo $retorno;
     }
 
     public function eliminarSeccion(Request $request) {
-        $retorno = "";
-        $seccion = Seccion::find($request->par);
-        $seccion->delete();
+        //VERIFICAMOS SI HAY ALUMNOS MATRICULADOS AQUÍ
+        $am = AlumnoSeccion::where("seccion_id", "=", $request->par)->get();
+        if($am > 0) {
+            echo "KO";
+        } else {
+            $seccion = Seccion::find($request->par);
+            $seccion->delete();
+            echo "OK";
+        }            
+    }
 
-        echo "OK";
+    public function editarSeccion(Request $request) {
+        //VERIFICAMOS SI HAY OTRA SECCION CON EL MISMO NOMBRE
+        $seccion = Seccion::find($request->par);
+        $am = Seccion::where("descripcion", "=", $request->desc)->where("grado_id", "=", $seccion->grado_id)->where("id", "!=", $seccion->id)->first();
+        if($am == null) {
+            $seccion->descripcion = $request->desc;
+            $seccion->save();
+            echo "OK";
+        } else {
+            echo "KO";
+        }
     }
 }

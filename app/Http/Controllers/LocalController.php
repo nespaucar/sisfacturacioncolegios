@@ -100,7 +100,8 @@ class LocalController extends Controller
         $formData            = array('local.store');
         $formData            = array('route' => $formData, 'files' => true, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar'));
+        $infoNiveles         = "";
+        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar', 'infoNiveles'));
     }
 
     public function store(Request $request)
@@ -186,40 +187,42 @@ class LocalController extends Controller
             $local->save();
 
             //ARRAYS NECESARIOS
-            $arrayNiveles = array("INICIAL", "PRIMARIA", "SECUNDARIA");
+            $arrayNiveles = array("INICIAL", "PRIMARIA", "SECUNDARIA", "GENERAL");
             $arrayGrados = array("2 años", "3 años", "4 años", "5 años", "1ro", "2do", "3ro", "4to", "5to", "6to");
 
             //CREAMOS LOS NIVELES
-            for ($i=0; $i < 3; $i++) { 
-                $nivel = new Nivel();
-                $nivel->descripcion = $arrayNiveles[$i];
-                $nivel->local_id = $local->id;
-                $nivel->save();
-                switch ($i) {
-                    case 0:
-                        for ($a=0; $a < 4; $a++) { 
-                            $grado = new Grado();
-                            $grado->descripcion = $arrayGrados[$a];
-                            $grado->nivel_id = $nivel->id;
-                            $grado->save();
-                        }
-                        break;
-                    case 1:
-                        for ($a=4; $a < 10; $a++) { 
-                            $grado = new Grado();
-                            $grado->descripcion = $arrayGrados[$a];
-                            $grado->nivel_id = $nivel->id;
-                            $grado->save();
-                        }
-                        break;
-                    case 2:
-                        for ($a=4; $a < 9; $a++) { 
-                            $grado = new Grado();
-                            $grado->descripcion = $arrayGrados[$a];
-                            $grado->nivel_id = $nivel->id;
-                            $grado->save();
-                        }
-                        break;
+            for ($i=0; $i < 4; $i++) { 
+                if($request->input("niv_" . $i) == "1") {
+                    $nivel = new Nivel();
+                    $nivel->descripcion = $arrayNiveles[$i];
+                    $nivel->local_id = $local->id;
+                    $nivel->save();
+                    switch ($i) {
+                        case 0:
+                            for ($a=0; $a < 4; $a++) { 
+                                $grado = new Grado();
+                                $grado->descripcion = $arrayGrados[$a];
+                                $grado->nivel_id = $nivel->id;
+                                $grado->save();
+                            }
+                            break;
+                        case 1:
+                            for ($a=4; $a < 10; $a++) { 
+                                $grado = new Grado();
+                                $grado->descripcion = $arrayGrados[$a];
+                                $grado->nivel_id = $nivel->id;
+                                $grado->save();
+                            }
+                            break;
+                        case 2:
+                            for ($a=4; $a < 9; $a++) { 
+                                $grado = new Grado();
+                                $grado->descripcion = $arrayGrados[$a];
+                                $grado->nivel_id = $nivel->id;
+                                $grado->save();
+                            }
+                            break;
+                    }
                 }
             }
             //CREAMOS LOS MONTOS CONCEPTOS DE PAGO
@@ -258,7 +261,15 @@ class LocalController extends Controller
         $formData = array('local.update', $id);
         $formData = array('route' => $formData, 'files' => true, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar'));
+        //OBTENGO NIVELES
+        $infoNiveles = "";
+        $niveles      = Nivel::where("local_id", "=", $id)->get();
+        foreach ($niveles as $ni) {
+            $infoNiveles .= '<div class="form-group">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-   <font style="font-size: 17px;">' . $ni->descripcion . '</font>
+                </div>';
+        }
+        return view($this->folderview.'.mant')->with(compact('local', 'formData', 'entidad', 'boton', 'listar', 'infoNiveles'));
     }
 
     public function update(Request $request, $id)
