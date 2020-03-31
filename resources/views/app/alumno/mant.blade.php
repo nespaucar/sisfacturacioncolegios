@@ -5,7 +5,7 @@
 			<div class="form-group">
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					<div class="form-group">
-						{!! Form::label('dni', 'DNI (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('dni', 'DNI', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-4 col-md-4 col-sm-4">
 							{!! Form::text('dni', null, array('class' => 'form-control input-xs', 'id' => 'dni', 'placeholder' => 'Ingrese dni', 'maxlength' => '8')) !!}
 						</div>

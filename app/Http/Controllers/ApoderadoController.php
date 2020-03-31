@@ -1,4 +1,4 @@
-<?php
+nullable|<?php
 
 namespace App\Http\Controllers;
 
@@ -104,13 +104,13 @@ class ApoderadoController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $validacion = Validator::make($request->all(),
             array(
-                'dni'             => 'required|size:8|unique:persona,dni,NULL,id,deleted_at,NULL',
+                'dni'             => 'nullable|size:8|unique:persona,dni,NULL,id,deleted_at,NULL',
                 'nombres'  		  => 'required|max:100',
-                'apellidopaterno' => 'required|max:100',
-                'apellidomaterno' => 'required|max:100',
-                //'direccion'       => 'required|max:100',
-                'telefono'        => 'required|max:9',
-                'email'           => 'required|email|unique:usuario,email,NULL,id,deleted_at,NULL',
+                'apellidopaterno' => 'nullable|max:100',
+                'apellidomaterno' => 'nullable|max:100',
+                'direccion'       => 'nullable|max:100',
+                'telefono'        => 'nullable|max:9',
+                'email'           => 'nullable|email|unique:usuario,email,NULL,id,deleted_at,NULL',
             )
         );
         if ($validacion->fails()) {
@@ -120,7 +120,7 @@ class ApoderadoController extends Controller
             $user                       = Auth::user();
             $local_id                   = $user->persona->local_id;
             $apoderado                  = new Persona();
-            $apoderado->dni             = $request->input('dni');
+            $apoderado->dni             = $request->input('dni')==""?NULL:$request->input('dni');
             $apoderado->nombres         = $request->input('nombres');
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
             $apoderado->apellidomaterno = $request->input('apellidomaterno');
@@ -185,14 +185,13 @@ class ApoderadoController extends Controller
         $usuario = Usuario::where("persona_id", "=", $id)->first();
         $validacion = Validator::make($request->all(),
             array(
-                'dni'             => 'required|size:8|unique:persona,dni,'.$id.',id,deleted_at,NULL',
+                'dni'             => 'nullable|size:8|unique:persona,dni,'.$id.',id,deleted_at,NULL',
                 'nombres'  		  => 'required|max:100',
-                'apellidopaterno' => 'required|max:100',
-                'apellidomaterno' => 'required|max:100',
-                //'direccion'       => 'required|max:100',
-                'fechanacimiento' => 'required|date',
-                'telefono'        => 'required|max:9',
-                'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
+                'apellidopaterno' => 'nullable|max:100',
+                'apellidomaterno' => 'nullable|max:100',
+                'direccion'       => 'nullable|max:100',
+                'telefono'        => 'nullable|max:9',
+                'email'           => 'nullable|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
             )
         );
         if ($validacion->fails()) {
@@ -202,7 +201,7 @@ class ApoderadoController extends Controller
             $user                       = Auth::user();
             $local_id                   = $user->persona->local_id;
             $apoderado                  = Persona::find($id);
-            $apoderado->dni             = $request->input('dni');
+            $apoderado->dni             = $request->input('dni')==""?NULL:$request->input('dni');
             $apoderado->nombres         = $request->input('nombres');
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
             $apoderado->apellidomaterno = $request->input('apellidomaterno');

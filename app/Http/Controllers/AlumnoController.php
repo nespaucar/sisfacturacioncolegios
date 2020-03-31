@@ -103,13 +103,13 @@ class AlumnoController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $validacion = Validator::make($request->all(),
             array(
-                'dni'             => 'required|digits:8|unique:persona,dni,NULL,id,deleted_at,NULL',
+                'dni'             => 'nullable|digits:8|unique:persona,dni,NULL,id,deleted_at,NULL',
                 'nombres'  		  => 'required|max:100',
                 'apellidopaterno' => 'required|max:100',
                 'apellidomaterno' => 'required|max:100',
-                'direccion'       => 'max:100',
-                'telefono'        => 'max:9',
-                'email'           => 'email|unique:usuario,email,NULL,id,deleted_at,NULL',
+                'direccion'       => 'nullable|max:100',
+                'telefono'        => 'nullable|max:9',
+                'email'           => 'nullable|email|unique:usuario,email,NULL,id,deleted_at,NULL',
             )
         );
         if ($validacion->fails()) {
@@ -119,7 +119,7 @@ class AlumnoController extends Controller
             $user                    = Auth::user();
             $local_id                = $user->persona->local_id;
             $alumno                  = new Persona();
-            $alumno->dni             = $request->input('dni');
+            $alumno->dni             = $request->input('dni')==""?NULL:$request->input('dni');
             $alumno->nombres         = $request->input('nombres');
             $alumno->apellidopaterno = $request->input('apellidopaterno');
             $alumno->apellidomaterno = $request->input('apellidomaterno');
@@ -169,25 +169,25 @@ class AlumnoController extends Controller
             $usuario = Usuario::where("persona_id", "=", $request->apoderado_id)->first();
             $validacion = Validator::make($request->all(),
                 array(
-                    'dni'             => 'required|digits:8|unique:persona,dni,'.$request->apoderado_id.',id,deleted_at,NULL',
+                    'dni'             => 'nullable|digits:8|unique:persona,dni,'.$request->apoderado_id.',id,deleted_at,NULL',
                     'nombres'         => 'required|max:100',
-                    'apellidopaterno' => 'required|max:100',
-                    'apellidomaterno' => 'required|max:100',
-                    //'direccion'       => 'required|max:100',
-                    'telefono'        => 'required|max:9',
-                    'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
+                    'apellidopaterno' => 'nullable|max:100',
+                    'apellidomaterno' => 'nullable|max:100',
+                    'direccion'       => 'nullable|max:100',
+                    'telefono'        => 'nullable|max:9',
+                    'email'           => 'nullable|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
                 )
             );
         } else {
             $validacion = Validator::make($request->all(),
                 array(
-                    'dni'             => 'required|digits:8|unique:persona,dni,NULL,id,deleted_at,NULL',
+                    'dni'             => 'nullable|digits:8|unique:persona,dni,NULL,id,deleted_at,NULL',
                     'nombres'         => 'required|max:100',
-                    'apellidopaterno' => 'required|max:100',
-                    'apellidomaterno' => 'required|max:100',
-                    //'direccion'       => 'required|max:100',
-                    'telefono'        => 'required|max:9',
-                    'email'           => 'required|email|unique:usuario,email,NULL,id,deleted_at,NULL',
+                    'apellidopaterno' => 'nullable|max:100',
+                    'apellidomaterno' => 'nullable|max:100',
+                    'direccion'       => 'nullable|max:100',
+                    'telefono'        => 'nullable|max:9',
+                    'email'           => 'nullable|email|unique:usuario,email,NULL,id,deleted_at,NULL',
                 )
             );
         }            
@@ -202,7 +202,7 @@ class AlumnoController extends Controller
             }
             $user                       = Auth::user();
             $local_id                   = $user->persona->local_id;
-            $apoderado->dni             = $request->input('dni');
+            $apoderado->dni             = $request->input('dni')==""?NULL:$request->input('dni');
             $apoderado->nombres         = $request->input('nombres');
             $apoderado->apellidopaterno = $request->input('apellidopaterno');
             $apoderado->apellidomaterno = $request->input('apellidomaterno');
@@ -279,13 +279,13 @@ class AlumnoController extends Controller
         $usuario = Usuario::where("persona_id", "=", $id)->first();
         $validacion = Validator::make($request->all(),
             array(
-                'dni'             => 'required|size:8|unique:persona,dni,'.$id.',id,deleted_at,NULL',
+                'dni'             => 'nullable|size:8|unique:persona,dni,'.$id.',id,deleted_at,NULL',
                 'nombres'  		  => 'required|max:100',
                 'apellidopaterno' => 'required|max:100',
                 'apellidomaterno' => 'required|max:100',
-                'direccion'       => 'max:100',
-                'telefono'        => 'max:9',
-                'email'           => 'required|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
+                'direccion'       => 'nullable|max:100',
+                'telefono'        => 'nullable|max:9',
+                'email'           => 'nullable|email|unique:usuario,email,'.$usuario->id.',id,deleted_at,NULL',
             )
         );
         if ($validacion->fails()) {
@@ -295,7 +295,7 @@ class AlumnoController extends Controller
             $user                    = Auth::user();
             $local_id                = $user->persona->local_id;
             $alumno                  = Persona::find($id);
-            $alumno->dni             = $request->input('dni');
+            $alumno->dni             = $request->input('dni')==""?NULL:$request->input('dni');
             $alumno->nombres         = $request->input('nombres');
             $alumno->apellidopaterno = $request->input('apellidopaterno');
             $alumno->apellidomaterno = $request->input('apellidomaterno');

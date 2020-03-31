@@ -5,7 +5,7 @@
 			<div class="form-group">
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					<div class="form-group">
-						{!! Form::label('dni', 'DNI (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('dni', 'DNI', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-4 col-md-4 col-sm-4">
 							{!! Form::text('dni', null, array('class' => 'form-control input-xs', 'id' => 'dni', 'placeholder' => 'Ingrese dni', 'maxlength' => '8', 'onkeyup' => 'consultarDatosxDNI();')) !!}
 						</div>
@@ -17,25 +17,25 @@
 						</div>
 					</div>
 					<div class="form-group">
-						{!! Form::label('apellidopaterno', 'Apellido Paterno (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('apellidopaterno', 'Apellido Paterno', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-8 col-md-8 col-sm-8">
 							{!! Form::text('apellidopaterno', null, array('class' => 'form-control input-xs', 'id' => 'apellidopaterno', 'placeholder' => 'Ingrese apellido paterno')) !!}
 						</div>
 					</div>
 					<div class="form-group">
-						{!! Form::label('apellidomaterno', 'Apellido Materno (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('apellidomaterno', 'Apellido Materno', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-8 col-md-8 col-sm-8">
 							{!! Form::text('apellidomaterno', null, array('class' => 'form-control input-xs', 'id' => 'apellidomaterno', 'placeholder' => 'Ingrese apellido materno')) !!}
 						</div>
 					</div>
 					<div class="form-group">
-						{!! Form::label('telefono', 'Teléfono (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('telefono', 'Teléfono', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-4 col-md-4 col-sm-4">
 							{!! Form::text('telefono', null, array('class' => 'form-control input-xs input-number', 'id' => 'telefono', 'placeholder' => 'Ingrese teléfono','maxlength' => '9')) !!}
 						</div>
 					</div>
 					<div class="form-group">
-						{!! Form::label('email', 'E-Mail (*)', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label labelr')) !!}
+						{!! Form::label('email', 'E-Mail', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 						<div class="col-lg-8 col-md-8 col-sm-8">
 							{!! Form::text('email', $correo, array('class' => 'form-control input-xs', 'id' => 'email', 'placeholder' => 'email@ejemplo.com')) !!}
 						</div>
