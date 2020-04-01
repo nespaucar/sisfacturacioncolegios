@@ -11,7 +11,9 @@ use App\Movimiento;
 use App\Nivel;
 use App\Cicloacademico;
 use App\Conceptopago;
+use App\Configuracionpago;
 use App\Persona;
+use App\Montoconceptopago;
 use App\Cuota;
 use App\Seccion;
 use App\Grado;
@@ -312,7 +314,45 @@ class AlumnoSeccionController extends Controller
                             ->first();
         $matricula         = AlumnoSeccion::where("alumno_id", "=", $alumno_id)
                                         ->where("cicloacademico_id", "=", $cicloacademico->id)->first();
-        return ($matricula==NULL?"N":"S");
+
+        $cpago = Conceptopago::find(6);
+        $monto_matricula = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+            ->where("local_id", "=", $local_id)
+            ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRICULA
+
+        $configuracionpago1 = Configuracionpago::where("alumno_id", "=", $alumno_id)->first();
+
+        if($matricula !== null) {
+            //Buscamos la configuración de pago de matricula para el alumno
+            $configuracionpago2 = Configuracionpago::where("seccion_id", "=", $matricula->seccion_id)->first();
+            $configuracionpago3 = Configuracionpago::where("grado_id", "=", $matricula->seccion->grado_id)->first();
+            $configuracionpago4 = Configuracionpago::where("nivel_id", "=", $matricula->seccion->grado->nivel_id)->first();            
+            if($configuracionpago1!==NULL) {
+                $monto_matricula = $configuracionpago1->montom."";
+            } else {
+                if($configuracionpago2!==NULL) {
+                    $monto_matricula = $configuracionpago2->montom."";
+                } else {
+                    if($configuracionpago3!==NULL) {
+                        $monto_matricula = $configuracionpago3->montom."";
+                    } else {
+                        if($configuracionpago4!==NULL) {
+                            $monto_matricula = $configuracionpago4->montom."";
+                        }
+                    }
+                }
+            }
+        } else {
+            //Buscamos la configuración de pago de matricula para el alumno
+            if($configuracionpago1!==NULL) {
+                $monto_matricula = $configuracionpago1->montom."";
+            }
+        }
+        $arrayjson = array(
+            'monto_matricula' => number_format($monto_matricula, 2, '.', ''), 
+            'matricula'       => ($matricula==NULL?"N":"S"), 
+        );
+        return json_encode($arrayjson);
     }
 
     public function llenarTablaMatriculados(Request $request) {

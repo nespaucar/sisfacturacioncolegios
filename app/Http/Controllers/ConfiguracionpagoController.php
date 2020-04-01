@@ -72,7 +72,8 @@ class ConfiguracionpagoController extends Controller
         $cabecera[]       = array('valor' => 'Aplicado a', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Descripción', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Frecuencia', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Monto', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto matricula', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto mensual', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Unidad', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
 
@@ -120,6 +121,7 @@ class ConfiguracionpagoController extends Controller
                 'tipo'       => 'required|max:1',
                 'alumno'     => 'nullable|max:100',
                 'monto'      => 'required|numeric',
+                'montom'     => 'required|numeric',
                 'nivel'      => 'nullable|max:100',
                 'grado'      => 'nullable|max:100',
                 'seccion'    => 'nullable|max:100',
@@ -163,7 +165,8 @@ class ConfiguracionpagoController extends Controller
             }
             $configuracionpago->frecuencia = "M";//MENSUAL
             $configuracionpago->unidad   = "S";//SOLES
-            $configuracionpago->monto   = $request->monto;//SOLES
+            $configuracionpago->monto    = $request->monto;//SOLES
+            $configuracionpago->montom   = $request->montom;//SOLES
             $configuracionpago->local_id = $local_id;
             $configuracionpago->save();
         });
@@ -200,6 +203,7 @@ class ConfiguracionpagoController extends Controller
             array(
                 'tipo'       => 'required|max:1',
                 'monto'      => 'required|numeric',
+                'montom'     => 'required|numeric',
                 'alumno'     => 'nullable|max:100',
                 'nivel'      => 'nullable|max:100',
                 'grado'      => 'nullable|max:100',
@@ -245,6 +249,7 @@ class ConfiguracionpagoController extends Controller
             $configuracionpago->frecuencia = "M";//MENSUAL
             $configuracionpago->unidad   = "S";//SOLES
             $configuracionpago->monto   = $request->monto;//SOLES
+            $configuracionpago->montom   = $request->montom;//SOLES
             $configuracionpago->local_id = $local_id;
             $configuracionpago->save();
         });

@@ -21,6 +21,7 @@
 			<td>{{ $value->alumno_id!==NULL?"ALUMNO":($value->nivel_id!==NULL?"NIVEL":($value->grado_id!==NULL?"GRADO":($value->seccion_id!==NULL?"SECCION":""))) }}</td>
 			<td>{{ $value->descripcion }}</td>
 			<td>{{ $value->frecuencia=="M"?"MENSUAL":"-" }}</td>
+			<td>{{ $value->montom }}</td>
 			<td>{{ $value->monto }}</td>
 			<td>{{ $value->unidad=="S"?"SOLES":"-" }}</td>
 			<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>

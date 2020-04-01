@@ -16,6 +16,7 @@ $entidad0_id3 = "";
 $descripcion4 = "";
 $entidad0_id4 = "";
 $monto = "";
+$montom = "";
 if($configuracionpago!==NULL) {
 	if($configuracionpago->alumno_id!==NULL) {
 		$entidad0 = Persona::find($configuracionpago->alumno_id);
@@ -47,6 +48,7 @@ if($configuracionpago!==NULL) {
 		$tipo = 4;
 	}
 	$monto = $configuracionpago->monto;
+	$montom = $configuracionpago->montom;
 }
 
 ?>
@@ -94,6 +96,12 @@ if($configuracionpago!==NULL) {
 		</div>
 	</div>
 	<div class="form-group">
+		{!! Form::label('montom', 'Matricula:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+		<div class="col-lg-3 col-md-3 col-sm-3">
+			{!! Form::text('montom', $montom, array('class' => 'form-control input-xs', 'id' => 'montom')) !!}
+		</div>
+	</div>
+	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
 			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarConfiguracionpago(\''.$entidad.'\', this)')) !!}
 			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
@@ -113,6 +121,7 @@ if($configuracionpago!==NULL) {
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').focus();
 		$(".twitter-typeahead").prop("style", ""); //PARA QUITAR ESTILO A TYPEAHEAD
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="monto"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montom"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 	});
 
 	function cambiarTabla(val) {

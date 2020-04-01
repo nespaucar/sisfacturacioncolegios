@@ -153,10 +153,27 @@ class MensualidadController extends Controller
         }
         if($request->listar==1) {
             $cpago             = Conceptopago::find(6);
-            $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
-                ->where("local_id", "=", $local_id)
-                ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
+            if($configuracionpago1!==NULL) {
+                $monto_mensualidad = $configuracionpago1->montom."";
+            } else {
+                if($configuracionpago2!==NULL) {
+                    $monto_mensualidad = $configuracionpago2->montom."";
+                } else {
+                    if($configuracionpago3!==NULL) {
+                        $monto_mensualidad = $configuracionpago3->montom."";
+                    } else {
+                        if($configuracionpago4!==NULL) {
+                            $monto_mensualidad = $configuracionpago4->montom."";
+                        } else {
+                            $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                                ->where("local_id", "=", $local_id)
+                                ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
+                        }
+                    }
+                }
+            }
         }
+        $monto_mensualidad  = number_format($monto_mensualidad, 2, '.', '');
         $listar             = 'NO';
         $title              = $this->tituloAdmin;
         $ruta               = $this->rutas;
@@ -688,9 +705,25 @@ class MensualidadController extends Controller
         }
         if($request->listar==1) {
             $cpago             = Conceptopago::find(6);
-            $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
-                ->where("local_id", "=", $local_id)
-                ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MATRÍCULA
+            if($configuracionpago1!==NULL) {
+                $monto_mensualidad = $configuracionpago1->montom."";
+            } else {
+                if($configuracionpago2!==NULL) {
+                    $monto_mensualidad = $configuracionpago2->montom."";
+                } else {
+                    if($configuracionpago3!==NULL) {
+                        $monto_mensualidad = $configuracionpago3->montom."";
+                    } else {
+                        if($configuracionpago4!==NULL) {
+                            $monto_mensualidad = $configuracionpago4->montom."";
+                        } else {
+                            $monto_mensualidad = Montoconceptopago::where("conceptopago_id", "=", $cpago->id)
+                                ->where("local_id", "=", $local_id)
+                                ->first()->monto; //BUSCO EL CONCEPTO DE PAGO PARA LA MENSUALIDAD
+                        }
+                    }
+                }
+            }
         }
         $listar             = 'NO';
         $title              = $this->tituloAdmin;

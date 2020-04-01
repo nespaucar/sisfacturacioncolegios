@@ -472,12 +472,16 @@
 	function comprobarSiAlumnoEstaMatriculado(alumno_id, anoescolar, dni, value) {
 		$.ajax({
 			url : "alumnoseccion/comprobarSiAlumnoEstaMatriculado?alumno_id="+alumno_id+"&anoescolar="+anoescolar,
-			type: "GET"
+			type: "GET",
+			dataType: "JSON",
 		}).done(function(msg) {
-			if(msg == "N") {
+			alert(msg.matricula);
+			if(msg.matricula == "N") {
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val(alumno_id);
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="alumno"]').val(dni+" - "+value);
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="efectivo"]').focus();
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val(msg.monto_matricula);
+				calcularTotalPago();
 			} else {
 				$.Notification.autoHideNotify('error', 'top right', "¡CUIDADO!",'Este alumno ya está matriculado.');
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="persona_id"]').val("");
