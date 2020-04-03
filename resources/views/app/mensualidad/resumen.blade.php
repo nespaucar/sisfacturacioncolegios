@@ -145,8 +145,9 @@
 			        			->where("cicloacademico_id", "=", $alumnoseccion->cicloacademico_id)
 			        			->first();
 			        		if($movimientoventa !== NULL) {
-			        			$documento_venta = "GENERADA ".($movimientoventa->tipodocumento_id==1?"B":"F").($movimientoventa->tipodocumento_id==1?$user->persona->local->serie:$user->persona->local->serie2)."-".$movimientoventa->numero;
-			        			$situacion_final  = "PAGADO";
+			        			$documento_venta = "<i class='fa fa-check'></i> ".($movimientoventa->tipodocumento_id==1?"B":"F").($movimientoventa->tipodocumento_id==1?str_pad($user->persona->local->serie,4,'0',STR_PAD_LEFT):str_pad($user->persona->local->serie2,4,'0',STR_PAD_LEFT))."-".str_pad($movimientoventa->numero,5,'0',STR_PAD_LEFT);
+			        			$situacion_final  = $movimientoventa=="P"?"CANCELADO":"DEBE";
+			        			$situacion_color  = $movimientoventa=="D"?"green":"red";
 			        		}
 				        	if($cuota->estado=="C") {
 				        		$situacion_final  = "CANCELADO";
@@ -169,7 +170,7 @@
 									<h5>{{number_format($monto_mensualidad,2,'.','')}}</h5>
 									<h5>{{number_format($monto_pagado,2,'.','')}}</h5>
 									<h5>{{number_format(($monto_mensualidad-$monto_pagado),2,'.','')}}</h5>
-									<h5>{{$documento_venta}}</h5>
+									<h5><?php echo $documento_venta; ?></h5>
 									<h5 style="color:{{$situacion_color}};">{{$situacion_final}}</h5>
 								</div>
 							</div>

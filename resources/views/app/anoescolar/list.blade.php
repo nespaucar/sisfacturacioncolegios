@@ -44,7 +44,7 @@
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ str_pad($value->numero,8,'0',STR_PAD_LEFT) }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ date("d-m-Y", strtotime($value->fecha)) }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->persona!==NULL?($value->persona->apellidopaterno . " " . $value->persona->apellidomaterno." ".$value->persona->nombres):"-" }}</td>
-			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->responsable!==NULL?($value->responsable->apellidopaterno . " " . $value->responsable->apellidomaterno." ".$value->persona->nombres):"-" }}</td>
+			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->responsable!==NULL?($value->responsable->apellidopaterno . " " . $value->responsable->apellidomaterno." ".$value->responsable->nombres):"-" }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->conceptopago!==NULL?$value->conceptopago->nombre:"-" }}</td>
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;color:green;font-weight: bold;">{{ $value->conceptopago!==NULL?($value->conceptopago->tipo=="I"?$value->total:""):"" }}</font></td>
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;color:green;font-weight: bold;">{{ $value->conceptopago!==NULL?($value->conceptopago->tipo=="I"?"":$value->total):"" }}</font></td>

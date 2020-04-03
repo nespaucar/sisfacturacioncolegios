@@ -17,17 +17,17 @@
 		$contador = $inicio + 1;
 		?>
 		@foreach ($lista as $key => $value)
-		<tr @if($value['estado'] == "A") style="color: red;" title="ANULADO" @endif>
+		<tr @if($value['estado'] == "A") style="color: red;" title="ANULADO" @elseif($value['estado'] == "D") title="DEBE" @endif>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $contador }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ date("d-m-Y", strtotime($value->fecha)) }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->tipodocumento_id==1?"BOLETA":"FACTURA" }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ str_pad($value->serie,5,'0',STR_PAD_LEFT)."-".str_pad($value->numero,8,'0',STR_PAD_LEFT) }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->persona!==NULL?($value->persona->apellidopaterno . " " . $value->persona->apellidomaterno." ".$value->persona->nombres):"-" }}</td>
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;">{{ number_format($value->total,2,'.','') }}</font></td>
-			<td style="padding:5px;margin:5px;"><font style="font-size:13px; font-weight: bold; @if($value['estado'] == "P") color: green; @else color: red; @endif">{{ $value['estado'] == "P"?"PAGADO":"ANULADO" }}</font></td>
+			<td style="padding:5px;margin:5px;"><font style="font-size:13px; font-weight: bold; @if($value['estado'] == "P") color: green; @elseif($value['estado'] == "D") color: orange; @elseif($value['estado'] == "A") color: red; @endif">{{ $value['estado'] == "P"?"PAGADO":($value['estado'] == "D"?"DEBE":"ANULADO") }}</font></td>
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;">-</font></td>
 			<td style="padding:5px;margin:5px;"><font style="font-size:13px;">-</font></td>
-			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->responsable!==NULL?($value->responsable->apellidopaterno . " " . $value->responsable->apellidomaterno." ".$value->persona->nombres):"-" }}</td>
+			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->responsable!==NULL?($value->responsable->apellidopaterno . " " . $value->responsable->apellidomaterno." ".$value->responsable->nombres):"-" }}</td>
 			<td style="padding:5px;margin:5px;font-size:13px;">{{ $value->conceptopago!==NULL?$value->conceptopago->nombre:"-" }}</td>
 			@if($value->estado !== "A" && $value->tipomovimiento_id !== 5) {{-- LA APERTURA Y CIERRE NO SE PUEDEN ANULAR --}}
 				<td class="text-center" style="padding:5px;margin:5px;">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => '#', 'class' => 'btn btn-xs btn-info')) !!}</td>

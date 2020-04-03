@@ -11,7 +11,7 @@
 @include('principal.footer_end')
 
 <script>
-    $(document).ready(function() {
+    /*$(document).ready(function() {
         $.ajax({
         	url: "mensualidad/envioBoletas",
         	method: "GET",
@@ -22,5 +22,5 @@
         		//$.Notification.autoHideNotify('error', 'top right', "¡ERROR!", 'Hubo un problema al crear las boletas.');
         	}
         });
-    });
+    });*/
 </script>

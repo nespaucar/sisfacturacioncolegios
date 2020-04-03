@@ -20,6 +20,8 @@ Route::group(['middleware' => 'guest'], function() {
     Route::post('registro', 'Auth\RegisterController@register');
 });
 
+Route::get('mensualidad/envioBoletas', 'MensualidadController@envioBoletas')->name('mensualidad.envioBoletas');
+
 Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/', function(){
@@ -207,7 +209,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('mensualidad/realizarPago', 'MensualidadController@realizarPago')->name('mensualidad.realizarPago');
     Route::post('mensualidad/llenarTablaPagos', 'MensualidadController@llenarTablaPagos')->name('mensualidad.llenarTablaPagos');
     Route::get('mensualidad/eliminar/{id}/{listarluego}/{adicional}', 'MensualidadController@eliminar')->name('mensualidad.eliminar');
-    Route::get('mensualidad/envioBoletas', 'MensualidadController@envioBoletas')->name('mensualidad.envioBoletas');
     Route::get('mensualidad/resumen', 'MensualidadController@resumen')->name('mensualidad.resumen');
     Route::post('mensualidad/confirmarchecktodo', 'MensualidadController@confirmarchecktodo')->name('mensualidad.confirmarchecktodo');
     Route::get('mensualidad/checktodo', 'MensualidadController@checktodo')->name('mensualidad.checktodo');
