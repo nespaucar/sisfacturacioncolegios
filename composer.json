@@ -24,11 +24,16 @@
     },
     "autoload": {
         "classmap": [
-            "database"
+            "database",
+            "database/seeds",
+            "database/factories"
         ],
         "psr-4": {
             "App\\": "app/"
-        }
+        },
+        "files": [
+            "utils/Twilio.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

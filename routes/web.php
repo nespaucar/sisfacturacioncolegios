@@ -1,11 +1,39 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
+use Utils\Twilio;
 
 Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout');
 Route::get('logout', 'Auth\LoginController@logout');
+
+//mensajes
+Route::get('/enviarMensajeTexto', function () {
+    $from = '+17403950997';
+    $to   = '+51922179451';
+    $body = 'Hello!';
+    $twilio = new Twilio;
+    try {
+        return $twilio->sendSMS($from, $body, $to);
+    } catch (\Throwable $th) {
+        dd($th);
+    }
+   
+});
+
+Route::get('/whatsapp', function () {
+    $from = '+14155238886';
+    $to   = '+51922179451';
+    $body = 'Hello! From Laravel Application';
+    $twilio = new Twilio;
+    try {
+        return $twilio->sendWhatsAppSMS($from, $to, $body);
+    } catch (\Throwable $th) {
+        dd($th);
+    }
+   
+});
 
 //other routes
 
